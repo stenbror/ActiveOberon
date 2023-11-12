@@ -141,7 +141,8 @@ namespace ActiveOberon::Compiler
     class ActiveOberonScanner
     {
         private:
-            char32_t *pBufferStart, *p;
+            unsigned int m_index;
+            std::u32string m_source;
             u32sstream m_buffer;
 
             const std::map<std::basic_string<char32_t>, Symbols> m_keywords = {
@@ -197,13 +198,15 @@ namespace ActiveOberon::Compiler
             };
 
         public:
-            ActiveOberonScanner();
+            ActiveOberonScanner(std::u32string source);
             ~ActiveOberonScanner();
             Token get_symbol();
-            std::u32string get_identifier() { return m_buffer.str(); };
+            std::u32string get_content_collected() { return m_buffer.str(); };
 
             bool is_ident_start_character(char32_t ch);
             bool is_ident_character(char32_t ch);
+            char32_t get_char();
+
 
     };
 
