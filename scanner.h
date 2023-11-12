@@ -200,6 +200,8 @@ namespace ActiveOberon::Compiler
             ActiveOberonScanner();
             ~ActiveOberonScanner();
             Token get_symbol();
+            std::u32string get_identifier() { return m_buffer.str(); };
+
             bool is_ident_start_character(char32_t ch);
             bool is_ident_character(char32_t ch);
 
