@@ -19,6 +19,11 @@ namespace ActiveOberon::Compiler
             ~ActiveOberonParser();
 
             std::shared_ptr<Node> parse_module();
+
+
+        public:
+            std::shared_ptr<Node> parse_expression();
+            std::shared_ptr<Node> parse_range_expression();
     };
 
 }
