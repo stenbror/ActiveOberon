@@ -111,7 +111,7 @@ namespace ActiveOberon::Compiler
         QuestionMark, /* '?' */
         QuestionMarks, /* '??' */
         ExclaimMark, /* '!' */
-        ExcalimMarks, /* '!!' */
+        ExclaimMarks, /* '!!' */
         LessLess, /* '<<' */
         LessLessQ, /* '<<?' */
         GreaterGreater, /* '>>' */
@@ -123,6 +123,26 @@ namespace ActiveOberon::Compiler
         Real,
         String,
         Character
+    };
+
+    struct Token
+    {
+        Symbols symbol;
+        unsigned int start_pos;
+        unsigned int end_pos;
+    };
+
+
+    class ActiveOberonScanner
+    {
+        private:
+            char32_t *pBufferStart, *p;
+
+        public:
+            ActiveOberonScanner();
+            ~ActiveOberonScanner();
+            Token get_symbol();
+
     };
 
 }
