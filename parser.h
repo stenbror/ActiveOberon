@@ -3,6 +3,7 @@
 
 #include <scanner.h>
 #include <memory>
+#include <ast/ast_node.h>
 
 namespace ActiveOberon::Compiler
 {
