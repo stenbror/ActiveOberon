@@ -131,8 +131,34 @@ Token ActiveOberonScanner::get_symbol() {
             }
 
 
-        default:    return Token { Symbols::EndOfFile, start_pos, (unsigned int)(p - pBufferStart) };
-    }
+        default:    
+        
+            if (is_ident_start_character(*p)) 
+            {
+                m_buffer.clear();
+                while (is_ident_character(*p)) m_buffer << *p++;
 
-    
+                auto it = m_keywords.find( m_buffer.str() );
+
+                if (it != m_keywords.end())
+                {
+                    return Token { it->second, start_pos, (unsigned int)(p - pBufferStart) }; /* Reserved keyword found */
+                }
+
+                return Token { Symbols::Ident, start_pos, (unsigned int)(p - pBufferStart) };
+            }
+        
+        
+            return Token { Symbols::EndOfFile, start_pos, (unsigned int)(p - pBufferStart) };
+    }    
+}
+
+bool ActiveOberonScanner::is_ident_start_character(char32_t ch) 
+{
+    return ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); 
+}
+
+bool ActiveOberonScanner::is_ident_character(char32_t ch)
+{
+    return is_ident_start_character(ch) || (ch >= '0' && ch <= '9');
 }

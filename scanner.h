@@ -3,9 +3,11 @@
 
 #include <map>
 #include <string>
+#include <sstream>
 
 namespace ActiveOberon::Compiler
 {
+    typedef std::basic_stringstream<char32_t> u32sstream;
 
     enum Symbols 
     {
@@ -140,6 +142,7 @@ namespace ActiveOberon::Compiler
     {
         private:
             char32_t *pBufferStart, *p;
+            u32sstream m_buffer;
 
             const std::map<std::basic_string<char32_t>, Symbols> m_keywords = {
                 { U"AWAIT",     Symbols::Await },
@@ -197,6 +200,8 @@ namespace ActiveOberon::Compiler
             ActiveOberonScanner();
             ~ActiveOberonScanner();
             Token get_symbol();
+            bool is_ident_start_character(char32_t ch);
+            bool is_ident_character(char32_t ch);
 
     };
 
