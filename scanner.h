@@ -203,6 +203,7 @@ namespace ActiveOberon::Compiler
             Token get_symbol();
             std::u32string get_content_collected() { return m_buffer.str(); };
 
+        protected:
             bool is_ident_start_character(char32_t ch);
             bool is_ident_character(char32_t ch);
             char32_t get_char();
