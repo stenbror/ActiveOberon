@@ -7,6 +7,7 @@ using namespace ActiveOberon::Compiler;
 
 ActiveOberonScanner::ActiveOberonScanner()
 {
+    
 
 }
 
@@ -18,11 +19,12 @@ ActiveOberonScanner::~ActiveOberonScanner()
 // Get next symbol in source file /////////////////////////////////////////////////////////////////////////////////////
 Token ActiveOberonScanner::get_symbol() {
 
-    while (*p == ' ' || *p == '\t') p++; /* Eat whitespace first */
+    while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') p++; /* Eat whitespace first */
 
     unsigned int start_pos = (unsigned int)(p - pBufferStart);
 
     switch (*p) {
+        case '\0':  return Token { Symbols::EndOfFile, start_pos, start_pos };
         case '(':  p++; return Token { Symbols::LeftParen, start_pos, (unsigned int)(p - pBufferStart) };
         case ')':  p++; return Token { Symbols::RightParen, start_pos, (unsigned int)(p - pBufferStart) };
         case '[':  p++; return Token { Symbols::LeftBracket, start_pos, (unsigned int)(p - pBufferStart) };
@@ -129,7 +131,7 @@ Token ActiveOberonScanner::get_symbol() {
             }
 
 
-        default:    return Token { Symbols::EOF, start_pos, (unsigned int)(p - pBufferStart) };
+        default:    return Token { Symbols::EndOfFile, start_pos, (unsigned int)(p - pBufferStart) };
     }
 
     

@@ -1,12 +1,15 @@
 
 #pragma once
 
+#include <map>
+#include <string>
+
 namespace ActiveOberon::Compiler
 {
 
     enum Symbols 
     {
-        EOF,
+        EndOfFile,
 
         /* Reserved keywords */
         Await,
@@ -137,6 +140,58 @@ namespace ActiveOberon::Compiler
     {
         private:
             char32_t *pBufferStart, *p;
+
+            const std::map<std::basic_string<char32_t>, Symbols> m_keywords = {
+                { U"AWAIT",     Symbols::Await },
+                { U"BEGIN",     Symbols::Begin },
+                { U"BY",        Symbols::By },
+                { U"CONST",     Symbols::Const },
+                { U"CASE",      Symbols::Case },
+                { U"CELL",      Symbols::Cell },
+                { U"CELLNET",   Symbols::CellNet },
+                { U"CODE",      Symbols::Code },
+                { U"DEFINITION",Symbols::Definition },
+                { U"DO",        Symbols::Do },
+                { U"DIV",       Symbols::Div },
+                { U"END",       Symbols::End },
+                { U"ENUM",      Symbols::Enum },
+                { U"ELSE",      Symbols::Else },
+                { U"ELSIF",     Symbols::Elsif },
+                { U"EXIT",      Symbols::Exit },
+                { U"EXTERN",    Symbols::Extern },
+                { U"FALSE",     Symbols::False },
+                { U"FOR",       Symbols::For },
+                { U"FINALLY",   Symbols::Finally },
+                { U"IF",        Symbols::If },
+                { U"IGNORE",    Symbols::Ignore },
+                { U"IMAG",      Symbols::Imag },
+                { U"IN",        Symbols::In },
+                { U"IS",        Symbols::Is },
+                { U"IMPORT",    Symbols::Import },
+                { U"LOOP",      Symbols::Loop },
+                { U"MODULE",    Symbols::Module },
+                { U"MOD",       Symbols::Mod },
+                { U"NIL",       Symbols::Nil },
+                { U"OF",        Symbols::Of },
+                { U"OR",        Symbols::Or },
+                { U"OUT",       Symbols::Out },
+                { U"OPERATOR",  Symbols::Operator },
+                { U"PROCEDURE", Symbols::Procedure },
+                { U"PORT",      Symbols::Port },
+                { U"REPEAT",    Symbols::Repeat },
+                { U"RETURN",    Symbols::Return },
+                { U"SELF",      Symbols::Self },
+                { U"NEW",       Symbols::New },
+                { U"RESULT",    Symbols::Result },
+                { U"THEN",      Symbols::Then },
+                { U"TRUE",      Symbols::True },
+                { U"TO",        Symbols::To },
+                { U"TYPE",      Symbols::Type },
+                { U"UNTIL",     Symbols::Until },
+                { U"VAR",       Symbols::Var },
+                { U"WHILE",     Symbols::While },
+                { U"WITH",      Symbols::With }
+            };
 
         public:
             ActiveOberonScanner();
