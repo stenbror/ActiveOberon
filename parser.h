@@ -17,6 +17,8 @@ namespace ActiveOberon::Compiler
         public:
             ActiveOberonParser(std::shared_ptr<ActiveOberonScanner> scanner);
             ~ActiveOberonParser();
+
+            std::shared_ptr<Node> parse_module();
     };
 
 }

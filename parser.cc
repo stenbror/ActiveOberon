@@ -13,3 +13,8 @@ ActiveOberonParser::~ActiveOberonParser()
 {
 
 }
+
+std::shared_ptr<Node> ActiveOberonParser::parse_module()
+{
+    return nullptr;
+}
