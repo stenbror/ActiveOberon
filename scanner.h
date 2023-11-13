@@ -11,6 +11,7 @@ namespace ActiveOberon::Compiler
 
     enum Symbols 
     {
+        Empty,
         EndOfFile,
 
         /* Reserved keywords */

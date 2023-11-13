@@ -24,6 +24,7 @@ namespace ActiveOberon::Compiler
         public:
             std::shared_ptr<Node> parse_expression();
             std::shared_ptr<Node> parse_range_expression();
+            std::shared_ptr<Node> parse_SimpleExpression();
     };
 
 }
