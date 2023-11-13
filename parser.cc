@@ -5,6 +5,7 @@
 #include <ast/ast_add_op_node.h>
 #include <ast/ast_mul_op_node.h>
 #include <ast/ast_unary_op_node.h>
+#include <ast/ast_unary_expression_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -24,9 +25,15 @@ std::shared_ptr<Node> ActiveOberonParser::parse_module()
     return nullptr;
 }
 
+std::shared_ptr<Node> ActiveOberonParser::parse_flags()
+{
+    return nullptr;
+}
 
 
 
+
+// Expression rules ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::shared_ptr<Node> ActiveOberonParser::parse_expression()
 {
@@ -213,6 +220,38 @@ std::shared_ptr<Node> ActiveOberonParser::parse_factor()
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_unary_expression()
+{
+    auto start_pos = m_curSymbol.start_pos;
+    auto left = parse_primary_expression();
+
+    std::shared_ptr<Node> right = nullptr;
+    std::shared_ptr<Node> flags = nullptr;
+
+    switch (m_curSymbol.symbol)
+    {
+        case Symbols::LeftParen:
+        case Symbols::Period:
+        case Symbols::LeftBracket:
+        case Symbols::Arrow:
+        case Symbols::Transpose:
+            right = parse_designator_operations();
+            break;
+        default:    break;
+    }
+
+    if (m_curSymbol.symbol == Symbols::LeftBrace) flags = parse_flags();
+
+    if (right == nullptr && flags == nullptr) return left;
+
+    return std::make_shared<UnaryExpressionNode>(start_pos, m_curSymbol.start_pos, left, right, flags);
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_primary_expression()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_designator_operations()
 {
     return nullptr;
 }
