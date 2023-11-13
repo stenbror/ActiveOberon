@@ -4,6 +4,7 @@
 #include <ast/ast_range_node.h>
 #include <ast/ast_add_op_node.h>
 #include <ast/ast_mul_op_node.h>
+#include <ast/ast_unary_op_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -191,6 +192,27 @@ std::shared_ptr<Node> ActiveOberonParser::parse_term()
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_factor()
+{
+    auto start_pos = m_curSymbol.start_pos;
+
+    switch (m_curSymbol.symbol)
+    {
+        case Symbols::Not:
+        case Symbols::Plus:
+        case Symbols::Minus:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+                auto right = parse_factor();
+
+                return std::make_shared<UnaryOpNode>(start_pos, m_curSymbol.start_pos, symbol1, right);
+            }
+        default:
+            return parse_unary_expression();
+    }
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_unary_expression()
 {
     return nullptr;
 }
