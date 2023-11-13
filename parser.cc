@@ -2,6 +2,7 @@
 #include <parser.h>
 #include <ast/ast_relation_node.h>
 #include <ast/ast_range_node.h>
+#include <ast/ast_add_op_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -128,6 +129,32 @@ std::shared_ptr<Node> ActiveOberonParser::parse_range_expression()
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_SimpleExpression()
+{
+    auto start_pos = m_curSymbol.start_pos;
+    auto left = parse_term();
+
+    switch (m_curSymbol.symbol)
+    {
+        case Symbols::Plus:
+        case Symbols::Minus:
+        case Symbols::Or:
+            {
+                while (m_curSymbol.symbol == Symbols::Plus || m_curSymbol.symbol == Symbols::Minus || m_curSymbol.symbol == Symbols::Or)
+                {
+                    auto symbol1 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+                    auto right = parse_term();
+
+                    left = std::make_shared<AddOpNode>(start_pos, m_curSymbol.start_pos, left, symbol1, right);
+                }
+
+                return left;
+            }
+        default:    return left;
+    }
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_term()
 {
     return nullptr;
 }
