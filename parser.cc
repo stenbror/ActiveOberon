@@ -8,6 +8,8 @@
 #include <ast/ast_unary_expression_node.h>
 #include <ast/ast_literal_node.h>
 #include <ast/ast_atom_literal_node.h>
+#include <ast/ast_atom_of_literal_node.h>
+#include <ast/ast_parenthesis_expression_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -286,10 +288,50 @@ std::shared_ptr<Node> ActiveOberonParser::parse_primary_expression()
             }
         case Symbols::Address:
         case Symbols::Size:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+                if (m_curSymbol.symbol == Symbols::Of)
+                {
+                    auto symbol2 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+                    auto right = parse_factor();
+
+                    return std::make_shared<AtomOfLiteralNode>(start_pos, m_curSymbol.start_pos, symbol1, symbol2, right);
+                }
+
+                return std::make_shared<AtomLiteralNode>(start_pos, m_curSymbol.start_pos, symbol1);
+            }
         case Symbols::Alias:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                if (m_curSymbol.symbol != Symbols::Of) throw ;
+
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+                auto right = parse_factor();
+
+                return std::make_shared<AtomOfLiteralNode>(start_pos, m_curSymbol.start_pos, symbol1, symbol2, right);
+            }
         case Symbols::New:
-        case Symbols::LeftParen:
             return nullptr;
+
+        case Symbols::LeftParen:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto right = parse_expression();
+                if (m_curSymbol.symbol != Symbols::RightParen) throw ;
+
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<ParenthesisExpressionNode>(start_pos, m_curSymbol.start_pos, symbol1, right, symbol2);
+            }
+
         default:    throw ;
     }
 
