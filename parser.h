@@ -33,6 +33,10 @@ namespace ActiveOberon::Compiler
             std::shared_ptr<Node> parse_unary_expression();
             std::shared_ptr<Node> parse_primary_expression();
             std::shared_ptr<Node> parse_designator_operations();
+            std::shared_ptr<Node> parse_expression_list();
+            std::shared_ptr<Node> parse_index_list();
+            std::shared_ptr<Node> parse_array();
+            std::shared_ptr<Node> parse_set();
     };
 
 }

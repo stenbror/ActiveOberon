@@ -248,10 +248,55 @@ std::shared_ptr<Node> ActiveOberonParser::parse_unary_expression()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_primary_expression()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+    
+    switch (m_curSymbol.symbol)
+    {
+        case Symbols::Ident:
+        case Symbols::Integer:
+        case Symbols::Real:
+        case Symbols::Character:
+        case Symbols::String:
+        case Symbols::LeftBrace:    /* Set */
+        case Symbols::LeftBracket:  /* Array */
+        case Symbols::Nil:
+        case Symbols::Imag:
+        case Symbols::True:
+        case Symbols::False:
+        case Symbols::Self:
+        case Symbols::Result:
+        case Symbols::Address:
+        case Symbols::Size:
+        case Symbols::Alias:
+        case Symbols::New:
+        case Symbols::LeftParen:
+            return nullptr;
+        default:    throw ;
+    }
+
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_designator_operations()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_expression_list()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_index_list()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_array()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_set()
 {
     return nullptr;
 }
