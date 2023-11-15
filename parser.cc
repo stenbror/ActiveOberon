@@ -11,6 +11,7 @@
 #include <ast/ast_atom_of_literal_node.h>
 #include <ast/ast_parenthesis_expression_node.h>
 #include <ast/ast_memory_new_node.h>
+#include <ast/ast_set_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -381,5 +382,26 @@ std::shared_ptr<Node> ActiveOberonParser::parse_array()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_set()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto commas = std::make_shared<std::vector<Token>>();
+
+    auto symbol1 = m_curSymbol;
+    m_curSymbol = m_lexer->get_symbol();
+
+    nodes->push_back(parse_range_expression());
+
+    while (m_curSymbol.symbol == Symbols::Comma)
+    {
+        commas->push_back(m_curSymbol);
+        m_curSymbol = m_lexer->get_symbol();
+
+        nodes->push_back(parse_range_expression());
+    }
+
+    if (m_curSymbol.symbol != Symbols::RightBrace) throw ;
+    auto symbol2 = m_curSymbol;
+    m_curSymbol = m_lexer->get_symbol();
+
+    return std::make_shared<SetNode>(start_pos, m_curSymbol.start_pos, symbol1, nodes, commas, symbol2);
 }
