@@ -13,6 +13,7 @@
 #include <ast/ast_memory_new_node.h>
 #include <ast/ast_set_node.h>
 #include <ast/ast_array_node.h>
+#include <ast/ast_expression_list.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -368,7 +369,28 @@ std::shared_ptr<Node> ActiveOberonParser::parse_designator_operations()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_expression_list()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto commas = std::make_shared<std::vector<Token>>();
+
+    auto node = parse_expression();
+
+    if (m_curSymbol.symbol == Symbols::Comma)
+    {
+        nodes->push_back(node);
+
+        while (m_curSymbol.symbol == Symbols::Comma)
+        {
+            commas->push_back(m_curSymbol);
+            m_curSymbol = m_lexer->get_symbol();
+
+            nodes->push_back(parse_expression());
+        }
+
+        return std::make_shared<ExpressionListNode>(start_pos, m_curSymbol.start_pos, nodes, commas);
+    }
+
+    return node;
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_index_list()
@@ -378,7 +400,7 @@ std::shared_ptr<Node> ActiveOberonParser::parse_index_list()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_array()
 {
-     auto start_pos = m_curSymbol.start_pos;
+    auto start_pos = m_curSymbol.start_pos;
     auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
     auto commas = std::make_shared<std::vector<Token>>();
 
