@@ -23,6 +23,8 @@ namespace ActiveOberon::Compiler
 
             std::shared_ptr<Node> parse_flags();
 
+            std::shared_ptr<Node> parse_qualified_identifier();
+
 
         public: /* Expression rules */
             std::shared_ptr<Node> parse_expression();

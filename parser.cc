@@ -10,6 +10,7 @@
 #include <ast/ast_atom_literal_node.h>
 #include <ast/ast_atom_of_literal_node.h>
 #include <ast/ast_parenthesis_expression_node.h>
+#include <ast/ast_memory_new_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -30,6 +31,11 @@ std::shared_ptr<Node> ActiveOberonParser::parse_module()
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_flags()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
 {
     return nullptr;
 }
@@ -316,8 +322,24 @@ std::shared_ptr<Node> ActiveOberonParser::parse_primary_expression()
                 return std::make_shared<AtomOfLiteralNode>(start_pos, m_curSymbol.start_pos, symbol1, symbol2, right);
             }
         case Symbols::New:
-            return nullptr;
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
 
+                auto left = parse_qualified_identifier();
+                if (m_curSymbol.symbol != Symbols::LeftParen) throw ;
+
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto right = parse_expression_list();
+                if (m_curSymbol.symbol != Symbols::RightParen) throw ;
+
+                auto symbol3 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<MemoryNewExpressionNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right, symbol3);
+            }
         case Symbols::LeftParen:
             {
                 auto symbol1 = m_curSymbol;
