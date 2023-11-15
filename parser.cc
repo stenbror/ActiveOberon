@@ -6,6 +6,8 @@
 #include <ast/ast_mul_op_node.h>
 #include <ast/ast_unary_op_node.h>
 #include <ast/ast_unary_expression_node.h>
+#include <ast/ast_literal_node.h>
+#include <ast/ast_atom_literal_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -257,14 +259,31 @@ std::shared_ptr<Node> ActiveOberonParser::parse_primary_expression()
         case Symbols::Real:
         case Symbols::Character:
         case Symbols::String:
-        case Symbols::LeftBrace:    /* Set */
-        case Symbols::LeftBracket:  /* Array */
+            {
+                auto symbol1 = m_curSymbol;
+                auto content = m_lexer->get_content_collected();
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol1, content);
+            }
+        case Symbols::LeftBrace:    
+            return parse_set();
+
+        case Symbols::LeftBracket:  
+            return parse_array();
+
         case Symbols::Nil:
         case Symbols::Imag:
         case Symbols::True:
         case Symbols::False:
         case Symbols::Self:
         case Symbols::Result:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<AtomLiteralNode>(start_pos, m_curSymbol.start_pos, symbol1);
+            }
         case Symbols::Address:
         case Symbols::Size:
         case Symbols::Alias:
