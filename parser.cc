@@ -17,6 +17,7 @@
 #include <ast/ast_index_list_node.h>
 #include <ast/ast_designator_list_node.h>
 #include <ast/ast_designator_types_node.h>
+#include <ast/ast_statement_sequence_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -65,9 +66,22 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement_block()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_statement_sequence()
 {
-    return nullptr;
-}
+    auto start_pos = m_curSymbol.start_pos;
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto separators = std::make_shared<std::vector<Token>>();
 
+    nodes->push_back(parse_statement());
+
+    while (m_curSymbol.symbol == Symbols::SemiColon)
+    {
+        separators->push_back(m_curSymbol);
+        m_curSymbol = m_lexer->get_symbol();
+
+        nodes->push_back(parse_statement());
+    }
+
+    return std::make_shared<StatementSequenceNode>(start_pos, m_curSymbol.start_pos, nodes, separators);
+}
 
 
 // Expression rules ///////////////////////////////////////////////////////////////////////////////////////////////////
