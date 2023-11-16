@@ -14,6 +14,7 @@
 #include <ast/ast_set_node.h>
 #include <ast/ast_array_node.h>
 #include <ast/ast_expression_list.h>
+#include <ast/ast_index_list_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -395,7 +396,53 @@ std::shared_ptr<Node> ActiveOberonParser::parse_expression_list()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_index_list()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+    std::shared_ptr<Node> nodes_left = nullptr;
+    std::shared_ptr<Node> nodes_right = nullptr;
+    auto symbol1 = Token { Symbols::Empty, 0, 0 };
+    auto symbol2 = Token { Symbols::Empty, 0, 0 };
+    auto symbol3 = Token { Symbols::Empty, 0, 0 };
+
+    if (m_curSymbol.symbol == Symbols::QuestionMark)
+    {
+        symbol2 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();
+
+        if (m_curSymbol.symbol == Symbols::Comma)
+        {
+            symbol3 = m_curSymbol;
+            m_curSymbol = m_lexer->get_symbol();
+
+            nodes_right = parse_expression_list();
+        }
+    }
+    else
+    {
+        nodes_left = parse_expression_list();
+
+        if (m_curSymbol.symbol == Symbols::Comma)
+        {
+            symbol1 = m_curSymbol;
+            m_curSymbol = m_lexer->get_symbol();
+
+            if (m_curSymbol.symbol == Symbols::QuestionMark)
+            {
+                symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                if (m_curSymbol.symbol == Symbols::Comma)
+                {
+                    symbol1 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    nodes_right = parse_expression_list();
+                }
+            }
+            else throw ;
+        }
+    }
+
+    return  std::make_shared<IndexListNode>(start_pos, m_curSymbol.start_pos, nodes_left, symbol1, symbol2, symbol3, nodes_right);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_array()
