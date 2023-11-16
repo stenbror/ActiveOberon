@@ -18,6 +18,7 @@ namespace ActiveOberon::Compiler
             ActiveOberonParser(std::shared_ptr<ActiveOberonScanner> scanner);
             ~ActiveOberonParser();
 
+        public: /* Declaration rules */
             std::shared_ptr<Node> parse_module();
 
 
@@ -25,6 +26,11 @@ namespace ActiveOberon::Compiler
 
             std::shared_ptr<Node> parse_qualified_identifier();
 
+        public: /* Statement rules */
+            std::shared_ptr<Node> parse_statement();
+            std::shared_ptr<Node> parse_case();
+            std::shared_ptr<Node> parse_statement_block();
+            std::shared_ptr<Node> parse_statement_sequence();
 
         public: /* Expression rules */
             std::shared_ptr<Node> parse_expression();

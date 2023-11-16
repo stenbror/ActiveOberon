@@ -46,6 +46,27 @@ std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
     return nullptr;
 }
 
+// Statement rules ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::shared_ptr<Node> ActiveOberonParser::parse_statement()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_case()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_statement_block()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_statement_sequence()
+{
+    return nullptr;
+}
 
 
 
