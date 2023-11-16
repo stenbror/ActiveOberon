@@ -15,6 +15,8 @@
 #include <ast/ast_array_node.h>
 #include <ast/ast_expression_list.h>
 #include <ast/ast_index_list_node.h>
+#include <ast/ast_designator_list_node.h>
+#include <ast/ast_designator_types_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -365,7 +367,85 @@ std::shared_ptr<Node> ActiveOberonParser::parse_primary_expression()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_designator_operations()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+
+    while ( m_curSymbol.symbol == Symbols::LeftParen ||
+            m_curSymbol.symbol == Symbols::Period ||
+            m_curSymbol.symbol == Symbols::LeftBracket ||
+            m_curSymbol.symbol == Symbols::Arrow ||
+            m_curSymbol.symbol == Symbols::Transpose)
+            {
+                auto start_pos_local = m_curSymbol.start_pos;
+
+                switch (m_curSymbol.symbol)
+                {
+                    case Symbols::LeftParen:
+                        {
+                            auto symbol1 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+                            std::shared_ptr<Node> node = nullptr;
+
+                            if (m_curSymbol.symbol != Symbols::RightParen)
+                            {
+                                node = parse_expression_list();
+                            }
+
+                            if (m_curSymbol.symbol != Symbols::RightParen) throw ;
+
+                            auto symbol2 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+                        
+                            nodes->push_back(std::make_shared<DesignatorCallNode>(start_pos_local, m_curSymbol.start_pos, symbol1, node, symbol2));
+                        }
+                        break;
+                    case Symbols::LeftBracket:
+                        {
+                            auto symbol1 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+                            std::shared_ptr<Node> node = nullptr;
+
+                            if (m_curSymbol.symbol != Symbols::RightBracket)
+                            {
+                                node = parse_index_list();
+                            }
+
+                            if (m_curSymbol.symbol != Symbols::RightBracket) throw ;
+
+                            auto symbol2 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+                        
+                            nodes->push_back(std::make_shared<DesignatorIndexNode>(start_pos_local, m_curSymbol.start_pos, symbol1, node, symbol2));
+                        }
+                        break;
+                    case Symbols::Period:
+                        {
+                            auto symbol1 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+
+                            if (m_curSymbol.symbol != Symbols::Ident) throw ;
+
+                            auto symbol2 = m_curSymbol;
+                            auto content = m_lexer->get_content_collected();
+                            m_curSymbol = m_lexer->get_symbol();
+
+                            nodes->push_back(std::make_shared<DesignatorDotNameNode>(start_pos_local, m_curSymbol.start_pos, symbol1, std::make_shared<LiteralNode>(start_pos_local, m_curSymbol.start_pos, symbol2, content)));
+                        }
+                        break;
+                    case Symbols::Arrow:
+                    case Symbols::Transpose:
+                        {
+                            auto symbol1 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+
+                            nodes->push_back(std::make_shared<DesignatorNode>(start_pos_local, m_curSymbol.start_pos, symbol1));
+                        }
+                        break;
+                    default:    break;
+                }
+            }
+
+    return std::make_shared<DesignatorListNode>(start_pos, m_curSymbol.symbol, nodes);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_expression_list()
