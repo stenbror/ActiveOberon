@@ -111,6 +111,24 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
         case Symbols::With:
         case Symbols::Case:
         case Symbols::While:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto left = parse_expression();
+
+                if (m_curSymbol.symbol == Symbols::Do) throw ;
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto right = parse_statement_sequence();
+
+                if (m_curSymbol.symbol == Symbols::End) throw ;
+                auto symbol3 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<WhileStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right, symbol3);
+            }
         case Symbols::Repeat:
         case Symbols::For:
         case Symbols::Loop:
