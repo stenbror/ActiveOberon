@@ -20,6 +20,7 @@
 #include <ast/ast_statement_sequence_node.h>
 #include <ast/ast_statement_block_node.h>
 #include <ast/ast_case_statement_node.h>
+#include <ast/ast_statement_nodes.h>
 
 using namespace ActiveOberon::Compiler;
 
