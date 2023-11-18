@@ -53,7 +53,26 @@ std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_statement()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+
+    switch (m_curSymbol.symbol)
+    {
+        case Symbols::If:
+        case Symbols::With:
+        case Symbols::Case:
+        case Symbols::While:
+        case Symbols::Repeat:
+        case Symbols::For:
+        case Symbols::Loop:
+        case Symbols::Exit:
+        case Symbols::Return:
+        case Symbols::Await:
+        case Symbols::Begin:
+        case Symbols::Code:
+        case Symbols::Ignore:
+        default:
+            return nullptr; /* UnaryExpression ... */
+    }
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_case()
