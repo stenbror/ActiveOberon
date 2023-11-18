@@ -19,6 +19,7 @@
 #include <ast/ast_designator_types_node.h>
 #include <ast/ast_statement_sequence_node.h>
 #include <ast/ast_statement_block_node.h>
+#include <ast/ast_case_statement_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -57,7 +58,27 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_case()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto separators = std::make_shared<std::vector<Token>>();
+
+    nodes->push_back(parse_range_expression());
+
+    while (m_curSymbol.symbol == Symbols::Comma)
+    {
+        separators->push_back(m_curSymbol);
+        m_curSymbol = m_lexer->get_symbol();
+
+        nodes->push_back(parse_range_expression());
+    }
+
+    if (m_curSymbol.symbol != Symbols::Colon) throw ;
+    auto symbol = m_curSymbol;
+    m_curSymbol = m_lexer->get_symbol();
+
+    auto right = parse_statement_sequence();
+
+    return std::make_shared<CaseStatementNode>(start_pos, m_curSymbol.start_pos, nodes, separators, symbol, right);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_statement_block()
