@@ -59,6 +59,55 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
     switch (m_curSymbol.symbol)
     {
         case Symbols::If:
+            {
+                auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();    /* elsif statements */
+                std::shared_ptr<Node> node = nullptr;   /* else statement */
+
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto left = parse_expression();
+
+                if (m_curSymbol.symbol != Symbols::If)  throw ;
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto right = parse_statement_sequence();
+                
+                while (m_curSymbol.symbol == Symbols::Elsif)
+                {
+                    auto start_pos3 = m_curSymbol.start_pos;
+                    auto symbol4 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto left2 = parse_expression();
+
+                    if (m_curSymbol.symbol != Symbols::Then) throw ;
+                    auto symbol5 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto right2 = parse_statement_sequence();
+
+                    nodes->push_back(std::make_shared<ElsifStatementNode>(start_pos3, m_curSymbol.start_pos, symbol4, left2, symbol5, right2));
+                }
+
+                if (m_curSymbol.symbol == Symbols::Else)
+                {
+                    auto start_pos3 = m_curSymbol.start_pos;
+                    auto symbol10 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto right3 = parse_statement_sequence();
+
+                    node = std::make_shared<ElseStatementNode>(start_pos3, m_curSymbol.start_pos, symbol10, right3);
+                }
+
+                if (m_curSymbol.symbol != Symbols::End)  throw ;
+                auto symbol3 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<IfStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right, nodes, node, symbol3);
+            }
         case Symbols::With:
         case Symbols::Case:
         case Symbols::While:
