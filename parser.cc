@@ -145,6 +145,50 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
                 return std::make_shared<RepeatStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right);
             }
         case Symbols::For:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                if (m_curSymbol.symbol != Symbols::Ident) throw ;
+                auto content = m_lexer->get_content_collected();
+                auto symbol_name = m_lexer->get_symbol();
+                auto first = std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol_name, content);
+
+                if (m_curSymbol.symbol != Symbols::Becomes) throw ;
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto second = parse_expression();
+
+                if (m_curSymbol.symbol != Symbols::To) throw ;
+                auto symbol3 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto third = parse_expression();
+
+                Token symbol4 = Token { Symbols::Empty, 0, 0 };
+                std::shared_ptr<Node> four = nullptr;
+
+                if (m_curSymbol.symbol == Symbols::By)
+                {
+                    symbol4 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    four = parse_expression();
+                }
+
+                if (m_curSymbol.symbol != Symbols::Do) throw ;
+                auto symbol5 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto five = parse_statement_sequence();
+
+                if (m_curSymbol.symbol != Symbols::End) throw ;
+                auto symbol6 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<ForStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, first, symbol2, second, symbol3, third, symbol4, four, symbol5, five, symbol6);
+            }
         case Symbols::Loop:
         case Symbols::Exit:
         case Symbols::Return:

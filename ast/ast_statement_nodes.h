@@ -119,4 +119,53 @@ namespace ActiveOberon::Compiler
             Token get_symbol2() { return m_symbol2; }
     };
 
+    class ForStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;    /* 'FOR' */
+            std::shared_ptr<Node> m_first;  /*  Identifier */
+            Token m_symbol2;    /* ':=' */
+            std::shared_ptr<Node> m_second; /*  Expression */
+            Token m_symbol3;    /* 'TO' */
+            std::shared_ptr<Node> m_third;  /*  'to' Expression */
+            Token m_symbol4;    /* 'BY' */
+            std::shared_ptr<Node> m_four;   /*  'by' Expression */
+            Token m_symbol5;    /* 'DO' */
+            std::shared_ptr<Node> m_five;   /* Statement sequence */
+            Token m_symbol6;    /* 'END' */
+            
+
+        public:
+            ForStatementNode(
+                    unsigned int start, 
+                    unsigned int end,
+                    Token symbol1,
+                    std::shared_ptr<Node> first,
+                    Token symbol2,
+                    std::shared_ptr<Node> second,
+                    Token symbol3,
+                    std::shared_ptr<Node> third,
+                    Token symbol4,
+                    std::shared_ptr<Node> four,
+                    Token symbol5,
+                    std::shared_ptr<Node> five,
+                    Token symbol6
+                ) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_symbol2 = symbol2; m_symbol3 = symbol3; m_symbol4 = symbol4; m_symbol5 = symbol5; m_symbol6 = symbol6;
+                m_first = first; m_second = second; m_third = third; m_four = four; m_five = five;
+            }
+            Token get_symbol1() { return m_symbol1; }
+            std::shared_ptr<Node> get_first() { return m_first; }
+            Token get_symbol2() { return m_symbol2; }
+            std::shared_ptr<Node> get_second() { return m_second; }
+            Token get_symbol3() { return m_symbol3; }
+            std::shared_ptr<Node> get_third() { return m_third; }
+            Token get_symbol4() { return m_symbol4; }
+            std::shared_ptr<Node> get_fourth() { return m_four; }
+            Token get_symbol5() { return m_symbol5; }
+            std::shared_ptr<Node> get_five() { return m_five; }
+            Token get_symbol6() { return m_symbol6; }
+    };
+
 }
