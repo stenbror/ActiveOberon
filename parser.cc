@@ -109,6 +109,66 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
                 return std::make_shared<IfStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right, nodes, node, symbol3);
             }
         case Symbols::With:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                if (m_curSymbol.symbol != Symbols::Ident) throw ;
+                auto content = m_lexer->get_content_collected();
+                auto symbol_name = m_lexer->get_symbol();
+                auto first = std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol_name, content);
+
+                if (m_curSymbol.symbol != Symbols::Colon) throw ;
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto second = parse_expression();
+
+                if (m_curSymbol.symbol != Symbols::Do) throw ;
+                auto symbol3 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto third = parse_statement_sequence();
+
+                auto nodes = std::shared_ptr<std::vector<std::shared_ptr<Node>>>();
+
+                while (m_curSymbol.symbol == Symbols::Bar)
+                {
+                    auto local_start = m_curSymbol.start_pos;
+
+                    auto symbol10 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto local_left = parse_qualified_identifier();
+
+                    if (m_curSymbol.symbol != Symbols::Do) throw ;
+                    auto symbol11 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto local_right = parse_statement_sequence();
+
+                    nodes->push_back(std::make_shared<WithElementStatementNode>(local_start, m_curSymbol.start_pos, symbol10, local_left, symbol11, local_right));
+                }
+
+                std::shared_ptr<Node> node = nullptr;
+
+                if (m_curSymbol.symbol == Symbols::Else)
+                {
+                    auto start_pos3 = m_curSymbol.start_pos;
+                    auto symbol10 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto right3 = parse_statement_sequence();
+
+                    node = std::make_shared<ElseStatementNode>(start_pos3, m_curSymbol.start_pos, symbol10, right3);
+                }
+
+                if (m_curSymbol.symbol != Symbols::End) throw ;
+                auto symbol4 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<WithStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, first, symbol2, second, symbol3, third, nodes, node, symbol4);
+            }
         case Symbols::Case:
             {
                 auto symbol1 = m_curSymbol;
