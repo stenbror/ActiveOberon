@@ -198,4 +198,19 @@ namespace ActiveOberon::Compiler
             Token get_symbol() { return m_symbol; }
     };
 
+    class SimpleStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;
+            std::shared_ptr<Node> m_right;
+
+        public:
+            SimpleStatementNode(unsigned int start, unsigned int end, Token symbol1, std::shared_ptr<Node> right) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_right = right;
+            }
+            Token get_symbol() { return m_symbol1; }
+            std::shared_ptr<Node> get_node() { return m_right; }
+    };
+
 }

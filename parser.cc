@@ -210,11 +210,32 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
                 return std::make_shared<ExitStatementNode>(start_pos, m_curSymbol.start_pos, symbol1);
             }
         case Symbols::Return:
-        case Symbols::Await:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                if (m_curSymbol.symbol == Symbols::SemiColon || m_curSymbol.symbol == Symbols::End) return std::make_shared<SimpleStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, nullptr);
+
+                auto right = parse_expression();
+
+                return std::make_shared<SimpleStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, right);
+            }
         case Symbols::Begin:
             return parse_statement_block();
         case Symbols::Code:
+            {
+                return nullptr;
+            }
         case Symbols::Ignore:
+        case Symbols::Await:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto right = parse_expression();
+
+                return std::make_shared<SimpleStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, right);
+            }
         default:
             return nullptr; /* UnaryExpression ... */
     }
