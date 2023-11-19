@@ -203,6 +203,12 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
                 return std::make_shared<LoopStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, right, symbol2);
             }
         case Symbols::Exit:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<ExitStatementNode>(start_pos, m_curSymbol.start_pos, symbol1);
+            }
         case Symbols::Return:
         case Symbols::Await:
         case Symbols::Begin:

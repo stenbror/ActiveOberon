@@ -185,4 +185,17 @@ namespace ActiveOberon::Compiler
             Token get_symbol2() { return m_symbol2; }
     };
 
+    class ExitStatementNode : public Node{
+
+        private:
+            Token m_symbol;
+
+        public:
+            ExitStatementNode(unsigned int start, unsigned int end, Token symbol1) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol = symbol1;
+            }
+            Token get_symbol() { return m_symbol; }
+    };
+
 }
