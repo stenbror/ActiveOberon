@@ -247,4 +247,102 @@ namespace ActiveOberon::Compiler
             std::shared_ptr<Node> get_right() { return m_right; }
     };
 
+    class MultipleChoiseStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;    /*  'CASE' */
+            std::shared_ptr<Node> m_left;
+            Token m_symbol2;    /*  'OF' */
+            std::shared_ptr<std::vector<Token>> m_separators;
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> m_nodes;
+            std::shared_ptr<Node> m_right;
+            Token m_symbol3;    /*  'END' */
+
+
+        public:
+            MultipleChoiseStatementNode(
+                    unsigned int start, 
+                    unsigned int end,
+                    Token symbol1,
+                    std::shared_ptr<Node> left,
+                    Token symbol2,
+                    std::shared_ptr<std::vector<Token>> separators,
+                    std::shared_ptr<std::vector<std::shared_ptr<Node>>> nodes,
+                    std::shared_ptr<Node> right,
+                    Token symbol3
+                ) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_symbol2 = symbol2; m_symbol3 = symbol3; m_left = left; m_right = right;
+            }
+            Token get_symbol1() { return m_symbol1; }
+            std::shared_ptr<Node> get_left() { return m_left; }
+            Token get_symbol2() { return m_symbol2; }
+            std::shared_ptr<std::vector<Token>> get_separators() { return m_separators; }
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> get_nodes() { return m_nodes; }
+            std::shared_ptr<Node> get_right() { return m_right; }
+            Token get_symbol3() { return m_symbol3; }
+
+    };
+
+    class WithStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;    /*  'WITH' */
+            std::shared_ptr<Node> m_left;
+            Token m_symbol2;    /*  ':' */
+            std::shared_ptr<Node> m_right;
+            Token m_symbol3;    /*  'DO' */
+            std::shared_ptr<Node> m_next;
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> m_nodes;
+            std::shared_ptr<Node> m_elsePart;
+            Token m_symbol4;    /*  'END' */ 
+
+        public:
+            WithStatementNode(
+                    unsigned int start, 
+                    unsigned int end,
+                    Token symbol1,
+                    std::shared_ptr<Node> left,
+                    Token symbol2,
+                    std::shared_ptr<Node> right,
+                    Token symbol3,
+                    std::shared_ptr<Node> next,
+                    std::shared_ptr<std::vector<std::shared_ptr<Node>>> nodes,
+                    std::shared_ptr<Node> elsePart,
+                    Token symbol4
+                ) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_symbol2 = symbol2; m_symbol3 = symbol3; m_symbol4 = symbol4; m_left = left; m_right = right; m_next = next; m_nodes = nodes; m_elsePart = elsePart;
+            }
+            Token get_symbol1() { return m_symbol1; }
+            std::shared_ptr<Node> get_left() { return m_left; }
+            Token get_symbol2() { return m_symbol2; }
+            std::shared_ptr<Node> get_right() { return m_right; }
+            Token get_symbol3() { return m_symbol3; }
+            std::shared_ptr<Node> get_next() { return m_next; }
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> get_nodes() { return m_nodes; }
+            std::shared_ptr<Node> get_else_part() { return m_elsePart; }
+            Token get_symbol4() { return m_symbol4; }
+
+    };
+
+    class WithElementStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;
+            std::shared_ptr<Node> m_left;
+            Token m_symbol2;
+            std::shared_ptr<Node> m_right;
+
+        public:
+            WithElementStatementNode(unsigned int start, unsigned int end, Token symbol1, std::shared_ptr<Node> left, Token symbol2, std::shared_ptr<Node> right) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_symbol2 = symbol2; m_left = left; m_right = right;
+            }
+            Token get_symbol1() { return m_symbol1; }
+            std::shared_ptr<Node> get_left() { return m_left; }
+            Token get_symbol2() { return m_symbol2; }
+            std::shared_ptr<Node> get_right() { return m_right; }
+    };
+
 }
