@@ -21,6 +21,7 @@
 #include <ast/ast_statement_block_node.h>
 #include <ast/ast_case_statement_node.h>
 #include <ast/ast_statement_nodes.h>
+#include <ast/ast_identifier_definition_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -48,6 +49,28 @@ std::shared_ptr<Node> ActiveOberonParser::parse_flags()
 std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
 {
     return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_identifier_definition()
+{
+    auto start_pos = m_curSymbol.start_pos;
+
+    if (m_curSymbol.symbol != Symbols::Ident) throw ;
+    auto symbol1 = m_curSymbol;
+    auto text = m_lexer->get_content_collected();
+    m_curSymbol = m_lexer->get_symbol();
+
+    auto node = std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol1, text);
+
+    if (m_curSymbol.symbol == Symbols::Times || m_curSymbol.symbol == Symbols::Minus)
+    {
+        auto symbol2 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();
+
+        return std::make_shared<IdentifierDefinitionNode>(start_pos, m_curSymbol.start_pos, node, symbol2);
+    }
+
+    return node;
 }
 
 // Statement rules ////////////////////////////////////////////////////////////////////////////////////////////////////

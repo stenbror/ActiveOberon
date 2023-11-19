@@ -25,6 +25,7 @@ namespace ActiveOberon::Compiler
             std::shared_ptr<Node> parse_flags();
 
             std::shared_ptr<Node> parse_qualified_identifier();
+            std::shared_ptr<Node> parse_identifier_definition();
 
         public: /* Statement rules */
             std::shared_ptr<Node> parse_statement();
