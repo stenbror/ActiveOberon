@@ -110,6 +110,53 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
             }
         case Symbols::With:
         case Symbols::Case:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto left = parse_expression();
+
+                if (m_curSymbol.symbol == Symbols::Of) throw ;
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+                auto separators = std::make_shared<std::vector<Token>>();
+                
+                do
+                {
+                    auto symbol_local = Token { Symbols::Empty, 0, 0 };
+
+                    if (m_curSymbol.symbol == Symbols::Bar)
+                    {
+                        symbol_local = m_curSymbol;
+                        m_curSymbol = m_lexer->get_symbol();
+                    }
+
+                    separators->push_back(symbol_local);
+                    nodes->push_back(parse_case());
+                    
+                } while (m_curSymbol.symbol == Symbols::Bar);
+
+                std::shared_ptr<Node> else_part = nullptr;
+
+                if (m_curSymbol.symbol == Symbols::Else)
+                {
+                    auto start_pos3 = m_curSymbol.start_pos;
+                    auto symbol10 = m_curSymbol;
+                    m_curSymbol = m_lexer->get_symbol();
+
+                    auto right3 = parse_statement_sequence();
+
+                    else_part = std::make_shared<ElseStatementNode>(start_pos3, m_curSymbol.start_pos, symbol10, right3);
+                }
+                
+                if (m_curSymbol.symbol == Symbols::End) throw ;
+                auto symbol3 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                return std::make_shared<MultipleChoiseStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, separators, nodes, else_part, symbol3);
+            }
         case Symbols::While:
             {
                 auto symbol1 = m_curSymbol;
