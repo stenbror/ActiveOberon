@@ -230,4 +230,21 @@ namespace ActiveOberon::Compiler
             Token get_symbol2() { return m_symbol2; }
     };
 
+    class ExpressionStatementNode : public Node
+    {
+        private:
+            std::shared_ptr<Node> m_left;
+            Token m_symbol;
+            std::shared_ptr<Node> m_right;
+
+        public:
+            ExpressionStatementNode(unsigned int start, unsigned int end, std::shared_ptr<Node> left, Token symbol, std::shared_ptr<Node> right) : Node(start, end, NodeFamily::Statement)
+            {
+                m_left = left; m_symbol = symbol; m_right = right;
+            }
+            std::shared_ptr<Node> get_left() { return m_left; }
+            Token get_symbol1() { return m_symbol; }
+            std::shared_ptr<Node> get_right() { return m_right; }
+    };
+
 }

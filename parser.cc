@@ -246,7 +246,28 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
                 return std::make_shared<SimpleStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, right);
             }
         default:
-            return nullptr; /* UnaryExpression ... */
+            {
+                auto left = parse_unary_expression();
+
+                switch (m_curSymbol.symbol)
+                {
+                    case Symbols::Becomes:
+                    case Symbols::Not:
+                    case Symbols::QuestionMark:
+                    case Symbols::LessLess:
+                    case Symbols::GreaterGreater:
+                        {
+                            auto symbol1 = m_curSymbol;
+                            m_curSymbol = m_lexer->get_symbol();
+
+                            auto right = parse_expression();
+
+                            return std::make_shared<ExpressionStatementNode>(start_pos, m_curSymbol.start_pos, left, symbol1, right);
+                        }
+                    default:
+                        return left;
+                }
+            }
     }
 }
 
