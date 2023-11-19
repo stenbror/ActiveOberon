@@ -194,6 +194,7 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
         case Symbols::Return:
         case Symbols::Await:
         case Symbols::Begin:
+            return parse_statement_block();
         case Symbols::Code:
         case Symbols::Ignore:
         default:
