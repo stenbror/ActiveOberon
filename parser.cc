@@ -22,6 +22,7 @@
 #include <ast/ast_case_statement_node.h>
 #include <ast/ast_statement_nodes.h>
 #include <ast/ast_identifier_definition_node.h>
+#include <ast/ast_qualident_identifier_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -48,7 +49,31 @@ std::shared_ptr<Node> ActiveOberonParser::parse_flags()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+
+    if (m_curSymbol.symbol != Symbols::Ident) throw ;
+    auto symbol1 = m_curSymbol;
+    auto text = m_lexer->get_content_collected();
+    m_curSymbol = m_lexer->get_symbol();
+
+    auto node = std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol1, text);
+
+    if (m_curSymbol.symbol == Symbols::Period)
+    {
+        auto symbol2 = m_curSymbol;
+        auto text = m_lexer->get_content_collected();
+
+        if (m_curSymbol.symbol != Symbols::Ident) throw ;
+        auto symbol3 = m_curSymbol;
+        auto text2 = m_lexer->get_content_collected();
+        m_curSymbol = m_lexer->get_symbol();
+
+        auto node2 = std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol3, text2);
+
+        return std::make_shared<QualidentIdentifierNode>(start_pos, m_curSymbol.symbol, node, symbol2, node2);
+    }
+
+    return node;
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_identifier_definition()
