@@ -168,4 +168,21 @@ namespace ActiveOberon::Compiler
             Token get_symbol6() { return m_symbol6; }
     };
 
+    class LoopStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;
+            std::shared_ptr<Node> m_right;
+            Token m_symbol2;
+
+        public:
+            LoopStatementNode(unsigned int start, unsigned int end, Token symbol1, std::shared_ptr<Node> right, Token symbol2) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_symbol2 = symbol2; m_right = right;
+            }
+            Token get_symbol1() { return m_symbol1; }
+            std::shared_ptr<Node> get_right() { return m_right; }
+            Token get_symbol2() { return m_symbol2; }
+    };
+
 }
