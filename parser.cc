@@ -130,6 +130,20 @@ std::shared_ptr<Node> ActiveOberonParser::parse_statement()
                 return std::make_shared<WhileStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right, symbol3);
             }
         case Symbols::Repeat:
+            {
+                auto symbol1 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto left = parse_statement_sequence();
+
+                if (m_curSymbol.symbol == Symbols::Until) throw ;
+                auto symbol2 = m_curSymbol;
+                m_curSymbol = m_lexer->get_symbol();
+
+                auto right = parse_expression();
+
+                return std::make_shared<RepeatStatementNode>(start_pos, m_curSymbol.start_pos, symbol1, left, symbol2, right);
+            }
         case Symbols::For:
         case Symbols::Loop:
         case Symbols::Exit:

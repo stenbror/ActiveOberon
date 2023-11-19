@@ -100,4 +100,23 @@ namespace ActiveOberon::Compiler
             Token get_symbol3() { return m_symbol3; }
     };
 
+    class RepeatStatementNode : public Node
+    {
+        private:
+            Token m_symbol1;
+            std::shared_ptr<Node> m_left;   /* Statement sequence */
+            std::shared_ptr<Node> m_right;  /* Expression */
+            Token m_symbol2;
+
+        public:
+            RepeatStatementNode(unsigned int start, unsigned int end, Token symbol1, std::shared_ptr<Node> left, Token symbol2, std::shared_ptr<Node> right) : Node(start, end, NodeFamily::Statement)
+            {
+                m_symbol1 = symbol1; m_symbol2 = symbol2; m_left = left; m_right = right;
+            }
+            Token get_symbol1() { return m_symbol1; }
+            std::shared_ptr<Node> get_left_node() { return m_left; }
+            std::shared_ptr<Node> get_right_node() { return m_right; }
+            Token get_symbol2() { return m_symbol2; }
+    };
+
 }
