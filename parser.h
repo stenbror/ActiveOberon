@@ -20,8 +20,16 @@ namespace ActiveOberon::Compiler
 
         public: /* Declaration rules */
             std::shared_ptr<Node> parse_module();
-
-
+            std::shared_ptr<Node> parse_template_parameters();
+            std::shared_ptr<Node> parse_template_parameter();
+            std::shared_ptr<Node> parse_import_list();
+            std::shared_ptr<Node> parse_import();
+            std::shared_ptr<Node> parse_declaration_sequence();
+            std::shared_ptr<Node> parse_constant_declaration();
+            std::shared_ptr<Node> parse_constant_expression();
+            std::shared_ptr<Node> parse_variable_declaration();
+            std::shared_ptr<Node> parse_variable_name_list();
+            std::shared_ptr<Node> parse_variable_name();
             std::shared_ptr<Node> parse_flags();
 
             std::shared_ptr<Node> parse_qualified_identifier();

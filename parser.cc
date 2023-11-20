@@ -42,6 +42,56 @@ std::shared_ptr<Node> ActiveOberonParser::parse_module()
     return nullptr;
 }
 
+std::shared_ptr<Node> ActiveOberonParser::parse_template_parameters()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_template_parameter()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_import_list()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_import()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_declaration_sequence()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_constant_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_constant_expression()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_variable_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_variable_name_list()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_variable_name()
+{
+    return nullptr;
+}
+
 std::shared_ptr<Node> ActiveOberonParser::parse_flags()
 {
     return nullptr;
