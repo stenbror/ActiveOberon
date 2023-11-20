@@ -31,7 +31,26 @@ namespace ActiveOberon::Compiler
             std::shared_ptr<Node> parse_variable_name_list();
             std::shared_ptr<Node> parse_variable_name();
             std::shared_ptr<Node> parse_flags();
-
+            std::shared_ptr<Node> parse_flag();
+            std::shared_ptr<Node> parse_procedure_declaration();
+            std::shared_ptr<Node> parse_operator_declaration();
+            std::shared_ptr<Node> parse_formal_parameters();
+            std::shared_ptr<Node> parse_parameter_declaration();
+            std::shared_ptr<Node> parse_body();
+            std::shared_ptr<Node> parse_type_declaration();
+            std::shared_ptr<Node> parse_type();
+            std::shared_ptr<Node> parse_array_type();
+            std::shared_ptr<Node> parse_math_array_type();
+            std::shared_ptr<Node> parse_math_array_size();
+            std::shared_ptr<Node> parse_record_type();
+            std::shared_ptr<Node> parse_pointer_type();
+            std::shared_ptr<Node> parse_procedure_type();
+            std::shared_ptr<Node> parse_object_type();
+            std::shared_ptr<Node> parse_enumeration_type();
+            std::shared_ptr<Node> parse_cell_type();
+            std::shared_ptr<Node> parse_port_list();
+            std::shared_ptr<Node> parse_port_declaration();
+            std::shared_ptr<Node> parse_port_type();
             std::shared_ptr<Node> parse_qualified_identifier();
             std::shared_ptr<Node> parse_identifier_definition();
 

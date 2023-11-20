@@ -97,6 +97,106 @@ std::shared_ptr<Node> ActiveOberonParser::parse_flags()
     return nullptr;
 }
 
+std::shared_ptr<Node> ActiveOberonParser::parse_flag()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_procedure_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_operator_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_formal_parameters()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_parameter_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_body()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_type_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_array_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_math_array_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_math_array_size()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_record_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_pointer_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_procedure_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_object_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_enumeration_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_cell_type()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_port_list()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_port_declaration()
+{
+    return nullptr;
+}
+
+std::shared_ptr<Node> ActiveOberonParser::parse_port_type()
+{
+    return nullptr;
+}
+
 std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
 {
     auto start_pos = m_curSymbol.start_pos;
