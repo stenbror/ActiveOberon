@@ -23,6 +23,7 @@
 #include <ast/ast_statement_nodes.h>
 #include <ast/ast_identifier_definition_node.h>
 #include <ast/ast_qualident_identifier_node.h>
+#include <ast/ast_enumeration_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -174,7 +175,60 @@ std::shared_ptr<Node> ActiveOberonParser::parse_object_type()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_enumeration_type()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+
+    auto symbol1 = m_curSymbol; /* 'ENUM' */
+    m_curSymbol = m_lexer->get_symbol();
+
+    Token symbol10 = Token { Symbols::Empty, 0, 0};
+    std::shared_ptr<Node> left = nullptr;
+    Token symbol11 = Token { Symbols::Empty, 0, 0};
+
+    if (m_curSymbol.symbol == Symbols::LeftParen)
+    {
+        symbol10 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();
+
+        left = parse_qualified_identifier();
+
+        if (m_curSymbol.symbol != Symbols::RightParen) throw ;
+        symbol11 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();   
+    }
+
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto separators = std::make_shared<std::vector<Token>>();
+
+    while (true)
+    {
+        auto start_pos_local = m_curSymbol.start_pos;
+
+        auto key = parse_identifier_definition();
+
+        if (m_curSymbol.symbol == Symbols::Equal)
+        {
+            auto symbol3 = m_curSymbol;
+            m_curSymbol = m_lexer->get_symbol();
+
+            auto value = parse_expression();
+
+            nodes->push_back(std::make_shared<EnumerationValueNode>(start_pos_local, m_curSymbol.start_pos, key, symbol3, value));
+        }
+        else
+        {
+            nodes->push_back(key);
+        }
+
+        if (m_curSymbol.symbol != Symbols::Comma) break;
+        separators->push_back(m_curSymbol);
+        m_curSymbol = m_lexer->get_symbol();
+    }
+    
+    if (m_curSymbol.symbol != Symbols::End) throw ;
+    auto symbol2 = m_curSymbol;
+    m_curSymbol = m_lexer->get_symbol();
+
+    return std::make_shared<EnumerationNode>(start_pos, m_curSymbol.start_pos, symbol1, symbol10, left, symbol11, nodes, separators, symbol2);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_cell_type()
