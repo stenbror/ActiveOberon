@@ -24,6 +24,7 @@
 #include <ast/ast_identifier_definition_node.h>
 #include <ast/ast_qualident_identifier_node.h>
 #include <ast/ast_enumeration_node.h>
+#include <ast/ast_port_type_node.h>
 
 using namespace ActiveOberon::Compiler;
 
@@ -248,7 +249,36 @@ std::shared_ptr<Node> ActiveOberonParser::parse_port_declaration()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_port_type()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+
+    if (m_curSymbol.symbol != Symbols::Port) throw ;
+    auto symbol1 = m_curSymbol;
+    m_curSymbol = m_lexer->get_symbol();
+
+    Token symbol2 = Token { Symbols::Empty, 0, 0 };
+    Token symbol3 = Token { Symbols::Empty, 0, 0 };
+    std::shared_ptr<Node> right = nullptr;
+    Token symbol4 = Token { Symbols::Empty, 0, 0 };
+
+    if (m_curSymbol.symbol == Symbols::In || m_curSymbol.symbol == Symbols::Out)
+    {
+        symbol2 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();
+    }
+
+    if (m_curSymbol.symbol == Symbols::LeftParen)
+    {
+        symbol3 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();
+
+        right = parse_expression();
+
+        if (m_curSymbol.symbol != Symbols::RightParen) throw ;
+        symbol4 = m_curSymbol;
+        m_curSymbol = m_lexer->get_symbol();
+    }
+
+    return std::make_shared<PortTypeNode>(start_pos, m_curSymbol.start_pos, symbol1, symbol2, symbol3, right, symbol4);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_qualified_identifier()
