@@ -239,7 +239,24 @@ std::shared_ptr<Node> ActiveOberonParser::parse_cell_type()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_port_list()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+
+    if (m_curSymbol.symbol != Symbols::Ident) return nullptr;
+
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto separators = std::make_shared<std::vector<Token>>();
+
+    nodes->push_back(parse_port_declaration());
+
+    while (m_curSymbol.symbol == Symbols::Comma)
+    {
+        separators->push_back(m_curSymbol);
+        m_curSymbol = m_lexer->get_symbol();
+
+        nodes->push_back(parse_port_declaration());
+    }
+
+    return std::make_shared<PortListNode>(start_pos, m_curSymbol.start_pos, nodes, separators);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_port_declaration()

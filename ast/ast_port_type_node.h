@@ -32,10 +32,36 @@ namespace ActiveOberon::Compiler
 
     class PortDeclarationNode : public Node{
 
+        private:
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> m_nodes;
+            std::shared_ptr<std::vector<Token>> m_separators;
+            Token m_symbol1;
+            std::shared_ptr<Node> m_right;
+
+        public:
+            PortDeclarationNode(unsigned int start, unsigned int end, std::shared_ptr<std::vector<std::shared_ptr<Node>>> nodes, std::shared_ptr<std::vector<Token>> separators, Token symbol1, std::shared_ptr<Node> right) : Node(start, end, NodeFamily::Block)
+            {
+                m_nodes = nodes; m_separators = separators; m_symbol1 = symbol1; m_right = right;
+            }
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> get_nodes() { return m_nodes; }
+            std::shared_ptr<std::vector<Token>> get_separators() { return m_separators; }
+            Token get_symbol() { return m_symbol1; }
+            std::shared_ptr<Node> get_right_node() { return m_right; }
     };
 
     class PortListNode : public Node{
 
+        private:
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> m_nodes;
+            std::shared_ptr<std::vector<Token>> m_separators;
+
+        public:
+            PortListNode(unsigned int start, unsigned int end, std::shared_ptr<std::vector<std::shared_ptr<Node>>> nodes, std::shared_ptr<std::vector<Token>> separators) : Node(start, end, NodeFamily::Block)
+            {
+                m_nodes = nodes; m_separators = separators;
+            }
+            std::shared_ptr<std::vector<std::shared_ptr<Node>>> get_nodes() { return m_nodes; }
+            std::shared_ptr<std::vector<Token>> get_separators() { return m_separators; }
     };
 
 }
