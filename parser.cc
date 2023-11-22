@@ -261,7 +261,34 @@ std::shared_ptr<Node> ActiveOberonParser::parse_port_list()
 
 std::shared_ptr<Node> ActiveOberonParser::parse_port_declaration()
 {
-    return nullptr;
+    auto start_pos = m_curSymbol.start_pos;
+
+    auto nodes = std::make_shared<std::vector<std::shared_ptr<Node>>>();
+    auto separators = std::make_shared<std::vector<Token>>();
+
+    while(true)
+    {
+        auto start_pos_local = m_curSymbol.start_pos;
+
+        if (m_curSymbol.symbol != Symbols::Ident) throw ;
+        auto symbol2 = m_curSymbol;
+        auto content = m_lexer->get_content_collected();
+        m_curSymbol = m_lexer->get_symbol();
+        auto left = std::make_shared<LiteralNode>(start_pos, m_curSymbol.start_pos, symbol2, content);
+
+        auto right = m_curSymbol.symbol == Symbols::LeftBrace ? parse_flags() : nullptr;
+
+        nodes->push_back(std::make_shared<PortElementNode>(start_pos_local, m_curSymbol.start_pos, left, right));
+
+    }
+    
+    if (m_curSymbol.symbol != Symbols::Colon) throw ;
+    auto symbol1 = m_curSymbol;
+    m_curSymbol = m_lexer->get_symbol();
+
+    auto right = parse_port_type();
+
+    return std::make_shared<PortDeclarationNode>(start_pos, m_curSymbol.start_pos, nodes, separators, symbol1, right);
 }
 
 std::shared_ptr<Node> ActiveOberonParser::parse_port_type()

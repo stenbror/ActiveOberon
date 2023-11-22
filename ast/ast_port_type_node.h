@@ -64,4 +64,19 @@ namespace ActiveOberon::Compiler
             std::shared_ptr<std::vector<Token>> get_separators() { return m_separators; }
     };
 
+    class PortElementNode : public Node
+    {
+        private:
+            std::shared_ptr<Node> m_left;
+            std::shared_ptr<Node> m_right;
+
+        public:
+            PortElementNode(unsigned int start, unsigned int end, std::shared_ptr<Node> left, std::shared_ptr<Node> right) : Node(start, end, NodeFamily::Block)
+            {
+                m_left = left; m_right = right;
+            }
+            std::shared_ptr<Node> get_left_node() { return m_left; }
+            std::shared_ptr<Node> get_right_node() { return m_right; }
+    };
+
 }
