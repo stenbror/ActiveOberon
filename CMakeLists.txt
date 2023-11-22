@@ -31,7 +31,9 @@ project(
   # Note this needs to be done in the main CMakeLists
   # since it calls enable_testing, which must be in the
   # main CMakeLists.
-  #include(CTest)
+  include(CTest)
+
+  enable_testing()
 
   # Docs only available if this is the main app
   find_package(Doxygen)
