@@ -81,9 +81,7 @@ or else you will need to be friend with the caps lock on your keyboard.
 These can not be used for variable names etc. Just for the intended use as types and procedures provided by the system.
 
 <TABLE>
-  <TR> <TD> ABS </TD> <TD> ADDRESS </TD> <TD> ADDRESSOF </TD> <TD> ALL </TD> <TD> ANY </TD> <TD> ASH </TD> <TD> ASSERT </TD> </TR>
-  <TR> <TD> BOOLEAN </TD> <TD> CAP </TD> <TD> CAS </TD> <TD> CHAR </TD> <TD> CHR </TD> <TD> COMPLEX </TD> <TD> COMPLEX32 </TD>  </TR>
-  <TR> <TD> COMPLEX64 </TD> <TD> COPY </TD> <TD> DEC </TD> <TD> DECMUL </TD> <TD> DIM </TD> <TD> ENTER </TD> <TD> ENTIERH </TD> </TR>
+  <TR>  <TD> DIM </TD> <TD> ENTER </TD> <TD> ENTIERH </TD> </TR>
   <TR> <TD> EXCL </TD> <TD> FIRST </TD> <TD> FLOAT32 </TD> <TD> FLOAT64 </TD> <TD> FLOOR </TD> <TD> HALT </TD> <TD> IM </TD> </TR>
   <TR> <TD> INC </TD> <TD> INCL </TD> <TD> INCMUL </TD> <TD> INCR </TD> <TD> INTEGER </TD> <TD> INTEGERSET </TD> <TD> LAST </TD>  </TR>
   <TR> <TD> LEN </TD> <TD> LONG </TD> <TD> LONGINTEGER </TD> <TD> LSH </TD> <TD> MAX </TD> <TD> MIN </TD> <TD> OBJECT </TD> </TR>
@@ -91,6 +89,21 @@ These can not be used for variable names etc. Just for the intended use as types
   <TR> <TD> ROT </TD> <TD> SET </TD> <TD> SET8 </TD> <TD> SET16 </TD> <TD> SET32 </TD> <TD> SET64 </TD> <TD> SHL </TD> </TR>
   <TR> <TD> SHORT </TD> <TD> SHR </TD> <TD> SIGNED8 </TD> <TD> SIGNED16 </TD> <TD> SIGNED32 </TD> <TD> SIGNED64 </TD> <TD> SIZE </TD> </TR>
   <TR> <TD> SIZEOF </TD> <TD> STEP </TD> <TD> SUM </TD> <TD> UNSIGNED8 </TD> <TD> UNSIGNED16 </TD> <TD> UNSIGNED32 </TD> <TD> UNSIGNED64 </TD> </TR>
+</TABLE>
+
+<TABLE>
+  <TR> <TD> ABS </TD> <TD> ADDRESS </TD> <TD> ADDRESSOF </TD> <TD> ALL </TD> <TD> ANY </TD> <TD> ASH </TD> </TR>
+  <TR> <TD> ASSERT </TD> <TD> BOOLEAN </TD> <TD> CAP </TD> <TD> CAS </TD> <TD> CHAR </TD> <TD> CHR </TD> </TR>
+  <TR> <TD> COMPLEX </TD> <TD> COMPLEX32 </TD> <TD> COMPLEX64 </TD> <TD> COPY </TD> <TD> DEC </TD> <TD> DECMUL </TD> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
+  <TR> </TR>
 </TABLE>
 
 ### System module is built in and contains the following procedures
