@@ -141,3 +141,24 @@ Below we describe the fundamental types available to the programmer that are dir
   <TR> <TD> SET </TD> <TD> Address width </TD> <TD> Set with address width </TD> </TR>
 </TABLE>
 
+#### Literal name
+
+All literal names must be in the form:  <I> Letter { Letter | Digit |  '_' } </I> Example: 'Build_Compiler12'
+
+#### Numbers
+
+Numbers are either integers or real numbers. Numbers can be decimal or hexadecimal. <BR />
+
+*  7FF0 is a 16-bit number ( Like 0x7ff0 in C++ )
+*   Real numbers in the format like <I> 0.45D-11 </I> ( FLOAT32 )
+*   Real numbers in the format like <I> 7.11E+8 </I> ( FLOAT64 )
+
+#### Charater
+
+All characters are internally handled as UTF-32 characters, so a char is between 0 and FFFFFFFF , but only valid character codes in Unicode. Also in the format of 'x' etc.
+
+#### Strings
+
+All strings are arrays of UTF-32 characters. Defined as " Text goes here! "
+
+<B> More to come later! </B>
