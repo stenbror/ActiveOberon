@@ -124,15 +124,15 @@ Below we describe the fundamental types available to the programmer that are dir
   <TR> <TD> SIGNED16 </TD> <TD> 2 bytes </TD> <TD> -2^15 .. 2^15 - 1 </TD> </TR>
   <TR> <TD> SIGNED32 </TD> <TD> 4 bytes </TD> <TD> -2^31 .. 2^31 - 1 </TD> </TR>
   <TR> <TD> SIGNED32 </TD> <TD> 8 bytes </TD> <TD> -2^63 .. 2^63 - 1 </TD> </TR>
-  <TR> <TD> UNSIGNED8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED64 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> FLOAT32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> FLOAT64 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> SET8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
-  <TR> <TD> SET16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> SET32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> SET64 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED8 </TD> <TD> 1 byte </TD> <TD> 0 .. 2^8 -1 </TD> </TR>
+  <TR> <TD> UNSIGNED16 </TD> <TD> 2 bytes </TD> <TD> 0 .. 2^16 -1 </TD> </TR>
+  <TR> <TD> UNSIGNED32 </TD> <TD> 4 bytes </TD> <TD> 0 .. 2^32 -1 </TD> </TR>
+  <TR> <TD> UNSIGNED64 </TD> <TD> 8 bytes </TD> <TD> 0 .. 2^64 -1 </TD> </TR>
+  <TR> <TD> FLOAT32 </TD> <TD> 4 bytes </TD> <TD> </TD> -3.4028^38 .. +3.4028^38 </TR>
+  <TR> <TD> FLOAT64 </TD> <TD> 8 bytes </TD> <TD> -1.7976^308 .. +1.7976^308 </TD> </TR>
+  <TR> <TD> SET8 </TD> <TD> 1 byte </TD> <TD> Flags between 0 and 7 </TD> </TR>
+  <TR> <TD> SET16 </TD> <TD> 2 bytes </TD> <TD> Flags between 0 and 15 </TD> </TR>
+  <TR> <TD> SET32 </TD> <TD> 4 bytes </TD> <TD> Flags between 0 and 31 </TD> </TR>
+  <TR> <TD> SET64 </TD> <TD> 8 bytes </TD> <TD> Flags between 0 and 63 </TD> </TR>
 </TABLE>
 
