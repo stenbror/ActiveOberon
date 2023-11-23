@@ -58,6 +58,13 @@ This is not a full description of the language, but a good start for understandi
   <TR> <TD> VAR </TD> <TD> WHILE </TD> <TD> WITH </TD> <TD>  </TD> <TD>  </TD> </TR>
 </TABLE>
 
+<tABLE>
+  <TR> <TD> ARRAY </TD> <TD> OBJECT </TD> <TD> POINTER </TD> <TD> RECORD </TD> <TD> ADDRESS </TD> <TD> SIZE </TD> <TD> ALIAS </TD> </TR>
+</tABLE>
+
+All reserved keyword must be upper case. Code editors should support you writing lower case keyword and then make them upper case automaticaly in your code, 
+or else you will need to be friend with the caps lock on your keyboard.
+
 ### Operatrors
 
 ### data types
