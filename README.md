@@ -85,7 +85,7 @@ These can not be used for variable names etc. Just for the intended use as types
   <TR> <TD> BOOLEAN </TD> <TD> CAP </TD> <TD> CAS </TD> <TD> CHAR </TD> <TD> CHR </TD> <TD> COMPLEX </TD> <TD> COMPLEX32 </TD>  </TR>
   <TR> <TD> COMPLEX64 </TD> <TD> COPY </TD> <TD> DEC </TD> <TD> DECMUL </TD> <TD> DIM </TD> <TD> ENTER </TD> <TD> ENTIERH </TD> </TR>
   <TR> <TD> EXCL </TD> <TD> FIRST </TD> <TD> FLOAT32 </TD> <TD> FLOAT64 </TD> <TD> FLOOR </TD> <TD> HALT </TD> <TD> IM </TD> </TR>
-  <TR> TD> INC </TD> <TD> INCL </TD> <TD> INCMUL </TD> <TD> INCR </TD> <TD> INTEGER </TD> <TD> INTEGERSET </TD> <TD> LAST </TD>  </TR>
+  <TR> <TD> INC </TD> <TD> INCL </TD> <TD> INCMUL </TD> <TD> INCR </TD> <TD> INTEGER </TD> <TD> INTEGERSET </TD> <TD> LAST </TD>  </TR>
   <TR> <TD> LEN </TD> <TD> LONG </TD> <TD> LONGINTEGER </TD> <TD> LSH </TD> <TD> MAX </TD> <TD> MIN </TD> <TD> OBJECT </TD> </TR>
   <TR> <TD> ODD </TD> <TD> RANGE </TD> <TD> RE </TD> <TD> REAL </TD> <TD> RESHAPE </TD> <TD> ROL </TD> <TD> ROR </TD> </TR>
   <TR> <TD> ROT </TD> <TD> SET </TD> <TD> SET8 </TD> <TD> SET16 </TD> <TD> SET32 </TD> <TD> SET64 </TD> <TD> SHL </TD> </TR>
