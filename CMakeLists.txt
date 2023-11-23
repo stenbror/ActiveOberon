@@ -82,9 +82,10 @@ project(
 
 
 
-  
+
   # Add list of UnitTests executables in this projects
-  add_test (NAME ScannerTests COMMAND tests/TestCompilerScanner)
+  add_test (NAME TestScannerOperators COMMAND tests/TestCompilerScanner_Operators)
+  add_test (NAME TestScannerReservedKeywords COMMAND tests/TestCompilerScanner_ReservedKeywords)
 
   # Finished adding test executables.
 
