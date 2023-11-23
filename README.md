@@ -8,7 +8,7 @@ assembler will be added later.
 I am just starting this project, so it will have very little to do with the compiler for quite some time. The compiler is expected to run only under Linux at this time.
 
 ## Building project
-mkdir -C build <br />
+mkdir build <br />
 cd build <br />
 cmake .. <br />
 make <br />
