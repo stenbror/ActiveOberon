@@ -50,6 +50,12 @@ This is not a full description of the language, but a good start for understandi
   <TR> <TD> CELL </TD> <TD> CELLNET </TD> <TD> CODE </TD> <TD> DO </TD> <TD> DIV </TD> </TR>
   <TR> <TD> END </TD> <TD> ENUM </TD> <TD> ELSE </TD> <TD> ELSIF </TD> <TD> EXIT </TD> </TR>
   <TR> <TD> EXTERN </TD> <TD> FALSE </TD> <TD> FOR </TD> <TD> FINALLY </TD> <TD> IF </TD> </TR>
+  <TR> <TD> IGNORE </TD> <TD> IMAG </TD> <TD> IN </TD> <TD> IS </TD> <TD> IMPORT </TD> </TR>
+  <TR> <TD> LOOP </TD> <TD> MODULE </TD> <TD> MOD </TD> <TD> NIL </TD> <TD> OF </TD> </TR>
+  <TR> <TD> OR </TD> <TD> OUT </TD> <TD> OPERATOR </TD> <TD> PROCEDURE </TD> <TD> PORT </TD> </TR>
+  <TR> <TD> REPEAT </TD> <TD> RETURN </TD> <TD> SELF </TD> <TD> NEW </TD> <TD> RESULT </TD> </TR>
+  <TR> <TD> THEN </TD> <TD> TRUE </TD> <TD> TO </TD> <TD> TYPE </TD> <TD> UNTIL </TD> </TR>
+  <TR> <TD> VAR </TD> <TD> WHILE </TD> <TD> WITH </TD> <TD>  </TD> <TD>  </TD> </TR>
 </TABLE>
 
 ### Operatrors
