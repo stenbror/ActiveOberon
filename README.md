@@ -96,15 +96,19 @@ These can not be used for variable names etc. Just for the intended use as types
 ### System module is built in and contains the following procedures
 
 <TABLE>
-  <TR> <TD> SYSTEM.BYTE </TD> <TD> SYSTEM.GET </TD> <TD> SYSTEM.PUT </TD> <TD> SYSTEM.PUT8 </TD> </TR>
-  <TR> <TD> SYSTEM.PU16 </TD> <TD> SYSTEM.PUT16 </TD> <TD> SYSTEM.PUT32 </TD> <TD> SYSTEM.PUT64 </TD> </TR>
-  <TR> <TD> SYSTEM.GET8 </TD> <TD> SYSTEM.GET32 </TD> <TD> SYSTEM.GET64 </TD> <TD> SYSTEM.VAL </TD> </TR>
-  <TR> <TD> SYSTEM.MOVE </TD> <TD> SYSTEM.REF </TD> <TD> SYSTEM.NEW </TD> <TD> SYSTEM.TYPECODE </TD> </TR>
-  <TR> <TD> SYSTEM.HALT </TD> <TD> SYSTEM.SIZE </TD> <TD> SYSTEM.ADR </TD> <TD> SYSTEM.MSK </TD> </TR>
-  <TR> <TD> SYSTEM.BIT </TD> <TD> SYSTEM.Time </TD> <TD> SYSTEM.Date </TD> <TD> SYSTEM.GetStackPointer </TD> </TR>
-  <TR> <TD> SYSTEM.SetStackPointer </TD> <TD> SYSTEM.GetFramePointer </TD> <TD> SYSTEM.SetFramePointer </TD> <TD> SYSTEM.GetActivity </TD> </TR>
-  <TR> <TD> SYSTEM.SetActivity </TD> <TD> SYSTEM.GET16 </TD> </TR>
+  <TR>  <TD> SYSTEM.BYTE </TD> <TD> SYSTEM.GET </TD> <TD> SYSTEM.PUT </TD> </TR>
+  <TR>  <TD> SYSTEM.PUT8 </TD> <TD> SYSTEM.PUT16 </TD> <TD> SYSTEM.PUT32 </TD> </TR>
+  <TR>  <TD> SYSTEM.PUT64 </TD> <TD> SYSTEM.SET </TD> <TD> SYSTEM.GET8 </TD> </TR>
+  <TR>  <TD> SYSTEM.GET16 </TD> <TD> SYSTEM.GET32 </TD> <TD> SYSTEM.GET64 </TD> </TR>
+  <TR>  <TD> SYSTEM.VAL </TD> <TD> SYSTEM.MOVE </TD> <TD> SYSTEM.REF </TD> </TR>
+  <TR>  <TD> SYSTEM.NEW </TD> <TD> SYSTEM.TYPECODE </TD> <TD> SYSTEM.HALT </TD> </TR>
+  <TR>  <TD> SYSTEM.SIZE </TD> <TD> SYSTEM.ADR </TD> <TD> SYSTEM.MSK </TD> </TR>
+  <TR>  <TD> SYSTEM.BIT </TD> <TD> SYSTEM.Time </TD> <TD> SYSTEM.Date </TD> </TR>
+  <TR>  <TD> SYSTEM.GetStackPointer </TD> <TD> SYSTEM.SetStackPointer </TD> <TD> SYSTEM.GetFRameBuffer </TD> </TR>
+  <TR>  <TD> SYSTEM.SetFramePointer </TD> <TD> SYSTEM.GetActivity </TD> <TD> SYSTEM.SetActivity </TD> </TR>
+  <TR>  <TD> </TD> <TD> </TD> <TD> </TD> </TR>
 </TABLE>
+
 
 ### Data types
 
