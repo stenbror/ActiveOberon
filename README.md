@@ -118,21 +118,21 @@ Below we describe the fundamental types available to the programmer that are dir
 
 <TABLE>
   <TR> <TH> Typename </TH> <TH> Size </TH> <TH> Valid values </TH> </TR>
-  <TR> <TD> BOOLEAN </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> CHAR </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED8 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED16 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED32 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED32 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED8 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED16 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED32 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> UNSIGNED64 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> FLOAT32 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> FLOAT64 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SET8 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SET16 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SET32 </TD> <TD> </TD> <TD> </TD> </TR>
-  <TR> <TD> SET64 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> BOOLEAN </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
+  <TR> <TD> CHAR </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED32 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED64 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> FLOAT32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> FLOAT64 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> SET8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
+  <TR> <TD> SET16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> SET32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> SET64 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
 </TABLE>
 
