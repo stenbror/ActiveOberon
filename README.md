@@ -118,12 +118,12 @@ Below we describe the fundamental types available to the programmer that are dir
 
 <TABLE>
   <TR> <TH> Typename </TH> <TH> Size </TH> <TH> Valid values </TH> </TR>
-  <TR> <TD> BOOLEAN </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
-  <TR> <TD> CHAR </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
-  <TR> <TD> SIGNED32 </TD> <TD> 8 bytes </TD> <TD> </TD> </TR>
+  <TR> <TD> BOOLEAN </TD> <TD> 1 byte </TD> <TD> TRUE, FALSE </TD> </TR>
+  <TR> <TD> CHAR </TD> <TD> 4 bytes </TD> <TD> UNICODE UTF32 </TD> </TR>
+  <TR> <TD> SIGNED8 </TD> <TD> 1 byte </TD> <TD> -2^7 .. 2^7 - 1 </TD> </TR>
+  <TR> <TD> SIGNED16 </TD> <TD> 2 bytes </TD> <TD> -2^15 .. 2^15 - 1 </TD> </TR>
+  <TR> <TD> SIGNED32 </TD> <TD> 4 bytes </TD> <TD> -2^31 .. 2^31 - 1 </TD> </TR>
+  <TR> <TD> SIGNED32 </TD> <TD> 8 bytes </TD> <TD> -2^63 .. 2^63 - 1 </TD> </TR>
   <TR> <TD> UNSIGNED8 </TD> <TD> 1 byte </TD> <TD> </TD> </TR>
   <TR> <TD> UNSIGNED16 </TD> <TD> 2 bytes </TD> <TD> </TD> </TR>
   <TR> <TD> UNSIGNED32 </TD> <TD> 4 bytes </TD> <TD> </TD> </TR>
