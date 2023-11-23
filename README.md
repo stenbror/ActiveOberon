@@ -93,5 +93,12 @@ These can not be used for variable names etc. Just for the intended use as types
   <TR> <TD> SIZEOF </TD> <TD> STEP </TD> <TD> SUM </TD> <TD> UNSIGNED8 </TD> <TD> UNSIGNED16 </TD> <TD> UNSIGNED32 </TD> <TD> UNSIGNED64 </TD> </TR>
 </TABLE>
 
+### System module is built in and contains the following procedures
+
+<TABLE>
+  <TR> <TD> SYSTEM.BYTE </TD> <TD> SYSTEM.GET </TD> <TD> SYSTEM.PUT </TD> <TD> SYSTEM.PUT8 </TD> </TR>
+  <TR> <TD> SYSTEM.PU16 </TD> <TD> SYSTEM.PUT16 </TD> <TD> SYSTEM.PUT32 </TD> <TD> SYSTEM.PUT64 </TD> </TR>
+</TABLE>
+
 ### Data types
 
