@@ -112,5 +112,27 @@ These can not be used for variable names etc. Just for the intended use of types
 </TABLE>
 
 
-### Data types
+### Fundamental types
+
+Below we describe the fundamental types available to the programmer that are directly mapped to the hardware it runs on.
+
+<TABLE>
+  <TH> <TD> Typename </TD> <TD> Size </TD> <TD> Valid values </TD> </TH>
+  <TR> <TD> BOOLEAN </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> CHAR </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED8 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED16 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED32 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SIGNED32 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED8 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED16 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED32 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> UNSIGNED64 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> FLOAT32 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> FLOAT64 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SET8 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SET16 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SET32 </TD> <TD> </TD> <TD> </TD> </TR>
+  <TR> <TD> SET64 </TD> <TD> </TD> <TD> </TD> </TR>
+</TABLE>
 
