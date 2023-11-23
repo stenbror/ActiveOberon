@@ -78,7 +78,7 @@ or else you will need to be friend with the caps lock on your keyboard.
 
 ### Additional reserved keyword for built-in procedures and types
 
-These can not be used for variable names etc. Just for the intended use as types and procedures provided by the syste.
+These can not be used for variable names etc. Just for the intended use as types and procedures provided by the system.
 
 <TABLE>
   <TR> <TD> ABS </TD> <TD> ADDRESS </TD> <TD> ADDRESSOF </TD> <TD> ALL </TD> <TD> ANY </TD> <TD> ASH </TD> <TD> ASSERT </TD> <TD> BOOLEAN </TD> </TR>
@@ -86,6 +86,10 @@ These can not be used for variable names etc. Just for the intended use as types
   <TR> <TD> DEC </TD> <TD> DECMUL </TD> <TD> DIM </TD> <TD> ENTER </TD> <TD> ENTIERH </TD> <TD> EXCL </TD> <TD> FIRST </TD> <TD> FLOAT32 </TD> </TR>
   <TR> <TD> FLOAT64 </TD> <TD> FLOOR </TD> <TD> HALT </TD> <TD> IM </TD> <TD> INC </TD> <TD> INCL </TD> <TD> INCMUL </TD> <TD> INCR </TD> </TR>
   <TR> <TD> INTEGER </TD> <TD> INTEGERSET </TD> <TD> LAST </TD> <TD> LEN </TD> <TD> LONG </TD> <TD> LONGINTEGER </TD> <TD> LSH </TD> <TD> MAX </TD> </TR>
+  <TR> <TD> MIN </TD> <TD> OBJECT </TD> <TD> ODD </TD> <TD> RANGE </TD> <TD> RE </TD> <TD> REAL </TD> <TD> RESHAPE </TD> <TD> ROL </TD> </TR>
+  <TR> <TD> ROR </TD> <TD> ROT </TD> <TD> SET </TD> <TD> SET8 </TD> <TD> SET16 </TD> <TD> SET32 </TD> <TD> SET64 </TD> <TD> SHL </TD> </TR>
+  <TR> <TD> SHORT </TD> <TD> SHR </TD> <TD> SIGNED8 </TD> <TD> SIGNED16 </TD> <TD> SIGNED32 </TD> <TD> SIGNED64 </TD> <TD> SIZE </TD> <TD> SIZEOF </TD> </TR>
+  <TR> <TD> STEP </TD> <TD> SUM </TD> <TD> UNSIGNED8 </TD> <TD> UNSIGNED16 </TD> <TD> UNSIGNED32 </TD> <TD> UNSIGNED64 </TD> </TR>
 </TABLE>
 
 ### Data types
