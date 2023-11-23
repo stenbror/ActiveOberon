@@ -134,5 +134,10 @@ Below we describe the fundamental types available to the programmer that are dir
   <TR> <TD> SET16 </TD> <TD> 2 bytes </TD> <TD> Flags between 0 and 15 </TD> </TR>
   <TR> <TD> SET32 </TD> <TD> 4 bytes </TD> <TD> Flags between 0 and 31 </TD> </TR>
   <TR> <TD> SET64 </TD> <TD> 8 bytes </TD> <TD> Flags between 0 and 63 </TD> </TR>
+  <TR> <TD> REAL </TD> <TD> </TD> <TD> Default floating point type. double in C </TD> </TR>
+  <TR> <TD> INTEGER </TD> <TD> Machine word </TD> <TD> signed integer in machine word size </TD> </TR>
+  <TR> <TD> ADDRESS </TD> <TD> Address width </TD> <TD> unsigned integer in address range </TD> </TR>
+  <TR> <TD> SIZE </TD> <TD> Address width </TD> <TD> signed inteher in address range </TD> </TR>
+  <TR> <TD> SET </TD> <TD> Address width </TD> <TD> Set with address width </TD> </TR>
 </TABLE>
 
