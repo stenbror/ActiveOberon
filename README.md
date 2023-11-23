@@ -117,7 +117,7 @@ These can not be used for variable names etc. Just for the intended use of types
 Below we describe the fundamental types available to the programmer that are directly mapped to the hardware it runs on.
 
 <TABLE>
-  <TH> <TD> Typename </TD> <TD> Size </TD> <TD> Valid values </TD> </TH>
+  <TR> <TH> Typename </TH> <TH> Size </TH> <TH> Valid values </TH> </TR>
   <TR> <TD> BOOLEAN </TD> <TD> </TD> <TD> </TD> </TR>
   <TR> <TD> CHAR </TD> <TD> </TD> <TD> </TD> </TR>
   <TR> <TD> SIGNED8 </TD> <TD> </TD> <TD> </TD> </TR>
