@@ -45,7 +45,9 @@ This is not a full description of the language, but a good start for understandi
 
 ### Reserved keywords
 
-
+| :============== | :============== | :============== | :============== | : ============== |
+| AWAIT | BEGIN | BY | CONST | CASE |
+| CELL | CELLNET | CODE | DO | DIV |
 
 ### Operatrors
 
