@@ -39,3 +39,15 @@ Active Oberon is a highly typed and garbage collected language for system progra
 * Then you will build the Active Oberon based compiler with the help of the C++ bootstrap compiler.
 * Finally you will use the finished Active Oberon based compiler to build it self and you have the final product.
 
+## Language overview
+
+This is not a full description of the language, but a good start for understanding what the language <b> Active Oberon </b> is all about.
+
+### Reserved keywords
+
+
+
+### Operatrors
+
+### data types
+
