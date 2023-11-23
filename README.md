@@ -14,9 +14,9 @@ cmake .. <br />
 make <br />
 ctest <br />
 
-If you want to build the full project and execute all tests in one command, just execute 'make check' <br />
+If you want to build and execute all tests in one command, just execute 'make check' <br />
 
-To make a slim executable for release purposes, just execute in build folder 'strip ActiveOberon' <br />
+To make a slim executable for release purposes, just execute in the build folder 'strip ActiveOberon' <br />
 
 ## What is Active Oberon
 
