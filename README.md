@@ -76,5 +76,17 @@ or else you will need to be friend with the caps lock on your keyboard.
    <TR>  <TD> * </TD> <TD> -* </TD> <TD> ** </TD> <TD> / </TD> <TD> ./ </TD> <TD> \ </TD> </TR>
 </TABLE>
 
-### data types
+### Additional reserved keyword for built-in procedures and types
+
+These can not be used for variable names etc. Just for the intended use as types and procedures provided by the syste.
+
+<TABLE>
+  <TR> <TD> ABS </TD> <TD> ADDRESS </TD> <TD> ADDRESSOF </TD> <TD> ALL </TD> <TD> ANY </TD> <TD> ASH </TD> <TD> ASSERT </TD> <TD> BOOLEAN </TD> </TR>
+  <TR> <TD> CAP </TD> <TD> CAS </TD> <TD> CHAR </TD> <TD> CHR </TD> <TD> COMPLEX </TD> <TD> COMPLEX32 </TD> <TD> COMPLEX64 </TD> <TD> COPY </TD> </TR>
+  <TR> <TD> DEC </TD> <TD> DECMUL </TD> <TD> DIM </TD> <TD> ENTER </TD> <TD> ENTIERH </TD> <TD> EXCL </TD> <TD> FIRST </TD> <TD> FLOAT32 </TD> </TR>
+  <TR> <TD> FLOAT64 </TD> <TD> FLOOR </TD> <TD> HALT </TD> <TD> IM </TD> <TD> INC </TD> <TD> INCL </TD> <TD> INCMUL </TD> <TD> INCR </TD> </TR>
+  <TR> <TD> INTEGER </TD> <TD> INTEGERSET </TD> <TD> LAST </TD> <TD> LEN </TD> <TD> LONG </TD> <TD> LONGINTEGER </TD> <TD> LSH </TD> <TD> MAX </TD> </TR>
+</TABLE>
+
+### Data types
 
