@@ -19,25 +19,25 @@ strip ActiveOberon <br />
 
 ## What is Active Oberon
 
-Active Oberon is the latest member of the Algol family of languages. Derived directly from the language Oberon (-2) and languages as Modula, Pascal etc.
+Active Oberon is the latest member of the Algol family of languages. Derived directly from the language Oberon (-2) and languages such as Modula, Pascal, etc.
 
-I will first write a complete compiler / linker / build system with inline assembler for ARM v8 and X86-64 instruction sets. With it a minimum of support
-libraries as source code that will be compiled and optimized each time you create your own programs. Design goals is to remove vaste and bloated executable
-that most languges and systems is used to now.
+I will first write a complete compiler/linker/build system with an inline assembler for ARM v8 and X86-64 instruction sets. With it a minimum of support
+libraries as source code that will be compiled and optimized each time you create your own programs. The design goal is to remove waste and bloated executables
+that most languages and systems are used to now.
 
-Code will be native and optimized with only the library functions you need packed into a single executable file in ELF format.
+Code will be native and optimized with only the library functions you need to be packed into a single executable file in ELF format.
 
-If we get enough interrest for the project, i am thinking about writing the compiler / linker / build tool in Active Oberon later, and use the C++ version as
-a bootstrap for the real compiler and system. Regardless will the C++ version be as complete as the final product. It will be upto you which you will use and
+If we get enough interest for the project, I am thinking about writing the compiler/linker / build tool in Active Oberon later, and using the C++ version as
+a bootstrap for the real compiler and system. Regardless will the C++ version be as complete as the final product? It will be up to you which you will use and
 all libraries will be available without changes for both.
 
-Active Oberon is a highly typed and garbage collected language for system programming.
+Active Oberon is a highly typed and garbage-collected language for system programming.
 
 ## Bootstrapping the system in the future
 
-* You will first compile the c++ version of the Active Oberon compiler / linker / build tool.
-* Then you will build the Active Oberon based compiler with the help of the C++ bootstrap compiler.
-* Finally you will use the finished Active Oberon based compiler to build it self and you have the final product.
+* You will first compile the C++ version of the Active Oberon compiler/linker / build tool.
+* Then you will build the Active Oberon-based compiler with the help of the C++ bootstrap compiler.
+* Finally you will use the finished Active Oberon-based compiler to build itself and you have the final product.
 
 ## Language overview
 
@@ -64,10 +64,10 @@ This is not a full description of the language, but a good start for understandi
   <TR> <TD> ARRAY </TD> <TD> OBJECT </TD> <TD> POINTER </TD> <TD> RECORD </TD> <TD> ADDRESS </TD> <TD> SIZE </TD> <TD> ALIAS </TD> </TR>
 </tABLE>
 
-All reserved keyword must be upper case. Code editors should support you writing lower case keyword and then make them upper case automaticaly in your code, 
-or else you will need to be friend with the caps lock on your keyboard.
+All reserved keywords must be in upper case. Code editors should support you in writing lowercase keywords and then make them uppercase automatically in your code, 
+or else you will need to be friends with the caps lock on your keyboard.
 
-### Operatrors and delimiters
+### Operators and delimiters
 
 <TABLE>
    <TR>  <TD> ( </TD> <TD> ) </TD> <TD> [ </TD> <TD> ] </TD> <TD> { </TD> <TD> } </TD> <TD> | </TD> <TD> " </TD> <TD> ' </TD> <TD> , </TD> <TD> ` </TD> </TR>
@@ -78,7 +78,7 @@ or else you will need to be friend with the caps lock on your keyboard.
 
 ### Additional reserved keywords for built-in procedures and types
 
-These can not be used for variable names etc. Just for the intended use as types and procedures provided by the system.
+These can not be used for variable names etc. Just for the intended use of types and procedures provided by the system.
 
 <TABLE>
   <TR> <TD> ABS </TD> <TD> ADDRESS </TD> <TD> ADDRESSOF </TD> <TD> ALL </TD> <TD> ANY </TD> <TD> ASH </TD> </TR>
@@ -87,15 +87,15 @@ These can not be used for variable names etc. Just for the intended use as types
   <TR> <TD> DIM </TD> <TD> ENTER </TD> <TD> ENTIERH </TD> <TD> EXCL </TD> <TD> FIRST </TD> <TD> FLOAT32 </TD> </TR>
   <TR> <TD> FLOAT64 </TD> <TD> FLOOR </TD> <TD> HALT </TD> <TD> IM </TD> <TD> INC </TD> <TD> INCL </TD> </TR>
   <TR> <TD> INCMUL </TD> <TD> INCR </TD> <TD> INTEGER </TD> <TD> INTEGERSET </TD> <TD> LAST </TD> <TD> LEN </TD> </TR>
-  <TR>  <TD> LONG </TD> <TD> LONGINTEGER </TD> <TD> LSH </TD> <TD> MAX </TD> <TD> MIN </TD> <TD> OBJECT </TD> <TD> ODD </TD> </TR>
-  <TR>  <TD> RANGE </TD> <TD> RE </TD> <TD> REAL </TD> <TD> RESHAPE </TD> <TD> ROL </TD> <TD> ROR </TD> </TR>
-  <TR>  <TD> ROT </TD> <TD> SET </TD> <TD> SET8 </TD> <TD> SET16 </TD> <TD> SET32 </TD> <TD> SET64 </TD> </TR>
-  <TR>  <TD> SHL </TD> <TD> SHORT </TD> <TD> SHR </TD> <TD> SIGNED8 </TD> <TD> SIGNED16 </TD> <TD> SIGNED32 </TD>  </TR>
-  <TR>  <TD> SIGNED64 </TD> <TD> SIZE </TD> <TD> SIZEOF </TD> <TD> STEP </TD> <TD> SUM </TD> <TD> UNSIGNED8 </TD> </TR>
-  <TR>  <TD> UNSIGNED16 </TD> <TD> UNSIGNED32 </TD> <TD> UNSIGNED64 </TD>  </TR>
+  <TR>  <TD> LONG </TD> <TD> LONGINTEGER </TD> <TD> LSH </TD> <TD> MAX </TD> <TD> MIN </TD> <TD> OBJECT </TD> </TR>
+  <TR>  <TD> ODD </TD> <TD> RANGE </TD> <TD> RE </TD> <TD> REAL </TD> <TD> RESHAPE </TD> <TD> ROL </TD> </TR>
+  <TR>  <TD> ROR </TD> <TD> ROT </TD> <TD> SET </TD> <TD> SET8 </TD> <TD> SET16 </TD> <TD> SET32 </TD>  </TR>
+  <TR>  <TD> SET64 </TD> <TD> SHL </TD> <TD> SHORT </TD> <TD> SHR </TD> <TD> SIGNED8 </TD> <TD> SIGNED16 </TD>  </TR>
+  <TR>  <TD> SIGNED32 </TD> <TD> SIGNED64 </TD> <TD> SIZE </TD> <TD> SIZEOF </TD> <TD> STEP </TD> <TD> SUM </TD>  </TR>
+  <TR>  <TD> UNSIGNED8 </TD> <TD> UNSIGNED16 </TD> <TD> UNSIGNED32 </TD> <TD> UNSIGNED64 </TD>  </TR>
 </TABLE>
 
-### System module is built in and contains the following procedures
+### The system module is built in and contains the following procedures
 
 <TABLE>
   <TR>  <TD> SYSTEM.BYTE </TD> <TD> SYSTEM.GET </TD> <TD> SYSTEM.PUT </TD> </TR>
