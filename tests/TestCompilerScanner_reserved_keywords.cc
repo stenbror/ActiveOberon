@@ -392,6 +392,301 @@ void reserved_keyword_OPERATOR()
     ASSERT_EQUAL(symb.end_pos, 8);
 }
 
+void reserved_keyword_PROCEDURE()
+{
+    auto text = std::u32string(U"PROCEDURE");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Procedure);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 9);
+}
+
+void reserved_keyword_PORT()
+{
+    auto text = std::u32string(U"PORT");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Port);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_REPEAT()
+{
+    auto text = std::u32string(U"REPEAT");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Repeat);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 6);
+}
+
+void reserved_keyword_RETURN()
+{
+    auto text = std::u32string(U"RETURN");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Return);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 6);
+}
+
+void reserved_keyword_SELF()
+{
+    auto text = std::u32string(U"SELF");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Self);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_NEW()
+{
+    auto text = std::u32string(U"NEW");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::New);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 3);
+}
+
+void reserved_keyword_RESULT()
+{
+    auto text = std::u32string(U"RESULT");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Result);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 6);
+}
+
+void reserved_keyword_THEN()
+{
+    auto text = std::u32string(U"THEN");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Then);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_TRUE()
+{
+    auto text = std::u32string(U"TRUE");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::True);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_TO()
+{
+    auto text = std::u32string(U"TO");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::To);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void reserved_keyword_TYPE()
+{
+    auto text = std::u32string(U"TYPE");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Type);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_UNTIL()
+{
+    auto text = std::u32string(U"UNTIL");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Until);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 5);
+}
+
+void reserved_keyword_VAR()
+{
+    auto text = std::u32string(U"VAR");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Var);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 3);
+}
+
+void reserved_keyword_WHILE()
+{
+    auto text = std::u32string(U"WHILE");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::While);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 5);
+}
+
+void reserved_keyword_WITH()
+{
+    auto text = std::u32string(U"WITH");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::With);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_ARRAY()
+{
+    auto text = std::u32string(U"ARRAY");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Array);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 5);
+}
+
+void reserved_keyword_OBJECT()
+{
+    auto text = std::u32string(U"OBJECT");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Object);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 6);
+}
+
+void reserved_keyword_POINTER()
+{
+    auto text = std::u32string(U"POINTER");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Pointer);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 7);
+}
+
+void reserved_keyword_RECORD()
+{
+    auto text = std::u32string(U"RECORD");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Record);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 6);
+}
+
+void reserved_keyword_ADDRESS()
+{
+    auto text = std::u32string(U"ADDRESS");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Address);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 7);
+}
+
+void reserved_keyword_SIZE()
+{
+    auto text = std::u32string(U"SIZE");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Size);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 4);
+}
+
+void reserved_keyword_ALIAS()
+{
+    auto text = std::u32string(U"ALIAS");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Alias);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 5);
+}
+
+// Should fail UnitTests //////////////////////////////////////////////////////
+
+void reserved_keyword_failure_lowercase()
+{
+    auto text = std::u32string(U"ALiAS");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();
+    auto content = lexer->get_content_collected();
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Ident);
+    ASSERT_EQUAL(content.compare(std::u32string(U"ALiAS")), 0 );
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 5);
+}
+
+void reserved_keyword_failure_ketword_addition()
+{
+    auto text = std::u32string(U"UNTILX");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();
+    auto content = lexer->get_content_collected();
+    
+    ASSERT_EQUAL(symb.symbol, Symbols::Ident);
+    ASSERT_EQUAL(content.compare(std::u32string(U"UNTILX")), 0 );
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 6);
+}
+
+
 // Test harness for reserved keywords /////////////////////////////////////////
 
 int main() {
@@ -427,6 +722,31 @@ int main() {
     reserved_keyword_OR();
     reserved_keyword_OUT();
     reserved_keyword_OPERATOR();
+    reserved_keyword_PROCEDURE();
+    reserved_keyword_PORT();
+    reserved_keyword_REPEAT();
+    reserved_keyword_RETURN();
+    reserved_keyword_SELF();
+    reserved_keyword_NEW();
+    reserved_keyword_RESULT();
+    reserved_keyword_THEN();
+    reserved_keyword_TRUE();
+    reserved_keyword_TO();
+    reserved_keyword_TYPE();
+    reserved_keyword_UNTIL();
+    reserved_keyword_VAR();
+    reserved_keyword_WHILE();
+    reserved_keyword_WITH();
+    reserved_keyword_ARRAY();
+    reserved_keyword_OBJECT();
+    reserved_keyword_POINTER();
+    reserved_keyword_RECORD();
+    reserved_keyword_ADDRESS();
+    reserved_keyword_SIZE();
+    reserved_keyword_ALIAS();
+
+    reserved_keyword_failure_lowercase();
+    reserved_keyword_failure_ketword_addition();
 
     return 0;
 }

@@ -195,7 +195,14 @@ namespace ActiveOberon::Compiler
                 { U"UNTIL",     Symbols::Until },
                 { U"VAR",       Symbols::Var },
                 { U"WHILE",     Symbols::While },
-                { U"WITH",      Symbols::With }
+                { U"WITH",      Symbols::With },
+                { U"ARRAY",     Symbols::Array },
+                { U"OBJECT",    Symbols::Object },
+                { U"POINTER",   Symbols::Pointer },
+                { U"RECORD",    Symbols::Record },
+                { U"ADDRESS",   Symbols::Address },
+                { U"SIZE",      Symbols::Size },
+                { U"ALIAS",     Symbols::Alias }
             };
 
         public:
