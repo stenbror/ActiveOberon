@@ -81,6 +81,18 @@ void operators_right_brace()
     ASSERT_EQUAL(symb.end_pos, 1);
 }
 
+void operators_bar()
+{
+  auto text = std::u32string(U"|");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Bar);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
 // Test harness for reserved keywords /////////////////////////////////////////
 
 int main() {
@@ -91,6 +103,7 @@ int main() {
   operators_right_bracket();
   operators_left_brace();
   operators_right_brace();
+  operators_bar();
   
   return 0;
 }
