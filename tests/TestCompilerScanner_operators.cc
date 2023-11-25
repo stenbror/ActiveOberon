@@ -405,6 +405,54 @@ void operators_times_times()
     ASSERT_EQUAL(symb.end_pos, 2);
 }
 
+void operators_slash()
+{
+  auto text = std::u32string(U"/");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Slash);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_dot_slash()
+{
+  auto text = std::u32string(U"./");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::DotSlash);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_back_slash()
+{
+  auto text = std::u32string(U"\\");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::BackSlash);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_equal()
+{
+  auto text = std::u32string(U"=");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Equal);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
 
 // Test harness for reserved keywords /////////////////////////////////////////
 
@@ -443,6 +491,10 @@ int main() {
   operators_minus();
   operators_times();
   operators_times_times();
+  operators_slash();
+  operators_dot_slash();
+  operators_back_slash();
+  operators_equal();
 
   return 0;
 }
