@@ -1,5 +1,5 @@
 
-#include <scanner.h>
+#include "scanner.h"
 #include <iostream>
 
 using namespace ActiveOberon::Compiler;
