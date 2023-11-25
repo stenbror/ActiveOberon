@@ -119,15 +119,15 @@ Token ActiveOberonScanner::get_symbol() {
                 case '<':   
                     m_index++;
                     if (get_char() == '=') {
-                        m_index++; return Token { Symbols::DotGreaterEqual, start_pos, m_index };
-                    }
-                    return Token { Symbols::DotGreater, start_pos, m_index };
-                case '>':
-                    m_index++;
-                    if (get_char() == '=') {
                         m_index++; return Token { Symbols::DotLessEqual, start_pos, m_index };
                     }
                     return Token { Symbols::DotLess, start_pos, m_index };
+                case '>':
+                    m_index++;
+                    if (get_char() == '=') {
+                        m_index++; return Token { Symbols::DotGreaterEqual, start_pos, m_index };
+                    }
+                    return Token { Symbols::DotGreater, start_pos, m_index };
                 case '.':   m_index++; return Token { Symbols::Upto, start_pos, m_index };
                 default:    return Token { Symbols::Period, start_pos, m_index };
             }

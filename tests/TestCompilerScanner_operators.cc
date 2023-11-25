@@ -237,6 +237,173 @@ void operators_dot_un_equal()
     ASSERT_EQUAL(symb.end_pos, 2);
 }
 
+void operators_dot_equal()
+{
+  auto text = std::u32string(U".=");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::DotEqual);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_less()
+{
+  auto text = std::u32string(U"<");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Less);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_dot_less()
+{
+  auto text = std::u32string(U".<");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::DotLess);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_dot_less_equal()
+{
+  auto text = std::u32string(U".<=");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::DotLessEqual);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 3);
+}
+
+void operators_less_equal()
+{
+  auto text = std::u32string(U"<=");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::LessEqual);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_greater()
+{
+  auto text = std::u32string(U">");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Greater);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_greater_equal()
+{
+  auto text = std::u32string(U">=");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::GreaterEqual);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_dot_greater()
+{
+  auto text = std::u32string(U".>");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::DotGreater);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_dot_greater_equal()
+{
+  auto text = std::u32string(U".>=");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::DotGreaterEqual);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 3);
+}
+
+void operators_plus()
+{
+  auto text = std::u32string(U"+");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Plus);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_plus_times()
+{
+  auto text = std::u32string(U"+*");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::PlusTimes);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
+
+void operators_minus()
+{
+  auto text = std::u32string(U"-");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Minus);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_times()
+{
+  auto text = std::u32string(U"*");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::Times);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 1);
+}
+
+void operators_times_times()
+{
+  auto text = std::u32string(U"**");
+    
+    auto lexer = std::make_shared<ActiveOberonScanner>(text);
+    auto symb = lexer->get_symbol();    
+
+    ASSERT_EQUAL(symb.symbol, Symbols::TimesTimes);
+    ASSERT_EQUAL(symb.start_pos, 0);
+    ASSERT_EQUAL(symb.end_pos, 2);
+}
 
 
 // Test harness for reserved keywords /////////////////////////////////////////
@@ -262,7 +429,20 @@ int main() {
   operators_questionmark();
   operators_not_equal();
   operators_dot_un_equal();
-
+  operators_dot_equal();
+  operators_less();
+  operators_dot_less();
+  operators_less_equal();
+  operators_dot_less_equal();
+  operators_greater();
+  operators_dot_greater();
+  operators_greater_equal();
+  operators_dot_greater_equal();
+  operators_plus();
+  operators_plus_times();
+  operators_minus();
+  operators_times();
+  operators_times_times();
 
   return 0;
 }
