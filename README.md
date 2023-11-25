@@ -74,7 +74,7 @@ or else you will need to be friends with the caps lock on your keyboard.
 
 <TABLE>
    <TR>  <TD> ( </TD> <TD> ) </TD> <TD> [ </TD> <TD> ] </TD> <TD> { </TD> <TD> } </TD> <TD> | </TD> <TD> " </TD> <TD> ' </TD> <TD> , </TD> <TD> ` </TD> </TR>
-   <TR>  <TD> . </TD> <TD> .. </TD> <TD> : </TD> <TD> ; </TD> <TD> & </TD> <TD> ~ </TD> <TD> ^ </TD> <TD> ? </TD> <TD> # </TD> <TD> .# </TD> <TD> .=& </TD> </TR>
+   <TR>  <TD> . </TD> <TD> .. </TD> <TD> : </TD> <TD> ; </TD> <TD> & </TD> <TD> ~ </TD> <TD> ^ </TD> <TD> ? </TD> <TD> # </TD> <TD> .# </TD> <TD> .= </TD> </TR>
    <TR>  <TD> &lt;  </TD> <TD> .&lt; </TD> <TD> &lt;= </TD> <TD> .&lt;= </TD> <TD> &gt; </TD> <TD> .&gt; </TD> <TD> &gt;= </TD> <TD> .&gt;= </TD> <TD> + </TD> <TD> +* </TD> <TD> - </TD> </TR>
    <TR>  <TD> * </TD> <TD> -* </TD> <TD> ** </TD> <TD> / </TD> <TD> ./ </TD> <TD> \ </TD> <TD> = </TD> </TR>
 </TABLE>
