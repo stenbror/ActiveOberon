@@ -30,7 +30,7 @@ Token ActiveOberonScanner::get_symbol() {
         case '(':  m_index++; return Token { Symbols::LeftParen, start_pos, m_index };
         case ')':  m_index++; return Token { Symbols::RightParen, start_pos, m_index };
         case '[':  m_index++; return Token { Symbols::LeftBracket, start_pos, m_index };
-        case ']':  m_index++; return Token { Symbols::RightParen, start_pos, m_index };
+        case ']':  m_index++; return Token { Symbols::RightBracket, start_pos, m_index };
         case '{':  m_index++; return Token { Symbols::LeftBrace, start_pos, m_index };
         case '}':  m_index++; return Token { Symbols::RightBrace, start_pos, m_index };
         case '|':  m_index++; return Token { Symbols::Bar, start_pos, m_index };
