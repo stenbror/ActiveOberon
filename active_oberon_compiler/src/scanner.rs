@@ -1,4 +1,6 @@
 use std::io::IsTerminal;
+use std::string;
+use crate::scanner::Symbols::String;
 
 #[derive()]
 enum Symbols
@@ -125,27 +127,302 @@ enum Symbols
 pub trait ScannerMethods
 {
 	fn new() -> Self;
-	fn get_symbol(&self) -> Symbols;
+	fn get_char(&self) -> char;
+	fn peek_char(&self) -> char;
+	fn get_start_position(&self) -> u32;
+	fn get_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
 	fn is_reserved_keyword(&self, start : u32, end: u32, keyword: &str) -> Option<Symbols>;
 }
 
 pub struct Scanner
 {
-
+	start_pos: u32,
+	symbol: Symbols,
+	index: u32
 }
 
 impl ScannerMethods for Scanner
 {
 	fn new() -> Scanner {
 		Scanner{
-
+			start_pos: 0,
+			symbol: Symbols::Empty,
+			index: 0
 		}
 	}
 
-	fn get_symbol(&self) -> Symbols {
+	fn get_char(&self) -> char {
 		todo!()
 	}
 
+	fn peek_char(&self) -> char {
+		todo!()
+	}
+
+	fn get_start_position(&self) -> u32 {
+		self.start_pos
+	}
+
+	/// Get the next valid symbol in source file and return it to the parser
+	fn get_symbol(&mut self) -> Result<Symbols, Box<std::string::String>> {
+
+		/* Remove whitespace */
+		loop {
+			let ch = self.peek_char();
+			match ch {
+				' '  | '\t' => {
+					let _ = self.get_char();
+					continue
+				},
+				_ => {
+					break
+				}
+			}
+		}
+
+		self.start_pos = self.index; /* Save start position of current symbol */
+
+		/* Operators or delimiters */
+		match self.peek_char() {
+			'(' => {
+				let _ = self.get_char();
+				return Ok(Symbols::LeftParen(self.start_pos, self.index))
+			},
+			')' => {
+				let _ = self.get_char();
+				return Ok(Symbols::RightParen(self.start_pos, self.index))
+			},
+			'[' => {
+				let _ = self.get_char();
+				return Ok(Symbols::LeftBracket(self.start_pos, self.index))
+			},
+			']' => {
+				let _ = self.get_char();
+				return Ok(Symbols::RightBracket(self.start_pos, self.index))
+			},
+			'{' => {
+				let _ = self.get_char();
+				return Ok(Symbols::LeftBrace(self.start_pos, self.index))
+			},
+			'}' => {
+				let _ = self.get_char();
+				return Ok(Symbols::RightBrace(self.start_pos, self.index))
+			},
+			'|' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Bar(self.start_pos, self.index))
+			},
+			'#' => {
+				let _ = self.get_char();
+				return Ok(Symbols::NotEqual(self.start_pos, self.index))
+			},
+			'&' => {
+				let _ = self.get_char();
+				return Ok(Symbols::And(self.start_pos, self.index))
+			},
+			',' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Comma(self.start_pos, self.index))
+			},
+			'-' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Minus(self.start_pos, self.index))
+			},
+			'/' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Slash(self.start_pos, self.index))
+			},
+			';' => {
+				let _ = self.get_char();
+				return Ok(Symbols::SemiColon(self.start_pos, self.index))
+			},
+			'=' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Equal(self.start_pos, self.index))
+			},
+			'^' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Arrow(self.start_pos, self.index))
+			},
+			'~' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Not(self.start_pos, self.index))
+			},
+			'\\' => {
+				let _ = self.get_char();
+				return Ok(Symbols::BackSlash(self.start_pos, self.index))
+			},
+			'`' => {
+				let _ = self.get_char();
+				return Ok(Symbols::Transpose(self.start_pos, self.index))
+			},
+			'*' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'*' => {
+						_ = self.get_char();
+						Ok(Symbols::TimesTimes(self.start_pos, self.index))
+					},
+					_ => {
+						Ok(Symbols::Times(self.start_pos, self.index))
+					}
+				}
+			},
+			'+' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'*' => {
+						_ = self.get_char();
+						Ok(Symbols::PlusTimes(self.start_pos, self.index))
+					},
+					_ => {
+						Ok(Symbols::Plus(self.start_pos, self.index))
+					}
+				}
+			},
+			':' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'=' => {
+						_ = self.get_char();
+						Ok(Symbols::Becomes(self.start_pos, self.index))
+					},
+					_ => {
+						Ok(Symbols::Colon(self.start_pos, self.index))
+					}
+				}
+			},
+			'<' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'=' => {
+						_ = self.get_char();
+						Ok(Symbols::LessEqual(self.start_pos, self.index))
+					},
+					'<' => {
+						_ = self.get_char();
+						match self.peek_char() {
+							'?' => {
+								_ = self.get_char();
+								Ok(Symbols::LessLessQ(self.start_pos, self.index))
+							},
+							_ => {
+								Ok(Symbols::LessLess(self.start_pos, self.index))
+							}
+						}
+					},
+					_ => {
+						Ok(Symbols::Less(self.start_pos, self.index))
+					}
+				}
+			},
+			'>' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'=' => {
+						_ = self.get_char();
+						Ok(Symbols::GreaterEqual(self.start_pos, self.index))
+					},
+					'>' => {
+						_ = self.get_char();
+						match self.peek_char() {
+							'?' => {
+								_ = self.get_char();
+								Ok(Symbols::GreaterGreaterQ(self.start_pos, self.index))
+							},
+							_ => {
+								Ok(Symbols::GreaterGreater(self.start_pos, self.index))
+							}
+						}
+					},
+					_ => {
+						Ok(Symbols::Greater(self.start_pos, self.index))
+					}
+				}
+			},
+			'?' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'?' => {
+						_ = self.get_char();
+						Ok(Symbols::QuestionMarks(self.start_pos, self.index))
+					},
+					_ => {
+						Ok(Symbols::QuestionMark(self.start_pos, self.index))
+					}
+				}
+			},
+			'!' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'!' => {
+						_ = self.get_char();
+						Ok(Symbols::ExclaimMarks(self.start_pos, self.index))
+					},
+					_ => {
+						Ok(Symbols::ExclaimMark(self.start_pos, self.index))
+					}
+				}
+			},
+			'.' => {
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'*' => {
+						_ = self.get_char();
+						Ok(Symbols::DotTimes(self.start_pos, self.index))
+					},
+					'/' => {
+						_ = self.get_char();
+						Ok(Symbols::DotSlash(self.start_pos, self.index))
+					},
+					'=' => {
+						_ = self.get_char();
+						Ok(Symbols::DotEqual(self.start_pos, self.index))
+					},
+					'#' => {
+						_ = self.get_char();
+						Ok(Symbols::DotUnEqual(self.start_pos, self.index))
+					},
+					'.' => {
+						_ = self.get_char();
+						Ok(Symbols::Upto(self.start_pos, self.index))
+					},
+					'<' => {
+						_ = self.get_char();
+						match self.peek_char() {
+							'=' => {
+								_ = self.get_char();
+								Ok(Symbols::DotLessEqual(self.start_pos, self.index))
+							},
+							_ => {
+								Ok(Symbols::DotLess(self.start_pos, self.index))
+							}
+						}
+					},
+					'>' => {
+						_ = self.get_char();
+						match self.peek_char() {
+							'=' => {
+								_ = self.get_char();
+								Ok(Symbols::DotGreaterEqual(self.start_pos, self.index))
+							},
+							_ => {
+								Ok(Symbols::DotGreater(self.start_pos, self.index))
+							}
+						}
+					},
+					_ => {
+						Ok(Symbols::Period(self.start_pos, self.index))
+					}
+				}
+			},
+			_ => ()
+		}
+
+		Err(Box::new(format!("Invalid symbol in source file at position: '{}'", self.index)))
+	}
+
+	/// Lookup valid reserved keywords and get symbol if found.
 	fn is_reserved_keyword(&self, start: u32, end: u32, keyword: &str) -> Option<Symbols> {
 		match keyword {
 			"AWAIT" 		=> Some(Symbols::Await(start, end)),
