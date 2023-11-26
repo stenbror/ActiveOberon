@@ -1,3 +1,4 @@
+use std::io::IsTerminal;
 
 #[derive()]
 enum Symbols
@@ -147,15 +148,33 @@ impl ScannerMethods for Scanner
 
 	fn is_reserved_keyword(&self, start: u32, end: u32, keyword: &str) -> Option<Symbols> {
 		match keyword {
-			"AWAIT" => Some(Symbols::Await(start, end)),
-			"BEGIN" => Some(Symbols::Begin(start, end)),
-			"BY" => Some(Symbols::By(start, end)),
-			"CONST" => Some(Symbols::Const(start, end)),
-			"CASE" => Some(Symbols::Case(start, end)),
-			"CELL" => Some(Symbols::Cell(start, end)),
-			"CELLNET" => Some(Symbols::Cellnet(start, end)),
-			"CODE" => Some(Symbols::Code(start, end)),
-			"DEFINITION" => Some(Symbols::Definition(start, end)),
+			"AWAIT" 		=> Some(Symbols::Await(start, end)),
+			"BEGIN" 		=> Some(Symbols::Begin(start, end)),
+			"BY" 			=> Some(Symbols::By(start, end)),
+			"CONST" 		=> Some(Symbols::Const(start, end)),
+			"CASE" 			=> Some(Symbols::Case(start, end)),
+			"CELL" 			=> Some(Symbols::Cell(start, end)),
+			"CELLNET" 		=> Some(Symbols::Cellnet(start, end)),
+			"CODE" 			=> Some(Symbols::Code(start, end)),
+			"DEFINITION" 	=> Some(Symbols::Definition(start, end)),
+			"DO" 			=> Some(Symbols::Do(start, end)),
+			"DIV" 			=> Some(Symbols::Div(start, end)),
+			"END" 			=> Some(Symbols::End(start, end)),
+			"ENUM" 			=> Some(Symbols::Enum(start, end)),
+			"ELSE" 			=> Some(Symbols::Else(start, end)),
+			"ELSIF" 		=> Some(Symbols::Elsif(start, end)),
+			"EXIT" 			=> Some(Symbols::Exit(start, end)),
+			"EXTERN" 		=> Some(Symbols::Extern(start, end)),
+			"FALSE" 		=> Some(Symbols::False(start, end)),
+			"FOR" 			=> Some(Symbols::For(start, end)),
+			"FINALLY" 		=> Some(Symbols::Finally(start, end)),
+			"IF" 			=> Some(Symbols::If(start, end)),
+			"IGNORE" 		=> Some(Symbols::Ignore(start, end)),
+			"IMAG" 			=> Some(Symbols::Imag(start, end)),
+			"IN" 			=> Some(Symbols::In(start, end)),
+			"IS" 			=> Some(Symbols::Is(start, end)),
+			"IMPORT"		=> Some(Symbols::Import(start, end)),
+			"LOOP"			=> Some(Symbols::Loop(start, end)),
 			_ => None
 		}
 	}

@@ -14,8 +14,11 @@ struct Cli {
 }
 
 fn main() {
-    println!("\r\n{}, version 0.0.1 [Build: {}]",
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    println!("\r\n{}, version {} [Build: {}]",
              style("ActiveOberon Compiler").green(),
+             style(VERSION).red(),
              style(build_time_local!("%Y-%m-%d")).green());
     println!("Written by Richard Magnor Stenbro. Licensed under GPL V3 - Linux ARM v8 & X86-64\r\n");
 
