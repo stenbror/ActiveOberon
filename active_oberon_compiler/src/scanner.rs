@@ -495,7 +495,7 @@ impl ScannerMethods for Scanner
 			"CELL" 			=> Some(Symbols::Cell(start, end)),
 			"CELLNET" 		=> Some(Symbols::Cellnet(start, end)),
 			"CODE" 			=> Some(Symbols::Code(start, end)),
-			"DEFINITION" 	=> Some(Symbols::Definition(start, end)),
+			"DEFINITION"	=> Some(Symbols::Definition(start, end)),
 			"DO" 			=> Some(Symbols::Do(start, end)),
 			"DIV" 			=> Some(Symbols::Div(start, end)),
 			"END" 			=> Some(Symbols::End(start, end)),
@@ -1524,5 +1524,832 @@ mod tests {
 			}, _ => assert!(false)
 		}
 	}
+
+	#[test]
+	fn operator_delimiters_left_paren() {
+		let mut scan = Box::new(Scanner::new("("));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::LeftParen(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_left_bracket() {
+		let mut scan = Box::new(Scanner::new("["));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::LeftBracket(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_left_brace() {
+		let mut scan = Box::new(Scanner::new("{"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::LeftBrace(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_right_paren() {
+		let mut scan = Box::new(Scanner::new(")"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::RightParen(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_right_bracket() {
+		let mut scan = Box::new(Scanner::new("]"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::RightBracket(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_right_brace() {
+		let mut scan = Box::new(Scanner::new("}"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::RightBrace(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_bar() {
+		let mut scan = Box::new(Scanner::new("|"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Bar(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_not_equal() {
+		let mut scan = Box::new(Scanner::new("#"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::NotEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_and() {
+		let mut scan = Box::new(Scanner::new("&"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::And(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_comma() {
+		let mut scan = Box::new(Scanner::new(","));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Comma(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_minus() {
+		let mut scan = Box::new(Scanner::new("-"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Minus(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_slash() {
+		let mut scan = Box::new(Scanner::new("/"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Slash(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_semicolon() {
+		let mut scan = Box::new(Scanner::new(";"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::SemiColon(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_equal() {
+		let mut scan = Box::new(Scanner::new("="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Equal(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_arrow() {
+		let mut scan = Box::new(Scanner::new("^"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Arrow(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_not() {
+		let mut scan = Box::new(Scanner::new("~"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Not(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_back_slash() {
+		let mut scan = Box::new(Scanner::new("\\"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::BackSlash(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_transpose() {
+		let mut scan = Box::new(Scanner::new("`"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Transpose(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_times() {
+		let mut scan = Box::new(Scanner::new("*"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Times(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_times_times() {
+		let mut scan = Box::new(Scanner::new("**"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::TimesTimes(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_plus() {
+		let mut scan = Box::new(Scanner::new("+"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Plus(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_plus_times() {
+		let mut scan = Box::new(Scanner::new("+*"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::PlusTimes(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_colon() {
+		let mut scan = Box::new(Scanner::new(":"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Colon(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_becomes() {
+		let mut scan = Box::new(Scanner::new(":="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Becomes(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_question_mark() {
+		let mut scan = Box::new(Scanner::new("?"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::QuestionMark(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_question_marks() {
+		let mut scan = Box::new(Scanner::new("??"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::QuestionMarks(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_explain_mark() {
+		let mut scan = Box::new(Scanner::new("!"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::ExclaimMark(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_exclaim_marks() {
+		let mut scan = Box::new(Scanner::new("!!"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::ExclaimMarks(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_less() {
+		let mut scan = Box::new(Scanner::new("<"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Less(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_less_equal() {
+		let mut scan = Box::new(Scanner::new("<="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::LessEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_less_less() {
+		let mut scan = Box::new(Scanner::new("<<"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::LessLess(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_less_less_q() {
+		let mut scan = Box::new(Scanner::new("<<?"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::LessLessQ(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_greater() {
+		let mut scan = Box::new(Scanner::new(">"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Greater(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_greater_equal() {
+		let mut scan = Box::new(Scanner::new(">="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::GreaterEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_greater_greater() {
+		let mut scan = Box::new(Scanner::new(">>"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::GreaterGreater(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_greater_greater_q() {
+		let mut scan = Box::new(Scanner::new(">>?"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::GreaterGreaterQ(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_period() {
+		let mut scan = Box::new(Scanner::new("."));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Period(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_upto() {
+		let mut scan = Box::new(Scanner::new(".."));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Upto(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_times() {
+		let mut scan = Box::new(Scanner::new(".*"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotTimes(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_slash() {
+		let mut scan = Box::new(Scanner::new("./"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotSlash(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_equal() {
+		let mut scan = Box::new(Scanner::new(".="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_unequal() {
+		let mut scan = Box::new(Scanner::new(".#"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotUnEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_less() {
+		let mut scan = Box::new(Scanner::new(".<"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotLess(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_less_equal() {
+		let mut scan = Box::new(Scanner::new(".<="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotLessEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_greater() {
+		let mut scan = Box::new(Scanner::new(".>"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreater(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn operator_delimiters_dot_greater_equal() {
+		let mut scan = Box::new(Scanner::new(".>="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreaterEqual(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
 
 }
