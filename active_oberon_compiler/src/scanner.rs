@@ -131,8 +131,9 @@ pub enum Symbols
 
 pub trait ScannerMethods
 {
-	fn new() -> Self;
-	fn get_char(&self) -> char;
+	fn new(text: &'static str) -> Self;
+	fn length(&self) -> u32;
+	fn get_char(&mut self) -> char;
 	fn peek_char(&self) -> char;
 	fn get_start_position(&self) -> u32;
 	fn get_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
@@ -141,27 +142,44 @@ pub trait ScannerMethods
 
 pub struct Scanner
 {
-	start_pos: u32,
-	symbol: Symbols,
-	index: u32
+	buffer: Vec<char>,	/* Sourcecode as a vector of chars */
+	start_pos: u32,		/* Start of current analyzed symbol */
+	index: u32			/* Position into vector */
 }
 
 impl ScannerMethods for Scanner
 {
-	fn new() -> Scanner {
+	fn new(text: &'static str) -> Scanner {
 		Scanner{
+			buffer: text.chars().collect(),
 			start_pos: 0,
-			symbol: Symbols::Empty,
 			index: 0
 		}
 	}
 
-	fn get_char(&self) -> char {
-		todo!()
+	fn length(&self) -> u32 {
+		self.buffer.len() as u32
+	}
+
+	fn get_char(&mut self) -> char {
+		match self.buffer.get(self.index as usize) {
+			Some(x) => {
+				if self.index <= (self.length() - 1) {
+					self.index = self.index + 1;
+				}
+				return x.clone()
+			},
+			_ => '\0'
+		}
 	}
 
 	fn peek_char(&self) -> char {
-		todo!()
+		match self.buffer.get(self.index as usize) {
+			Some(x) => {
+				return x.clone()
+			},
+			_ => '\0'
+		}
 	}
 
 	fn get_start_position(&self) -> u32 {
@@ -189,6 +207,9 @@ impl ScannerMethods for Scanner
 
 		/* Operators or delimiters */
 		match self.peek_char() {
+			'\0' => {
+				return Ok(Symbols::EnfOfFile(self.index))
+			}
 			'(' => {
 				let _ = self.get_char();
 				return Ok(Symbols::LeftParen(self.start_pos, self.index))
@@ -515,7 +536,7 @@ impl ScannerMethods for Scanner
 			"VAR"			=> Some(Symbols::Var(start, end)),
 			"WHILE"			=> Some(Symbols::While(start, end)),
 			"WITH"			=> Some(Symbols::With(start, end)),
-			"ANY"			=> Some(Symbols::And(start, end)),
+			"ANY"			=> Some(Symbols::Any(start, end)),
 			"ARRAY"			=> Some(Symbols::Array(start, end)),
 			"OBJECT"		=> Some(Symbols::Object(start, end)),
 			"POINTER"		=> Some(Symbols::Pointer(start, end)),
@@ -532,8 +553,976 @@ impl ScannerMethods for Scanner
 
 #[cfg(test)]
 mod tests {
+	use crate::scanner::{Scanner, ScannerMethods, Symbols};
+
 	#[test]
-	fn it_works() {
-		assert_eq!(2 + 2, 4);
+	fn reserved_keyword_await() {
+		let mut scan = Box::new(Scanner::new("AWAIT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Await(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
 	}
+
+	#[test]
+	fn reserved_keyword_begin() {
+		let mut scan = Box::new(Scanner::new("BEGIN"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Begin(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_by() {
+		let mut scan = Box::new(Scanner::new("BY"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::By(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_const() {
+		let mut scan = Box::new(Scanner::new("CONST"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Const(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_case() {
+		let mut scan = Box::new(Scanner::new("CASE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Case(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_cell() {
+		let mut scan = Box::new(Scanner::new("CELL"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Cell(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_cellnet() {
+		let mut scan = Box::new(Scanner::new("CELLNET"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Cellnet(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 7);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_code() {
+		let mut scan = Box::new(Scanner::new("CODE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Code(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_definition() {
+		let mut scan = Box::new(Scanner::new("DEFINITION"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Definition(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 10);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_do() {
+		let mut scan = Box::new(Scanner::new("DO"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Do(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_div() {
+		let mut scan = Box::new(Scanner::new("DIV"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Div(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_end() {
+		let mut scan = Box::new(Scanner::new("END"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::End(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_enum() {
+		let mut scan = Box::new(Scanner::new("ENUM"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Enum(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_else() {
+		let mut scan = Box::new(Scanner::new("ELSE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Else(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_elsif() {
+		let mut scan = Box::new(Scanner::new("ELSIF"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Elsif(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_exit() {
+		let mut scan = Box::new(Scanner::new("EXIT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Exit(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_extern() {
+		let mut scan = Box::new(Scanner::new("EXTERN"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Extern(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_false() {
+		let mut scan = Box::new(Scanner::new("FALSE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::False(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_for() {
+		let mut scan = Box::new(Scanner::new("FOR"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::For(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_finally() {
+		let mut scan = Box::new(Scanner::new("FINALLY"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Finally(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 7);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_if() {
+		let mut scan = Box::new(Scanner::new("IF"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::If(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_ignore() {
+		let mut scan = Box::new(Scanner::new("IGNORE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Ignore(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_imag() {
+		let mut scan = Box::new(Scanner::new("IMAG"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Imag(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_in() {
+		let mut scan = Box::new(Scanner::new("IN"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::In(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_is() {
+		let mut scan = Box::new(Scanner::new("IS"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Is(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_import() {
+		let mut scan = Box::new(Scanner::new("IMPORT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Import(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_loop() {
+		let mut scan = Box::new(Scanner::new("LOOP"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Loop(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_module() {
+		let mut scan = Box::new(Scanner::new("MODULE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Module(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_mod() {
+		let mut scan = Box::new(Scanner::new("MOD"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Mod(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_nil() {
+		let mut scan = Box::new(Scanner::new("NIL"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Nil(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_of() {
+		let mut scan = Box::new(Scanner::new("OF"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Of(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_or() {
+		let mut scan = Box::new(Scanner::new("OR"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Or(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_out() {
+		let mut scan = Box::new(Scanner::new("OUT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Out(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_operator() {
+		let mut scan = Box::new(Scanner::new("OPERATOR"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Operator(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 8);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_procedure() {
+		let mut scan = Box::new(Scanner::new("PROCEDURE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Procedure(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_port() {
+		let mut scan = Box::new(Scanner::new("PORT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Port(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_repeat() {
+		let mut scan = Box::new(Scanner::new("REPEAT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Repeat(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_return() {
+		let mut scan = Box::new(Scanner::new("RETURN"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Return(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_self() {
+		let mut scan = Box::new(Scanner::new("SELF"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Self_(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_new() {
+		let mut scan = Box::new(Scanner::new("NEW"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::New(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_result() {
+		let mut scan = Box::new(Scanner::new("RESULT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Result(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_then() {
+		let mut scan = Box::new(Scanner::new("THEN"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Then(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_type() {
+		let mut scan = Box::new(Scanner::new("TYPE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Type(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_true() {
+		let mut scan = Box::new(Scanner::new("TRUE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::True(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_to() {
+		let mut scan = Box::new(Scanner::new("TO"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::To(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_until() {
+		let mut scan = Box::new(Scanner::new("UNTIL"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Until(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_var() {
+		let mut scan = Box::new(Scanner::new("VAR"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Var(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_while() {
+		let mut scan = Box::new(Scanner::new("WHILE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::While(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_with() {
+		let mut scan = Box::new(Scanner::new("WITH"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::With(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_any() {
+		let mut scan = Box::new(Scanner::new("ANY"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Any(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_array() {
+		let mut scan = Box::new(Scanner::new("ARRAY"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Array(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_object() {
+		let mut scan = Box::new(Scanner::new("OBJECT"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Object(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_pointer() {
+		let mut scan = Box::new(Scanner::new("POINTER"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Pointer(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 7);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_address() {
+		let mut scan = Box::new(Scanner::new("ADDRESS"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Address(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 7);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_size() {
+		let mut scan = Box::new(Scanner::new("SIZE"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Size(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_alias() {
+		let mut scan = Box::new(Scanner::new("ALIAS"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Alias(s, e) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn reserved_keyword_alias_with_lowercase() {
+		let mut scan = Box::new(Scanner::new("ALiAS"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Ident(s, e, text) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+						assert_eq!(*text, std::string::String::from("ALiAS"));
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
 }
