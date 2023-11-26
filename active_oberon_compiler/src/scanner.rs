@@ -8,7 +8,7 @@ use std::string;
 use crate::scanner::Symbols::String;
 
 #[derive()]
-enum Symbols
+pub enum Symbols
 {
 	Empty,
 	EnfOfFile(u32),
@@ -122,10 +122,10 @@ enum Symbols
 	GreaterGreaterQ(u32, u32), /* '>>?' */
 
 	/* Literals */
-	Ident(u32, u32, Box<str>),
-	Integer(u32, u32, Box<str>),
-	Real(u32, u32, Box<str>),
-	String(u32, u32, Box<str>),
+	Ident(u32, u32, Box<std::string::String>),
+	Integer(u32, u32, Box<std::string::String>),
+	Real(u32, u32, Box<std::string::String>),
+	String(u32, u32, Box<std::string::String>),
 	Character(u32, u32, char)
 }
 
@@ -421,7 +421,43 @@ impl ScannerMethods for Scanner
 					}
 				}
 			},
-			_ => ()
+			'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'I' | 'L' | 'M' | 'N' | 'O' | 'P' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' => {
+				/* Potentially a reserved keyword */
+				let mut buffer = std::string::String::new();
+				loop {
+					let _cur = self.peek_char();
+					if _cur.is_alphanumeric() || _cur == '_' {
+						buffer.push(self.get_char());
+						continue
+					}
+					break
+				}
+				let res = self.is_reserved_keyword(self.start_pos, self.index, buffer.as_str());
+				return match res {
+					Some(x) => {
+						Ok(x) /* We found reserved keyword and returns symbol */
+					},
+					_ => {
+						/* We found an indent */
+						Ok(Symbols::Ident(self.start_pos, self.index, Box::new(buffer)))
+					}
+				}
+			}
+			_ => {
+				/* Handling identifiers */
+				if self.peek_char().is_alphabetic() {
+					let mut buffer = std::string::String::new();
+					loop {
+						let _cur = self.peek_char();
+						if _cur.is_alphanumeric() || _cur == '_' {
+							buffer.push(self.get_char());
+							continue
+						}
+						break
+					}
+					return Ok(Symbols::Ident(self.start_pos, self.index, Box::new(buffer)))
+				}
+			}
 		}
 
 		Err(Box::new(format!("Invalid symbol in source file at position: '{}'", self.index)))
