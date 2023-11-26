@@ -210,9 +210,33 @@ impl ScannerMethods for Scanner
 			'\0' => {
 				return Ok(Symbols::EnfOfFile(self.index))
 			}
+			'\r' => { /* Line shift with either single or two characters */
+				let _ = self.get_char();
+				return match self.peek_char() {
+					'\n' => {
+						_ = self.get_char();
+						self.get_symbol()
+					},
+					_ => {
+						self.get_symbol()
+					}
+				}
+			},
+			'\n' => {	/* Line shift with single character */
+				let _ = self.get_char();
+				return self.get_symbol();
+			},
 			'(' => {
 				let _ = self.get_char();
-				return Ok(Symbols::LeftParen(self.start_pos, self.index))
+				return match self.peek_char() {
+					'*' => {	/* We have comments in source code, we also need to handled nested comments */
+
+						self.get_symbol()
+					},
+					_ => {
+						Ok(Symbols::LeftParen(self.start_pos, self.index))
+					}
+				}
 			},
 			')' => {
 				let _ = self.get_char();
