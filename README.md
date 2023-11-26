@@ -25,7 +25,7 @@ To make a slim executable for release purposes, just execute in the build folder
 I also write a bootstrap compiler in <B> Rust </B> that can bootstrap the final compiler written in ActiveOberon later in a three-step build of the final compiler.
 To build it and execute its unit tests follow the below instructions: <BR />
 
-cd active_oberon_compiler
+cd active_oberon_compiler <BR />
 cargo build <BR />
 cargo test <BR />
 cargo run <BR />
