@@ -1,3 +1,9 @@
+
+// ActiveOberon Compiler, a native ARM v8 & X86-64 compiler / linker / builder utility.
+// Written by Richard Magnor Stenbro. Licensed under GPL v3
+// Main driver module for compiling and linking of projects written in ActiveOberon language
+
+
 mod scanner;
 mod parser;
 

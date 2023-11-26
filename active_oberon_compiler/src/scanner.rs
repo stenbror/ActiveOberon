@@ -1,3 +1,8 @@
+
+// ActiveOberon Compiler, a native ARM v8 & X86-64 compiler / linker / builder utility.
+// Written by Richard Magnor Stenbro. Licensed under GPL v3
+// Scanner module for lexical analyzing of source files
+
 use std::io::IsTerminal;
 use std::string;
 use crate::scanner::Symbols::String;
@@ -486,6 +491,8 @@ impl ScannerMethods for Scanner
 		}
 	}
 }
+
+// Unittests for scanner module
 
 #[cfg(test)]
 mod tests {
