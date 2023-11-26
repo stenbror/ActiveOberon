@@ -20,7 +20,7 @@ A full build and test from scratch is possible by executing <B> build.sh </B> fr
 
 To make a slim executable for release purposes, just execute in the build folder 'strip ActiveOberon' <br />
 
-## Building bootstrap compiler in <B> Rust </B>
+## Building the bootstrap compiler in <B> Rust </B>
 
 I also write a bootstrap compiler in <B> Rust </B> that can bootstrap the final compiler written in ActiveOberon later in a three-step build of the final compiler.
 To build it and execute its unit tests follow the below instructions: <BR />
@@ -29,6 +29,10 @@ cd active_oberon_compiler
 cargo build <BR />
 cargo test <BR />
 cargo run <BR />
+
+Even if the final compiler will be written in ActiveOberon language, it will need to be compiled the first time by the bootstrap compiler written in Rust and also maybee
+a version written in C++. This Rust-based bootstrap compiler will be fully functional and contain all the functions of the final one. You can choose to use the bootstrap
+compiler instead of the final product if you like.
 
 ## What is Active Oberon
 
