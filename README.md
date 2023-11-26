@@ -20,6 +20,16 @@ A full build and test from scratch is possible by executing <B> build.sh </B> fr
 
 To make a slim executable for release purposes, just execute in the build folder 'strip ActiveOberon' <br />
 
+## Building bootstrap compiler in <B> Rust </B>
+
+I also write a bootstrap compiler in <B> Rust </B> that can bootstrap the final compiler written in ActiveOberon later in a three-step build of the final compiler.
+To build it and execute its unit tests follow the below instructions: <BR />
+
+cd active_oberon_compiler
+cargo build <BR />
+cargo test <BR />
+cargo run <BR />
+
 ## What is Active Oberon
 
 Active Oberon is the latest member of the Algol family of languages. Derived directly from the language Oberon (-2) and languages such as Modula, Pascal, etc.
