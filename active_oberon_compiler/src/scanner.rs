@@ -230,7 +230,32 @@ impl ScannerMethods for Scanner
 				let _ = self.get_char();
 				return match self.peek_char() {
 					'*' => {	/* We have comments in source code, we also need to handled nested comments */
-
+						_ = self.get_char();
+						let mut level = 1;
+						while level > 0 && self.peek_char() != '\0' {
+							match self.peek_char() {
+								'*' => {
+									_ = self.get_char();
+									if self.peek_char() == ')' {
+										level = level - 1;
+										_ = self.get_char();
+									}
+								},
+								'(' => {
+									_ = self.get_char();
+									if self.peek_char() == '*' {
+										level = level + 1;
+										_ = self.get_char();
+									}
+								},
+								_ => {
+									_ = self.get_char();
+								}
+							}
+						}
+						if level != 0 {
+							return Err(Box::new(format!("Unterminated comment at position: '{}'", self.index)))
+						}
 						self.get_symbol()
 					},
 					_ => {
@@ -2367,6 +2392,42 @@ mod tests {
 					Symbols::DotGreaterEqual(s, e) => {
 						assert_eq!(s, 0);
 						assert_eq!(e, 3);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn single_comment() {
+		let mut scan = Box::new(Scanner::new("(* This is a complete single comment *).>="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreaterEqual(s, e) => {
+						assert_eq!(s, 39);
+						assert_eq!(e, 42);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn multiple_comment() {
+		let mut scan = Box::new(Scanner::new("(* This (* is *) a complete single comment *).>="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreaterEqual(s, e) => {
+						assert_eq!(s, 45);
+						assert_eq!(e, 48);
 					},
 					_ => assert!(false)
 				}
