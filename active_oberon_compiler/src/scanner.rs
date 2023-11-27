@@ -1558,15 +1558,33 @@ mod tests {
 
 	#[test]
 	fn reserved_keyword_alias_with_lowercase() {
-		let mut scan = Box::new(Scanner::new("ALiAS"));
+		let mut scan = Box::new(Scanner::new("ALiAS1"));
 		let symbol = scan.get_symbol();
 		match symbol {
 			Ok(x) => {
 				match x {
 					Symbols::Ident(s, e, text) => {
 						assert_eq!(s, 0);
-						assert_eq!(e, 5);
-						assert_eq!(*text, std::string::String::from("ALiAS"));
+						assert_eq!(e, 6);
+						assert_eq!(*text, std::string::String::from("ALiAS1"));
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn literal_name() {
+		let mut scan = Box::new(Scanner::new("zer_o_123"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Ident(s, e, text) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*text, std::string::String::from("zer_o_123"));
 					},
 					_ => assert!(false)
 				}
@@ -2428,6 +2446,77 @@ mod tests {
 					Symbols::DotGreaterEqual(s, e) => {
 						assert_eq!(s, 45);
 						assert_eq!(e, 48);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn end_of_file() {
+		let mut scan = Box::new(Scanner::new(""));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::EnfOfFile(s) => {
+						assert_eq!(s, 0);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn newline_windows() {
+		let mut scan = Box::new(Scanner::new("\r\n.>="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreaterEqual(s, e) => {
+						assert_eq!(s, 2);
+						assert_eq!(e, 5);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn newline_linux() {
+		let mut scan = Box::new(Scanner::new("\n.>="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreaterEqual(s, e) => {
+						assert_eq!(s, 1);
+						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn newline_mac() {
+		let mut scan = Box::new(Scanner::new("\r.>="));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::DotGreaterEqual(s, e) => {
+						assert_eq!(s, 1);
+						assert_eq!(e, 4);
 					},
 					_ => assert!(false)
 				}
