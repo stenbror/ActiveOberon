@@ -2690,7 +2690,7 @@ mod tests {
 	}
 
 	#[test]
-	fn integer_zero_dot_zero() {
+	fn real_zero_dot_zero() {
 		let mut scan = Box::new(Scanner::new("0.0"));
 		let symbol = scan.get_symbol();
 		match symbol {
