@@ -603,6 +603,27 @@ impl ScannerMethods for Scanner
 								_ => break
 							}
 						}
+						match self.peek_char() {
+							'D' | 'E' => {
+								buffer.push(self.get_char());
+								if self.peek_char() == '+' || self.peek_char() == '-' {
+									buffer.push(self.get_char());
+								}
+								if !self.peek_char().is_ascii_digit() {
+									return Err(Box::new(format!("Need digit(s) after scale factor in real number at position: '{}'", self.index)))
+								}
+								loop {
+									match self.peek_char() {
+										'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+											buffer.push(self.get_char());
+											continue
+										},
+										_ => break
+									}
+								}
+							},
+							_ => ()
+						}
 						Ok(Symbols::Real(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
 					},
 					_ => {
