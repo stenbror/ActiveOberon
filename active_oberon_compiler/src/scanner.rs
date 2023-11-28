@@ -3,6 +3,7 @@
 // Written by Richard Magnor Stenbro. Licensed under GPL v3
 // Scanner module for lexical analyzing of source files
 
+use std::ffi::c_double;
 use std::io::IsTerminal;
 use std::string;
 use crate::scanner::Symbols::String;
@@ -488,6 +489,127 @@ impl ScannerMethods for Scanner
 					},
 					_ => {
 						Ok(Symbols::Period(self.start_pos, self.index))
+					}
+				}
+			},
+			'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+				let mut buffer = std::string::String::new();
+				if self.peek_char() == '0' {
+					buffer.push(self.get_char());
+					match self.peek_char() {
+						'x' => {
+							buffer.push(self.get_char());
+							match self.peek_char() {
+								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+								'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
+								'A' | 'B' | 'C' | 'D' | 'E' | 'F' => {
+									buffer.push(self.get_char());
+								},
+								_ => return Err(Box::new(format!("Need hex digit in hex integer at position: '{}'", self.index)))
+							}
+							loop {
+								match self.peek_char() {
+									'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+									'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
+									'A' | 'B' | 'C' | 'D' | 'E' | 'F' => {
+										buffer.push(self.get_char());
+									},
+									'`' => {
+										buffer.push(self.get_char());
+										match self.peek_char() {
+											'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+											'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
+											'A' | 'B' | 'C' | 'D' | 'E' | 'F' => continue,
+											_ =>  return Err(Box::new(format!("Need hex digit in hex integer at position: '{}'", self.index)))
+										}
+									},
+									_ => ()
+								}
+							}
+							return Ok(Symbols::Integer(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
+						},
+						'b' => {
+							buffer.push(self.get_char());
+							if self.peek_char() != '0' || self.peek_char() != '1' {
+								return Err(Box::new(format!("Need '0' or '1' in binary integer at position: '{}'", self.index)))
+							}
+							loop {
+								buffer.push(self.get_char());
+								match self.peek_char() {
+									'1' | '0' => continue,
+									'`' => {
+										buffer.push(self.get_char());
+										if self.peek_char() != '0' || self.peek_char() != '1' {
+											return Err(Box::new(format!("Need '0' or '1' in binary integer at position: '{}'", self.index)))
+										}
+										continue
+									},
+									_ => break
+								}
+							}
+							if self.peek_char().is_ascii_digit() {
+								return Err(Box::new(format!("Found digits not in binary integer at position: '{}'", self.index)))
+							}
+							return Ok(Symbols::Integer(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
+						},
+						_ => ()
+					}
+				}
+				let mut found_hex = false;
+				if buffer.len() == 0 {
+					buffer.push(self.get_char())
+				}
+
+				loop {
+					match self.peek_char() {
+						'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+							buffer.push(self.get_char());
+							continue
+						},
+						'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
+						'A' | 'B' | 'C' | 'D' | 'E' | 'F' => {
+							found_hex = true;
+							buffer.push(self.get_char());
+							continue
+						},
+						'`' => {
+							buffer.push(self.get_char());
+							match self.peek_char() {
+								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+								'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
+								'A' | 'B' | 'C' | 'D' | 'E' | 'F' => continue,
+								_ =>  return Err(Box::new(format!("Need digit in integer at position: '{}'", self.index)))
+							}
+						},
+						_ => break
+					}
+				}
+				return match self.peek_char() {
+					'H' => {
+						buffer.push(self.get_char());
+						Ok(Symbols::Integer(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
+					},
+					'.' => {
+						buffer.push(self.get_char());
+						if !self.peek_char().is_ascii_digit() {
+							return Err(Box::new(format!("Need digit(s) after '.' in real number at position: '{}'", self.index)))
+						}
+						loop {
+							match self.peek_char() {
+								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+									buffer.push(self.get_char());
+									continue
+								},
+								_ => break
+							}
+						}
+						Ok(Symbols::Real(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
+					},
+					_ => {
+						if found_hex {
+							return Err(Box::new(format!("Need 'H' at end of hex integer at position: '{}'", self.index)))
+						}
+						Ok(Symbols::Integer(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
 					}
 				}
 			},
