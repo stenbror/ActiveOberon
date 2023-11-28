@@ -523,20 +523,22 @@ impl ScannerMethods for Scanner
 											_ =>  return Err(Box::new(format!("Need hex digit in hex integer at position: '{}'", self.index)))
 										}
 									},
-									_ => ()
+									_ => break
 								}
 							}
 							return Ok(Symbols::Integer(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
 						},
 						'b' => {
 							buffer.push(self.get_char());
-							if self.peek_char() != '0' || self.peek_char() != '1' {
+							if self.peek_char() != '0' && self.peek_char() != '1' {
 								return Err(Box::new(format!("Need '0' or '1' in binary integer at position: '{}'", self.index)))
 							}
 							loop {
-								buffer.push(self.get_char());
 								match self.peek_char() {
-									'1' | '0' => continue,
+									'1' | '0' => {
+										buffer.push(self.get_char());
+										continue
+									},
 									'`' => {
 										buffer.push(self.get_char());
 										if self.peek_char() != '0' || self.peek_char() != '1' {
@@ -2660,6 +2662,82 @@ mod tests {
 					Symbols::DotGreaterEqual(s, e) => {
 						assert_eq!(s, 1);
 						assert_eq!(e, 4);
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_zero() {
+		let mut scan = Box::new(Scanner::new("0"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 1);
+						assert_eq!(*v, std::string::String::from("0"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_zero_dot_zero() {
+		let mut scan = Box::new(Scanner::new("0.0"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+						assert_eq!(*v, std::string::String::from("0.0"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_hex_zero() {
+		let mut scan = Box::new(Scanner::new("0x0"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+						assert_eq!(*v, std::string::String::from("0x0"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_binary_zero() {
+		let mut scan = Box::new(Scanner::new("0b0"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+						assert_eq!(*v, std::string::String::from("0b0"))
 					},
 					_ => assert!(false)
 				}
