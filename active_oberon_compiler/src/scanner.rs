@@ -127,7 +127,7 @@ pub enum Symbols
 	Integer(u32, u32, Box<std::string::String>),
 	Real(u32, u32, Box<std::string::String>),
 	String(u32, u32, Box<std::string::String>),
-	Character(u32, u32, char)
+	Character(u32, u32, Box<std::string::String>)
 }
 
 pub trait ScannerMethods
@@ -590,6 +590,10 @@ impl ScannerMethods for Scanner
 					'H' => {
 						buffer.push(self.get_char());
 						Ok(Symbols::Integer(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
+					},
+					'X' => {
+						buffer.push(self.get_char());
+						Ok(Symbols::Character(self.start_pos, self.index, Box::new(std::string::String::from(buffer.as_str()))))
 					},
 					'.' => {
 						buffer.push(self.get_char());
@@ -3004,6 +3008,25 @@ mod tests {
 						assert_eq!(s, 0);
 						assert_eq!(e, 10);
 						assert_eq!(*v, std::string::String::from("9.03458E+4"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn character_hex_based() {
+		let mut scan = Box::new(Scanner::new("0FF7AX"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Character(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*v, std::string::String::from("0FF7AX"))
 					},
 					_ => assert!(false)
 				}
