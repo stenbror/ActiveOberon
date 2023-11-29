@@ -139,6 +139,7 @@ pub trait ScannerMethods
 	fn get_start_position(&self) -> u32;
 	fn get_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
 	fn is_reserved_keyword(&self, start : u32, end: u32, keyword: &str) -> Option<Symbols>;
+	fn is_string_or_character(&self) -> Result<Symbols, Box<std::string::String>>;
 }
 
 pub struct Scanner
@@ -325,6 +326,17 @@ impl ScannerMethods for Scanner
 				return Ok(Symbols::Not(self.start_pos, self.index))
 			},
 			'\\' => {
+				if self.index < (self.length() - 1) && self.buffer[(self.index + 1) as usize] == '"' {
+					let res = self.is_string_or_character();
+					return match res {
+						Ok(x) => {
+							Ok(x)
+						},
+						Err(e) => {
+							Err(e)
+						}
+					}
+				}
 				let _ = self.get_char();
 				return Ok(Symbols::BackSlash(self.start_pos, self.index))
 			},
@@ -661,7 +673,18 @@ impl ScannerMethods for Scanner
 						Ok(Symbols::Ident(self.start_pos, self.index, Box::new(buffer)))
 					}
 				}
-			}
+			},
+			'\'' | '"' => {
+				let res = self.is_string_or_character();
+				return match res {
+					Ok(x) => {
+						Ok(x)
+					},
+					Err(e) => {
+						Err(e)
+					}
+				}
+			},
 			_ => {
 				/* Handling identifiers */
 				if self.peek_char().is_alphabetic() {
@@ -744,6 +767,10 @@ impl ScannerMethods for Scanner
 			"ALIAS"			=> Some(Symbols::Alias(start, end)),
 			_ => None
 		}
+	}
+
+	fn is_string_or_character(&self) -> Result<Symbols, Box<std::string::String>> {
+		todo!()
 	}
 }
 
