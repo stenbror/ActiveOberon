@@ -492,7 +492,7 @@ impl ScannerMethods for Scanner
 					}
 				}
 			},
-			'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+			'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
 				let mut buffer = std::string::String::new();
 				if self.peek_char() == '0' {
 					buffer.push(self.get_char());
@@ -500,7 +500,7 @@ impl ScannerMethods for Scanner
 						'x' => {
 							buffer.push(self.get_char());
 							match self.peek_char() {
-								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
 								'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
 								'A' | 'B' | 'C' | 'D' | 'E' | 'F' => {
 									buffer.push(self.get_char());
@@ -509,7 +509,7 @@ impl ScannerMethods for Scanner
 							}
 							loop {
 								match self.peek_char() {
-									'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+									'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
 									'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
 									'A' | 'B' | 'C' | 'D' | 'E' | 'F' => {
 										buffer.push(self.get_char());
@@ -517,7 +517,7 @@ impl ScannerMethods for Scanner
 									'`' => {
 										buffer.push(self.get_char());
 										match self.peek_char() {
-											'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+											'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
 											'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
 											'A' | 'B' | 'C' | 'D' | 'E' | 'F' => continue,
 											_ =>  return Err(Box::new(format!("Need hex digit in hex integer at position: '{}'", self.index)))
@@ -530,7 +530,7 @@ impl ScannerMethods for Scanner
 						},
 						'b' => {
 							buffer.push(self.get_char());
-							if self.peek_char() != '0' && self.peek_char() != '1' {
+							if self.peek_char() != '0' && self.peek_char() != '1' && self.peek_char() != '`' {
 								return Err(Box::new(format!("Need '0' or '1' in binary integer at position: '{}'", self.index)))
 							}
 							loop {
@@ -541,7 +541,7 @@ impl ScannerMethods for Scanner
 									},
 									'`' => {
 										buffer.push(self.get_char());
-										if self.peek_char() != '0' || self.peek_char() != '1' {
+										if self.peek_char() != '0' && self.peek_char() != '1' {
 											return Err(Box::new(format!("Need '0' or '1' in binary integer at position: '{}'", self.index)))
 										}
 										continue
@@ -564,7 +564,7 @@ impl ScannerMethods for Scanner
 
 				loop {
 					match self.peek_char() {
-						'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+						'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
 							buffer.push(self.get_char());
 							continue
 						},
@@ -577,7 +577,7 @@ impl ScannerMethods for Scanner
 						'`' => {
 							buffer.push(self.get_char());
 							match self.peek_char() {
-								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' |
+								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
 								'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
 								'A' | 'B' | 'C' | 'D' | 'E' | 'F' => continue,
 								_ =>  return Err(Box::new(format!("Need digit in integer at position: '{}'", self.index)))
@@ -598,7 +598,7 @@ impl ScannerMethods for Scanner
 						}
 						loop {
 							match self.peek_char() {
-								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+								'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
 									buffer.push(self.get_char());
 									continue
 								},
@@ -616,7 +616,7 @@ impl ScannerMethods for Scanner
 								}
 								loop {
 									match self.peek_char() {
-										'0' | '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' => {
+										'0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
 											buffer.push(self.get_char());
 											continue
 										},
@@ -2746,5 +2746,270 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn integer_without_marks() {
+		let mut scan = Box::new(Scanner::new("458765"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*v, std::string::String::from("458765"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_with_marks() {
+		let mut scan = Box::new(Scanner::new("45`8`76`5"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*v, std::string::String::from("45`8`76`5"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_traditional_hex() {
+		let mut scan = Box::new(Scanner::new("0FFH"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*v, std::string::String::from("0FFH"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_traditional_hex_with_marks() {
+		let mut scan = Box::new(Scanner::new("0`F`FH"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*v, std::string::String::from("0`F`FH"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_traditional_hex_2() {
+		let mut scan = Box::new(Scanner::new("8FFH"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*v, std::string::String::from("8FFH"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_binary_with_mark() {
+		let mut scan = Box::new(Scanner::new("0b1`01"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*v, std::string::String::from("0b1`01"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_hex_with_mark() {
+		let mut scan = Box::new(Scanner::new("0x7`Fa"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*v, std::string::String::from("0x7`Fa"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn integer_hex_without_mark() {
+		let mut scan = Box::new(Scanner::new("0x7AFa"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Integer(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*v, std::string::String::from("0x7AFa"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn float_large() {
+		let mut scan = Box::new(Scanner::new("9.03458"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 7);
+						assert_eq!(*v, std::string::String::from("9.03458"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn float_large_with_mark() {
+		let mut scan = Box::new(Scanner::new("9`100.010"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*v, std::string::String::from("9`100.010"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn float_exponent_d() {
+		let mut scan = Box::new(Scanner::new("9.03458D4"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*v, std::string::String::from("9.03458D4"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn float_exponent_e() {
+		let mut scan = Box::new(Scanner::new("9.03458E4"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*v, std::string::String::from("9.03458E4"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn float_exponent_e_minus() {
+		let mut scan = Box::new(Scanner::new("9.03458E-4"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 10);
+						assert_eq!(*v, std::string::String::from("9.03458E-4"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn float_exponent_e_plus() {
+		let mut scan = Box::new(Scanner::new("9.03458E+4"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Real(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 10);
+						assert_eq!(*v, std::string::String::from("9.03458E+4"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
 
 }
