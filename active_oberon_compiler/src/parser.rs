@@ -132,6 +132,22 @@ impl ExpressionRules for Parser {
 						self.advance();
 						Ok( Box::new(Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(x))))
 					},
+					Symbols::Integer( _ , _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Integer(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::Real( _ , _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Real(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::Character( _ , _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Character(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::String( _ , _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::String(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
 					_ => Err(Box::new(format!("Unexpected or missing literal at position: '{}'", start_pos)))
 				}
 			},
@@ -342,4 +358,66 @@ mod tests {
 			}, _ => assert!(false)
 		}
 	}
+
+	#[test]
+	fn primary_expression_integer() {
+		let mut parser = Parser::new(Box::new(Scanner::new("123456")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Integer(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*t, Symbols::Integer(0, 6, Box::new(String::from("123456"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_real() {
+		let mut parser = Parser::new(Box::new(Scanner::new("1.034E-56")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Real(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Real(0, 9, Box::new(String::from("1.034E-56"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_character() {
+		let mut parser = Parser::new(Box::new(Scanner::new("0FF7EX")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Character(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*t, Symbols::Character(0, 6, Box::new(String::from("0FF7EX"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+
 }
