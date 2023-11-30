@@ -3,15 +3,21 @@
 // Written by Richard Magnor Stenbro. Licensed under GPL v3
 // Parser module for syntax analyzing of source files
 
-use crate::scanner::{ Scanner, Symbols };
+use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
 #[derive()]
 pub enum Node {
-	Empty
+	Empty,
+	Ident( u32, u32, Box<Symbols> ),
+	Integer( u32, u32, Box<Symbols> ),
+	Real( u32, u32, Box<Symbols> ),
+	Character( u32, u32, Box<Symbols> ),
+	String( u32, u32, Box<Symbols> )
 }
 
 pub trait ParserMethods {
 	fn new(scanner: Box<Scanner>) -> Parser;
+	fn advance(&mut self) -> ();
 }
 
 pub trait ExpressionRules {
@@ -75,15 +81,18 @@ pub trait BlockRules {
 /// Parser component for ActiveOberon language grammar
 pub struct Parser {
 	lexer: Box<Scanner>,		/* Lexical analyzer for sourcecode, returning symbols to parser rules */
-	symbol: Symbols				/* Current symbol being handled in parser rule */
+	symbol: Result<Symbols, Box<String>>	/* Current symbol being handled in parser rule */
 }
 
 impl ParserMethods for Parser {
 	fn new(scanner: Box<Scanner>) -> Parser {
 		Parser {
 			lexer: scanner,
-			symbol: Symbols::Empty
+			symbol: Ok(Symbols::Empty)
 		}
+	}
+	fn advance(&mut self) -> () {
+		self.symbol = self.lexer.get_symbol()
 	}
 }
 
@@ -114,7 +123,22 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_primary_expression(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		return match self.symbol.clone() {
+			Ok(x) => {
+				match x {
+					Symbols::Ident( _ , _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					_ => Err(Box::new(format!("Unexpected or missing literal at position: '{}'", start_pos)))
+				}
+			},
+			Err(e) => {
+				Err(e.clone())
+			}
+		}
 	}
 
 	fn parse_designator_operator(&mut self) -> Result<Box<Node>, Box<String>> {
@@ -296,5 +320,26 @@ impl BlockRules for Parser {
 
 #[cfg(test)]
 mod tests {
+	use crate::parser::{Parser, ParserMethods, Node, ExpressionRules};
+	use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
+	#[test]
+	fn primary_expression_ident() {
+		let mut parser = Parser::new(Box::new(Scanner::new("variable1")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Ident(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Ident(0, 9, Box::new(String::from("variable1"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
 }

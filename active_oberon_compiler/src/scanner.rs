@@ -8,7 +8,7 @@ use std::io::IsTerminal;
 use std::string;
 use crate::scanner::Symbols::String;
 
-#[derive()]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Symbols
 {
 	Empty,
