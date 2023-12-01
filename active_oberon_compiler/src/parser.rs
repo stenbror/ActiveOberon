@@ -5,7 +5,7 @@
 
 use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Node {
 	Empty,
 	Ident( u32, u32, Box<Symbols> ),
@@ -25,7 +25,7 @@ pub enum Node {
 	New( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	ParenthesisExpression( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	UnaryExpression( u32, u32, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Vec<Box<Node>>>> ),
-	UnaryPLus( u32, u32, Box<Symbols>, Box<Node> ),
+	UnaryPlus( u32, u32, Box<Symbols>, Box<Node> ),
 	UnaryMinus( u32, u32, Box<Symbols>, Box<Node> ),
 	UnaryNot( u32, u32, Box<Symbols>, Box<Node> ),
 }
@@ -130,7 +130,32 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_factor(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Plus( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_factor()?;
+
+				Ok( Box::new( Node::UnaryPlus(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right) ) )
+			},
+			Symbols::Minus( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_factor()?;
+
+				Ok( Box::new( Node::UnaryMinus(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right) ) )
+			},
+			Symbols::Not( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_factor()?;
+
+				Ok( Box::new( Node::UnaryNot(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right) ) )
+			},
+			_ => self.parse_unary_expression()
+		}
 	}
 
 	fn parse_unary_expression(&mut self) -> Result<Box<Node>, Box<String>> {
@@ -754,7 +779,69 @@ mod tests {
 
 	// Unittests for designator and flags inserted here!
 
-	
+	#[test]
+	fn factor_expression_ident() {
+		let mut parser = Parser::new(Box::new(Scanner::new("variable1")));
+		parser.advance();
+		let res = parser.parse_factor();
 
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Ident(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Ident(0, 9, Box::new(String::from("variable1"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn factor_expression_plus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("+counter")));
+		parser.advance();
+		let res = parser.parse_factor();
+
+		let pattern = Box::new(Node::UnaryPlus(0, 8, Box::new(Symbols::Plus(0, 1)), Box::new(Node::Ident(1, 8, Box::new(Symbols::Ident(1, 8, Box::new(String::from("counter"))))))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn factor_expression_minus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("-counter")));
+		parser.advance();
+		let res = parser.parse_factor();
+
+		let pattern = Box::new(Node::UnaryMinus(0, 8, Box::new(Symbols::Minus(0, 1)), Box::new(Node::Ident(1, 8, Box::new(Symbols::Ident(1, 8, Box::new(String::from("counter"))))))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn factor_expression_not() {
+		let mut parser = Parser::new(Box::new(Scanner::new("~counter")));
+		parser.advance();
+		let res = parser.parse_factor();
+
+		let pattern = Box::new(Node::UnaryNot(0, 8, Box::new(Symbols::Not(0, 1)), Box::new(Node::Ident(1, 8, Box::new(Symbols::Ident(1, 8, Box::new(String::from("counter"))))))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
 
 }
