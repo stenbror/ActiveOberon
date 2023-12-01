@@ -12,7 +12,18 @@ pub enum Node {
 	Integer( u32, u32, Box<Symbols> ),
 	Real( u32, u32, Box<Symbols> ),
 	Character( u32, u32, Box<Symbols> ),
-	String( u32, u32, Box<Symbols> )
+	String( u32, u32, Box<Symbols> ),
+	Nil( u32, u32, Box<Symbols> ),
+	Imag( u32, u32, Box<Symbols> ),
+	True( u32, u32, Box<Symbols> ),
+	False( u32, u32, Box<Symbols> ),
+	Self_( u32, u32, Box<Symbols> ),
+	Result( u32, u32, Box<Symbols> ),
+	Address( u32, u32, Box<Symbols>, Box<Node> ),
+	Size( u32, u32, Box<Symbols>, Box<Node> ),
+	Alias( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
+	New( u32, u32, Box<Symbols>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	ParenthesisExpression( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
 }
 
 pub trait ParserMethods {
@@ -148,6 +159,71 @@ impl ExpressionRules for Parser {
 						self.advance();
 						Ok( Box::new(Node::String(start_pos, self.lexer.get_start_position(), Box::new(x))))
 					},
+					Symbols::Nil( _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Nil(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::Imag( _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Imag(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::True( _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::True(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::False( _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::False(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::Self_( _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Self_(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::Result( _ , _ ) => {
+						self.advance();
+						Ok( Box::new(Node::Result(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::Alias( _ , _ ) => {
+						self.advance();
+						let left = self.parse_qualified_identifier()?;
+
+						let symbol2 = self.symbol.clone()?;
+						match symbol2 {
+							Symbols::Of( _ , _ ) => {
+								self.advance()
+							},
+							_ => return Err(Box::new(format!("Expecting 'of' in 'alias' expression at position: '{}'", start_pos)))
+						}
+
+						let right = self.parse_factor()?;
+						Ok( Box::new(Node::Alias(start_pos, self.lexer.get_start_position(), Box::new(x), left, Box::new(symbol2), right)))
+					},
+					Symbols::New( _ , _ ) => {
+						self.advance();
+
+						Ok( Box::new(Node::Result(start_pos, self.lexer.get_start_position(), Box::new(x))))
+					},
+					Symbols::LeftParen( _ , _ ) => {
+						self.advance();
+
+						let right = self.parse_expression()?;
+
+						let symbol2 = self.symbol.clone()?;
+						match symbol2 {
+							Symbols::RightParen( _ , _ ) => {
+								self.advance()
+							},
+							_ => return Err(Box::new(format!("Expecting ')' in parenthesized expression at position: '{}'", start_pos)))
+						}
+
+						Ok( Box::new(Node::ParenthesisExpression(start_pos, self.lexer.get_start_position(), Box::new(x), right, Box::new(symbol2))))
+					},
+					Symbols::LeftBracket( _ , _ ) => {
+						self.parse_array()
+					},
+					Symbols::LeftBrace( _ , _ ) => {
+						self.parse_set()
+					}
 					_ => Err(Box::new(format!("Unexpected or missing literal at position: '{}'", start_pos)))
 				}
 			},
