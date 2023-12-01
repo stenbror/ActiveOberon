@@ -19,10 +19,10 @@ pub enum Node {
 	False( u32, u32, Box<Symbols> ),
 	Self_( u32, u32, Box<Symbols> ),
 	Result( u32, u32, Box<Symbols> ),
-	Address( u32, u32, Box<Symbols>, Box<Node> ),
-	Size( u32, u32, Box<Symbols>, Box<Node> ),
+	Address( u32, u32, Box<Symbols>, Option<Box<(Box<Symbols>, Box<Node>)>> ),
+	Size( u32, u32, Box<Symbols>, Option<Box<(Box<Symbols>, Box<Node>)>> ),
 	Alias( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
-	New( u32, u32, Box<Symbols>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	New( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	ParenthesisExpression( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
 }
 
@@ -183,6 +183,32 @@ impl ExpressionRules for Parser {
 						self.advance();
 						Ok( Box::new(Node::Result(start_pos, self.lexer.get_start_position(), Box::new(x))))
 					},
+					Symbols::Address( _ , _ ) => {
+						self.advance();
+						let symbol2 = self.symbol.clone()?;
+						match symbol2 {
+							Symbols::Of( _ , _ ) => {
+								self.advance();
+								let right = self.parse_factor()?;
+
+								Ok( Box::new(Node::Address(start_pos, self.lexer.get_start_position(), Box::new(x), Some(Box::new( (Box::new(symbol2), right) )))))
+							},
+							_ => Ok( Box::new(Node::Address(start_pos, self.lexer.get_start_position(), Box::new(x), None)))
+						}
+					},
+					Symbols::Size( _ , _ ) => {
+						self.advance();
+						let symbol2 = self.symbol.clone()?;
+						match symbol2 {
+							Symbols::Of( _ , _ ) => {
+								self.advance();
+								let right = self.parse_factor()?;
+
+								Ok( Box::new(Node::Size(start_pos, self.lexer.get_start_position(), Box::new(x), Some(Box::new( (Box::new(symbol2), right) )))))
+							},
+							_ => Ok( Box::new(Node::Size(start_pos, self.lexer.get_start_position(), Box::new(x), None)))
+						}
+					},
 					Symbols::Alias( _ , _ ) => {
 						self.advance();
 						let left = self.parse_qualified_identifier()?;
@@ -200,8 +226,27 @@ impl ExpressionRules for Parser {
 					},
 					Symbols::New( _ , _ ) => {
 						self.advance();
+						let left = self.parse_qualified_identifier()?;
 
-						Ok( Box::new(Node::Result(start_pos, self.lexer.get_start_position(), Box::new(x))))
+						let symbol2 = self.symbol.clone()?;
+						match symbol2 {
+							Symbols::LeftParen( _ , _ ) => {
+								self.advance()
+							},
+							_ => return Err(Box::new(format!("Expecting '(' in 'new' expression at position: '{}'", start_pos)))
+						}
+
+						let right = self.parse_expression_list()?;
+
+						let symbol3 = self.symbol.clone()?;
+						match symbol3 {
+							Symbols::RightParen( _ , _ ) => {
+								self.advance()
+							},
+							_ => return Err(Box::new(format!("Expecting ')' in 'new' expression at position: '{}'", start_pos)))
+						}
+
+						Ok( Box::new(Node::New(start_pos, self.lexer.get_start_position(), Box::new(x), left, Box::new(symbol2), right, Box::new(symbol3))))
 					},
 					Symbols::LeftParen( _ , _ ) => {
 						self.advance();
@@ -495,5 +540,172 @@ mod tests {
 		}
 	}
 
+	// Unittests for string insert here!
+
+	#[test]
+	fn primary_expression_nil() {
+		let mut parser = Parser::new(Box::new(Scanner::new("NIL")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Nil(s, e,t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+						assert_eq!(*t, Symbols::Nil(0, 3))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_imag() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IMAG")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Imag(s, e,t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*t, Symbols::Imag(0, 4))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_true() {
+		let mut parser = Parser::new(Box::new(Scanner::new("TRUE")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::True(s, e,t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*t, Symbols::True(0, 4))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_false() {
+		let mut parser = Parser::new(Box::new(Scanner::new("FALSE")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::False(s, e,t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 5);
+						assert_eq!(*t, Symbols::False(0, 5))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_self() {
+		let mut parser = Parser::new(Box::new(Scanner::new("SELF")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Self_(s, e,t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*t, Symbols::Self_(0, 4))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_result() {
+		let mut parser = Parser::new(Box::new(Scanner::new("RESULT")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Result(s, e,t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 6);
+						assert_eq!(*t, Symbols::Result(0, 6))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_address() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ADDRESS")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Address(s, e,t, None ) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 7);
+						assert_eq!(*t, Symbols::Address(0, 7))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	// Unittests for address of variable inserted here!
+
+	#[test]
+	fn primary_expression_size() {
+		let mut parser = Parser::new(Box::new(Scanner::new("SIZE")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Size(s, e,t, None ) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*t, Symbols::Size(0, 4))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	// Unittests for alias, new and parenthesis expression inserted here!
+
+	
 
 }
