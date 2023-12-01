@@ -1,5 +1,5 @@
 # ActiveOberon
-Native 64-bit ActiveOberon compiler for ARM v8 and x86-64 with inline assembler under Linux for now.
+Native 64-bit ActiveOberon compiler for ARM v8 and x86-64 with inline assembler under Linux, Mac OS and Windows.
 
 I am starting to write the compiler front end. That is a scanner and parser with a symbol table handler and driver for taking commands from the command line.
 In addition, it will be UnitTests for all scanners and parser and symbol tables before I move on to build the backend for ARM and X86-64 and also the inline
@@ -7,18 +7,8 @@ assembler will be added later.
 
 I am just starting this project, so you will have very little to do with the compiler for quite some time. The compiler is expected to run only under Linux at this time.
 
-## Building project
-mkdir build <br />
-cd build <br />
-cmake .. <br />
-make <br />
-ctest <br />
-
-If you want to build and execute all tests in one command, just execute 'make check' <br />
-
-A full build and test from scratch is possible by executing <B> build.sh </B> from a cloned repository! <BR />
-
-To make a slim executable for release purposes, just execute in the build folder 'strip ActiveOberon' <br />
+I first started this product in C++, but will use Rust instead for ease of testing and building project. C++ does not have good build tool and testing frameworks.
+When all code written in C++ is replaced in Rust, all C++, CMake and Makefiles will be removed. Rust also have enum types that replaces a lot of C++ classes in Symbols and Nodes.
 
 ## Building the bootstrap compiler in <B> Rust </B>
 
