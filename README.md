@@ -7,7 +7,7 @@ assembler will be added later.
 
 I am just starting this project, so you will have very little to do with the compiler for quite some time. The compiler is expected to run only under Linux at this time.
 
-I first started this product in C++, but will use Rust instead for ease of testing and building project. C++ does not have good build tool and testing frameworks.
+I first started this product in C++, but will use Rust instead for ease of testing and building the project. C++ does not have good build system and testing frameworks.
 When all code written in C++ is replaced in Rust, all C++, CMake and Makefiles will be removed. Rust also have enum types that replaces a lot of C++ classes in Symbols and Nodes.
 
 ## Building the bootstrap compiler in <B> Rust </B>
@@ -34,8 +34,8 @@ that most languages and systems are used to now.
 
 Code will be native and optimized with only the library functions you need to be packed into a single executable file in ELF format.
 
-If we get enough interest for the project, I am thinking about writing the compiler/linker / build tool in Active Oberon later, and using the C++ version as
-a bootstrap for the real compiler and system. Regardless will the C++ version be as complete as the final product? It will be up to you which you will use and
+If we get enough interest for the project, I am thinking about writing the compiler/linker / build tool in Active Oberon later, and using the Rust version as
+a bootstrap for the real compiler and system. Regardless will the Rust version be as complete as the final product? It will be up to you which you will use and
 all libraries will be available without changes for both.
 
 Active Oberon is a highly typed and garbage-collected language for system programming.
