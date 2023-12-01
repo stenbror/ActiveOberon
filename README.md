@@ -52,8 +52,8 @@ Active Oberon is a highly typed and garbage-collected language for system progra
 
 ## Bootstrapping the system in the future
 
-* You will first compile the C++ version of the Active Oberon compiler/linker / build tool.
-* Then you will build the Active Oberon-based compiler with the help of the C++ bootstrap compiler.
+* You will first compile the Rust version of the Active Oberon compiler/linker / build tool.
+* Then you will build the Active Oberon-based compiler with the help of the Rust bootstrap compiler.
 * Finally you will use the finished Active Oberon-based compiler to build itself and you have the final product.
 
 ## Language overview
@@ -170,7 +170,7 @@ Numbers are either integers or real numbers. Numbers can be decimal or hexadecim
 *   Real numbers in the format like <I> 0.45D-11 </I> ( FLOAT32 )
 *   Real numbers in the format like <I> 7.11E+8 </I> ( FLOAT64 )
 
-#### Charater
+#### Character
 
 All characters are internally handled as UTF-32 characters, so a char is between 0 and FFFFFFFF , but only valid character codes in Unicode. Also in the format of 'x' etc.
 
