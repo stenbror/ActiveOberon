@@ -5,7 +5,7 @@
 
 use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
-#[derive()]
+#[derive(Clone, PartialEq)]
 pub enum Node {
 	Empty,
 	Ident( u32, u32, Box<Symbols> ),
@@ -24,6 +24,10 @@ pub enum Node {
 	Alias( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
 	New( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	ParenthesisExpression( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	UnaryExpression( u32, u32, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Vec<Box<Node>>>> ),
+	UnaryPLus( u32, u32, Box<Symbols>, Box<Node> ),
+	UnaryMinus( u32, u32, Box<Symbols>, Box<Node> ),
+	UnaryNot( u32, u32, Box<Symbols>, Box<Node> ),
 }
 
 pub trait ParserMethods {
@@ -39,7 +43,7 @@ pub trait ExpressionRules {
 	fn parse_factor(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_unary_expression(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_primary_expression(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_designator_operator(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
+	fn parse_designator_operator(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<std::string::String>>;
 	fn parse_expression_list(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_index_list(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_array(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
@@ -64,7 +68,7 @@ pub trait BlockRules {
 	fn parse_variable_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_name_list(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_name(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_flags(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
+	fn parse_flags(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<std::string::String>>;
 	fn parse_flag(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_procedure_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_operator_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
@@ -130,7 +134,29 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_unary_expression(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let left = self.parse_primary_expression()?;
+
+		let right = match &self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) | Symbols::Period( _ , _ ) | Symbols::LeftBracket( _ , _ ) |
+			Symbols::Arrow( _ , _ ) | Symbols::Transpose( _ , _ ) => Some(self.parse_designator_operator()?),
+			_ => {
+				None
+			}
+		};
+
+		let flags = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => Some(self.parse_flags()?),
+			_ => None
+		};
+
+		match (right.clone(), flags.clone()) {
+			( None, None ) => Ok(left),
+			( _ , _ ) => {
+				Ok( Box::new( Node::UnaryExpression(start_pos, self.lexer.get_start_position(), left, right, flags) ) )
+			}
+		}
 	}
 
 	fn parse_primary_expression(&mut self) -> Result<Box<Node>, Box<String>> {
@@ -278,7 +304,7 @@ impl ExpressionRules for Parser {
 		}
 	}
 
-	fn parse_designator_operator(&mut self) -> Result<Box<Node>, Box<String>> {
+	fn parse_designator_operator(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<String>> {
 		todo!()
 	}
 
@@ -360,7 +386,7 @@ impl BlockRules for Parser {
 		todo!()
 	}
 
-	fn parse_flags(&mut self) -> Result<Box<Node>, Box<String>> {
+	fn parse_flags(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<String>> {
 		todo!()
 	}
 
@@ -706,6 +732,29 @@ mod tests {
 
 	// Unittests for alias, new and parenthesis expression inserted here!
 
+	#[test]
+	fn unary_expression_ident() {
+		let mut parser = Parser::new(Box::new(Scanner::new("variable1")));
+		parser.advance();
+		let res = parser.parse_unary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Ident(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Ident(0, 9, Box::new(String::from("variable1"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	// Unittests for designator and flags inserted here!
+
 	
+
 
 }
