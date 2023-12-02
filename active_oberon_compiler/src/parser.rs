@@ -1033,4 +1033,94 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn term_expression_dot_times() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .* b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::DotTimes(0, 6,
+										  Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										  Box::new( Symbols::DotTimes(2, 4) ),
+										  Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_dot_slash() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a ./ b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::DotSlash(0, 6,
+											   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											   Box::new( Symbols::DotSlash(2, 4) ),
+											   Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_backslash() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a \\ b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::Backslash(0, 5,
+											Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											Box::new( Symbols::BackSlash(2, 3) ),
+											Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_times_times() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a ** b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::TimesTimes(0, 6,
+											   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											   Box::new( Symbols::TimesTimes(2, 4) ),
+											   Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_plus_times() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a +* b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::PlusTimes(0, 6,
+													Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+													Box::new( Symbols::PlusTimes(2, 4) ),
+													Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
