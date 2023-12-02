@@ -31,11 +31,11 @@ compiler instead of the final product if you like.
 ### To build an optimized release version ( Simply an early version only! )
 
 cargo build --release <BR />
-strip ./target/release/active_oberon_compiler <BR /> <BR />
+strip ./target/release/active_oberon_compiler <BR />
 
-just execute the resulting file: <BR />
+just execute the resulting file: <BR /> <BR />
 ls -la target/release <BR />
-target/release/active_oberon_compiler ( Executes the compiler as is at the moment, not producing any thing! )
+target/release/active_oberon_compiler ( Executes the compiler as is at the moment, not producing anything! )
 
 
 
