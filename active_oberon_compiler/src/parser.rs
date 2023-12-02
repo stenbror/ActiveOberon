@@ -1123,4 +1123,26 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn term_expression_times_div() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a * b / c")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::Slash(0, 9,
+											Box::new( Node::Times(0, 6,
+												Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1, Box::new( String::from("a"))) )) ),
+												Box::new( Symbols::Times(2, 3) ),
+												Box::new( Node::Ident(4, 6, Box::new( Symbols::Ident(4, 5, Box::new( String::from("b"))) )) )
+											) ),
+											Box::new( Symbols::Slash(6, 7) ),
+											Box::new( Node::Ident(8, 9, Box::new( Symbols::Ident(8, 9,Box::new(String::from("c"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
