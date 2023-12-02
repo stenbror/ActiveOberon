@@ -42,6 +42,24 @@ pub enum Node {
 	Minus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Or( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Range( u32, u32, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>>, Option<Symbols>, Option<Box<Node>> ),
+	Equal( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	NotEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Less( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	LessEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	GreaterEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Greater( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	In( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Is( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotUnequal( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotLess( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotLessEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotGreater( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotGreaterEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	QuestionMarks( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	ExplainMarks( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	LessLessQ( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	GreaterGreaterQ( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 }
 
 pub trait ParserMethods {
@@ -128,7 +146,121 @@ impl ParserMethods for Parser {
 /// Implements all expression rules in grammar of ActiveOberon
 impl ExpressionRules for Parser {
 	fn parse_expression(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let left = self.parse_range_expression()?;
+
+		match self.symbol.clone()? {
+			Symbols::Equal( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::Equal(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::NotEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::NotEqual(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::Less( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::Less(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::LessEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::LessEqual(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::Greater( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::Greater(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::GreaterEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::GreaterEqual(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::In( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::In(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::Is( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::Is(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::DotEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::DotEqual(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::DotUnEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::DotUnequal(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::DotLess( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::DotLess(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::DotLessEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::DotLessEqual(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::DotGreaterEqual( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::DotGreaterEqual(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+
+			Symbols::DotGreater( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::DotGreater(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::QuestionMarks( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::QuestionMarks(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::ExclaimMarks( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::ExplainMarks(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::LessLessQ( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::LessLessQ(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			Symbols::GreaterGreaterQ( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_term()?;
+				Ok( Box::new( Node::GreaterGreaterQ(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) ))
+			},
+			_ => Ok(left)
+		}
 	}
 
 	fn parse_range_expression(&mut self) -> Result<Box<Node>, Box<String>> {
