@@ -923,4 +923,114 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn term_expression_ident() {
+		let mut parser = Parser::new(Box::new(Scanner::new("variable1")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Ident(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Ident(0, 9, Box::new(String::from("variable1"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_times() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a * b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::Times(0, 5,
+											Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											Box::new( Symbols::Times(2, 3) ),
+											Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_slash() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a / b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::Slash(0, 5,
+											Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											Box::new( Symbols::Slash(2, 3) ),
+											Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_div() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a DIV b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::Div(0, 7,
+											Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											Box::new( Symbols::Div(2, 5) ),
+											Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_mod() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a MOD b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::Mod(0, 7,
+										  Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										  Box::new( Symbols::Mod(2, 5) ),
+										  Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn term_expression_and() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a & b")));
+		parser.advance();
+		let res = parser.parse_term();
+
+		let pattern = Box::new( Node::And(0, 5,
+											Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											Box::new( Symbols::And(2, 3) ),
+											Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
