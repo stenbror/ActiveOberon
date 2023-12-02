@@ -11,6 +11,9 @@ use console::style;
 use build_time::{build_time_local};
 use clap::Parser;
 
+use crate::parser::{Parser as ActiveOberonParser, ParserMethods, Node, ExpressionRules};
+use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods, Symbols};
+
 #[derive(Parser)]
 struct Cli {
     /// The pattern to look for
@@ -28,5 +31,16 @@ fn main() {
              style(build_time_local!("%Y-%m-%d")).green());
     println!("Written by Richard Magnor Stenbro. Licensed under GPL V3 - Linux ARM v8 & X86-64\r\n");
 
-    let _args = Cli::parse();
+    //let _args = Cli::parse();
+
+    /* Temporary code to be removed later! */
+    let mut parser = Box::new( ActiveOberonParser::new( Box::new( ActiveOberonScanner::new("test * counter") ) ) );
+    parser.advance();
+    let res = parser.parse_expression();
+
+    match res {
+        Ok(x) => println!("Success parsing expression!"),
+        _ => println!("Failed during parsing of expression!")
+    }
+
 }
