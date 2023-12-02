@@ -60,6 +60,8 @@ pub enum Node {
 	ExplainMarks( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	LessLessQ( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	GreaterGreaterQ( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Array( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	Set( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 }
 
 pub trait ParserMethods {
@@ -651,11 +653,83 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_array(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::LeftBracket( _ , _ ) => {
+				let _symb1 = self.symbol.clone()?;
+				self.advance();
+				_symb1
+			},
+			_ => return Err(Box::new(format!("Expecting '[' in array expression at position: '{}'", start_pos)))
+		};
+
+		let mut elements : Vec<Box<Node>> = Vec::new();
+		let mut separators : Vec<Box<Symbols>> = Vec::new();
+
+		elements.push( self.parse_expression()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+					elements.push( self.parse_expression()? )
+				},
+				_ => break
+			}
+		}
+
+		let symbol2 = match self.symbol.clone()? {
+			Symbols::RightBracket( _ , _ ) => {
+				let _symb2 = self.symbol.clone()?;
+				self.advance();
+				_symb2
+			},
+			_ => return Err(Box::new(format!("Expecting ']' in array expression at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new( Node::Array(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(elements), Box::new(separators), Box::new(symbol2)) ) )
 	}
 
 	fn parse_set(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => {
+				let _symb1 = self.symbol.clone()?;
+				self.advance();
+				_symb1
+			},
+			_ => return Err(Box::new(format!("Expecting start of set expression at position: '{}'", start_pos)))
+		};
+
+		let mut elements : Vec<Box<Node>> = Vec::new();
+		let mut separators : Vec<Box<Symbols>> = Vec::new();
+
+		elements.push( self.parse_range_expression()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+					elements.push( self.parse_range_expression()? )
+				},
+				_ => break
+			}
+		}
+
+		let symbol2 = match self.symbol.clone()? {
+			Symbols::RightBrace( _ , _ ) => {
+				let _symb2 = self.symbol.clone()?;
+				self.advance();
+				_symb2
+			},
+			_ => return Err(Box::new(format!("Expecting end of set expression at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new( Node::Set(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(elements), Box::new(separators), Box::new(symbol2)) ) )
 	}
 }
 
