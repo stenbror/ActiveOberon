@@ -1989,4 +1989,100 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn expression_array_one() {
+		let mut parser = Parser::new(Box::new(Scanner::new("[ 1 ]")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let elements= [ Box::new( Node::Integer(2, 4, Box::new( Symbols::Integer( 2, 3, Box::new( String::from("1" )))))) ].to_vec();
+
+		let pattern = Box::new( Node::Array(0, 5,
+												Box::new( Symbols::LeftBracket(0, 1) ),
+												Box::new( elements ) ,
+												Box::new( Vec::new() ),
+												Box::new( Symbols::RightBracket(4, 5) )
+												 ));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_set_one() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{ 1 }")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let elements= [ Box::new( Node::Integer(2, 4, Box::new( Symbols::Integer( 2, 3, Box::new( String::from("1" )))))) ].to_vec();
+
+		let pattern = Box::new( Node::Set(0, 5,
+											Box::new( Symbols::LeftBrace(0, 1) ),
+											Box::new( elements ) ,
+											Box::new( Vec::new() ),
+											Box::new( Symbols::RightBrace(4, 5) )
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_array_two() {
+		let mut parser = Parser::new(Box::new(Scanner::new("[ 1, 2 ]")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let elements= [
+			Box::new( Node::Integer(2, 3, Box::new( Symbols::Integer( 2, 3, Box::new( String::from("1" )))))),
+			Box::new( Node::Integer(5, 7, Box::new( Symbols::Integer( 5, 6, Box::new( String::from("2" ))))))
+		].to_vec();
+		let separators = [ Box::new( Symbols::Comma(3, 4) ) ].to_vec();
+
+		let pattern = Box::new( Node::Array(0, 8,
+											Box::new( Symbols::LeftBracket(0, 1) ),
+											Box::new( elements ) ,
+											Box::new( separators ),
+											Box::new( Symbols::RightBracket(7, 8) )
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_set_two() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{ 1, 2 }")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let elements= [
+			Box::new( Node::Integer(2, 3, Box::new( Symbols::Integer( 2, 3, Box::new( String::from("1" )))))),
+			Box::new( Node::Integer(5, 7, Box::new( Symbols::Integer( 5, 6, Box::new( String::from("2" ))))))
+		].to_vec();
+		let separators = [ Box::new( Symbols::Comma(3, 4) ) ].to_vec();
+
+		let pattern = Box::new( Node::Set(0, 8,
+											Box::new( Symbols::LeftBrace(0, 1) ),
+											Box::new( elements ) ,
+											Box::new( separators ),
+											Box::new( Symbols::RightBrace(7, 8) )
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
