@@ -12,7 +12,7 @@ use crate::scanner::Symbols::String;
 pub enum Symbols
 {
 	Empty,
-	EnfOfFile(u32),
+	EndOfFile(u32),
 
 	Await(u32, u32),
 	Begin(u32, u32),
@@ -210,7 +210,7 @@ impl ScannerMethods for Scanner
 		/* Operators or delimiters */
 		match self.peek_char() {
 			'\0' => {
-				return Ok(Symbols::EnfOfFile(self.index))
+				return Ok(Symbols::EndOfFile(self.index))
 			}
 			'\r' => { /* Line shift with either single or two characters */
 				let _ = self.get_char();
@@ -2637,7 +2637,7 @@ mod tests {
 		match symbol {
 			Ok(x) => {
 				match x {
-					Symbols::EnfOfFile(s) => {
+					Symbols::EndOfFile(s) => {
 						assert_eq!(s, 0);
 					},
 					_ => assert!(false)
