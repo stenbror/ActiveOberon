@@ -62,6 +62,7 @@ pub enum Node {
 	GreaterGreaterQ( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Array( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Set( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	ExpressionList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
 }
 
 pub trait ParserMethods {
@@ -645,7 +646,26 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_expression_list(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let mut elements : Vec<Box<Node>> = Vec::new();
+		let mut separators : Vec<Box<Symbols>> = Vec::new();
+
+		elements.push( self.parse_expression()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+
+					elements.push( self.parse_expression()? );
+				},
+				_ => break
+			}
+		}
+
+		Ok( Box::new( Node::ExpressionList(start_pos, self.lexer.get_start_position(), Box::new(elements), Box::new(separators)) ) )
 	}
 
 	fn parse_index_list(&mut self) -> Result<Box<Node>, Box<String>> {
