@@ -41,7 +41,7 @@ pub enum Node {
 	Plus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Minus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Or( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
-	Range( u32, u32, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>>, Option<Symbols>, Option<Box<Node>> ),
+	Range( u32, u32, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>>, Option<Box<Symbols>>, Option<Box<Node>> ),
 	Equal( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	NotEqual( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Less( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
@@ -275,9 +275,9 @@ impl ExpressionRules for Parser {
 			},
 			_ => {
 				let mut left : Option<Box<Node>> = None;
-				let mut upto  = Symbols::Empty;
+				let mut upto  = Box::new(Symbols::Empty);
 				let mut right : Option<Box<Node>> = None;
-				let mut by : Option<Symbols> = None;
+				let mut by : Option<Box<Symbols>> = None;
 				let mut next : Option<Box<Node>> = None;
 
 				match self.symbol.clone()? {
@@ -287,7 +287,7 @@ impl ExpressionRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Upto( _ , _ ) => {
-						upto = self.symbol.clone()?;
+						upto = Box::new(self.symbol.clone()?);
 						self.advance();
 
 						/* We need to handle all symbols that can follow '..' when right side is empty */
@@ -311,21 +311,22 @@ impl ExpressionRules for Parser {
 							Symbols::LessLessQ( _ , _ ) |
 							Symbols::GreaterGreaterQ( _ , _ ) |
 
-
+							Symbols::EndOfFile( _ ) |
 							Symbols::By( _ , _ ) => (),
 							_ => right = Some( self.parse_simple_expression()? )
 						}
 
 						match self.symbol.clone()? {
 							Symbols::By( _ , _ ) => {
-								by = Some(self.symbol.clone()?);
+								let byc = self.symbol.clone()?;
+								by = Some(Box::new( byc ));
 								self.advance();
 								next = Some( self.parse_simple_expression()? )
 							},
 							_ => ()
 						}
 
-						Ok( Box::new( Node::Range(start_pos, self.lexer.get_start_position(), left, Box::new(upto), right, by, next ) ) )
+						Ok( Box::new( Node::Range(start_pos, self.lexer.get_start_position(), left, upto, right, by, next ) ) )
 					},
 					_ => left.ok_or( Box::new(format!("Missing expression at position: '{}'", start_pos)) )
 				}
@@ -1806,6 +1807,106 @@ mod tests {
 												Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
 												Box::new( Symbols::GreaterGreaterQ(2, 5) ),
 												Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_range_from_to_by() {
+		let mut parser = Parser::new(Box::new(Scanner::new("1 .. 10 BY 2")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Range(0, 12,
+											Some(Box::new(Node::Integer(0, 2, Box::new(Symbols::Integer(0, 1, Box::new(String::from("1"))))))),
+											Box::new( Symbols::Upto(2, 4)),
+											Some(Box::new(Node::Integer(5, 8, Box::new(Symbols::Integer(5, 7, Box::new(String::from("10"))))))),
+											Some( Box::new(Symbols::By(8, 10)) ),
+											Some(Box::new(Node::Integer(11, 12, Box::new(Symbols::Integer(11, 12, Box::new(String::from("2")))))))  ) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_range_from_empty_to_by() {
+		let mut parser = Parser::new(Box::new(Scanner::new(".. 10 BY 2")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Range(0, 10,
+											None,
+											Box::new( Symbols::Upto(0, 2)),
+											Some(Box::new(Node::Integer(3, 6, Box::new(Symbols::Integer(3, 5, Box::new(String::from("10"))))))),
+											Some( Box::new(Symbols::By(6, 8)) ),
+											Some(Box::new(Node::Integer(9, 10, Box::new(Symbols::Integer(9, 10, Box::new(String::from("2")))))))  ) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_range_from_empty_to_empty_by() {
+		let mut parser = Parser::new(Box::new(Scanner::new(".. BY 2")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Range(0, 7,
+											None,
+											Box::new( Symbols::Upto(0, 2)),
+											None,
+											Some( Box::new(Symbols::By(3, 5)) ),
+											Some(Box::new(Node::Integer(6, 7, Box::new(Symbols::Integer(6, 7, Box::new(String::from("2")))))))  ) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_range_from_empty_to_empty() {
+		let mut parser = Parser::new(Box::new(Scanner::new("..")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Range(0, 2,
+											None,
+											Box::new( Symbols::Upto(0, 2)),
+											None,
+											None,
+											None  ) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_range_times() {
+		let mut parser = Parser::new(Box::new(Scanner::new("*")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Range(0, 1,
+											None,
+											Box::new( Symbols::Times(0, 1)),
+											None,
+											None,
+											None  ) );
 
 		match res {
 			Ok(x) => {
