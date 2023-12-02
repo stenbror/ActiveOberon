@@ -38,6 +38,9 @@ pub enum Node {
 	Backslash( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	TimesTimes( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	PlusTimes( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Plus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Minus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Or( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 }
 
 pub trait ParserMethods {
@@ -132,7 +135,34 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_simple_expression(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut left = self.parse_term()?;
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Plus( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_term()?;
+					left = Box::new( Node::Plus(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::Minus( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_term()?;
+					left = Box::new( Node::Minus(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::Or( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_term()?;
+					left = Box::new( Node::Or(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				_ => break
+			}
+		}
+
+		Ok(left)
 	}
 
 	fn parse_term(&mut self) -> Result<Box<Node>, Box<String>> {
@@ -1136,6 +1166,102 @@ mod tests {
 												Box::new( Node::Ident(4, 6, Box::new( Symbols::Ident(4, 5, Box::new( String::from("b"))) )) )
 											) ),
 											Box::new( Symbols::Slash(6, 7) ),
+											Box::new( Node::Ident(8, 9, Box::new( Symbols::Ident(8, 9,Box::new(String::from("c"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_expression_ident() {
+		let mut parser = Parser::new(Box::new(Scanner::new("variable1")));
+		parser.advance();
+		let res = parser.parse_simple_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Ident(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Ident(0, 9, Box::new(String::from("variable1"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_expression_plus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a + b")));
+		parser.advance();
+		let res = parser.parse_simple_expression();
+
+		let pattern = Box::new( Node::Plus(0, 5,
+										  Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										  Box::new( Symbols::Plus(2, 3) ),
+										  Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_expression_minus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a - b")));
+		parser.advance();
+		let res = parser.parse_simple_expression();
+
+		let pattern = Box::new( Node::Minus(0, 5,
+										   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										   Box::new( Symbols::Minus(2, 3) ),
+										   Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_expression_or() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a OR b")));
+		parser.advance();
+		let res = parser.parse_simple_expression();
+
+		let pattern = Box::new( Node::Or(0, 6,
+										   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										   Box::new( Symbols::Or(2, 4) ),
+										   Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_expression_plus_minus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a + b - c")));
+		parser.advance();
+		let res = parser.parse_simple_expression();
+
+		let pattern = Box::new( Node::Minus(0, 9,
+											Box::new( Node::Plus(0, 6,
+																  Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1, Box::new( String::from("a"))) )) ),
+																  Box::new( Symbols::Plus(2, 3) ),
+																  Box::new( Node::Ident(4, 6, Box::new( Symbols::Ident(4, 5, Box::new( String::from("b"))) )) )
+											) ),
+											Box::new( Symbols::Minus(6, 7) ),
 											Box::new( Node::Ident(8, 9, Box::new( Symbols::Ident(8, 9,Box::new(String::from("c"))) )) )) );
 
 		match res {
