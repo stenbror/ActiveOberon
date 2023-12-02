@@ -28,6 +28,17 @@ Even if the final compiler will be written in ActiveOberon language, it will nee
 a version written in C++. This Rust-based bootstrap compiler will be fully functional and contain all the functions of the final one. You can choose to use the bootstrap
 compiler instead of the final product if you like.
 
+### To build an optimized release version ( Simply an early version only! )
+
+cargo build --release <BR />
+strip ./target/release/active_oberon_compiler <BR /> <BR />
+
+just execute the resulting file: <BR />
+ls -la target/release <BR />
+target/release/active_oberon_compiler ( Executes the compiler as is at the moment, not producing any thing! )
+
+
+
 ## What is Active Oberon
 
 Active Oberon is the latest member of the Algol family of languages. Derived directly from the language Oberon (-2) and languages such as Modula, Pascal, etc.
