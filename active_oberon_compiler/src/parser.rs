@@ -8,6 +8,7 @@ use crate::scanner::{Scanner, ScannerMethods, Symbols};
 #[derive(Clone, PartialEq, Debug)]
 pub enum Node {
 	Empty,
+	/* Expression nodes */
 	Ident( u32, u32, Box<Symbols> ),
 	Integer( u32, u32, Box<Symbols> ),
 	Real( u32, u32, Box<Symbols> ),
@@ -64,6 +65,12 @@ pub enum Node {
 	Set( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	ExpressionList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
 	IndexList( u32, u32, Option<Box<Node>>, Option<Box<Symbols>>, Option<Box<Symbols>>, Option<Box<Symbols>>, Option<Box<Node>> ),
+	Call( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Symbols> ),
+	DotName( u32, u32, Box<Symbols>, Box<Node> ),
+	Index( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Symbols> ),
+	Arrow( u32, u32, Box<Symbols> ),
+	Transpose( u32, u32, Box<Symbols> ),
+	/* Statement nodes */
 }
 
 pub trait ParserMethods {
@@ -643,7 +650,79 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_designator_operator(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<String>> {
-		todo!()
+		let mut start_pos = self.lexer.get_start_position();
+		let mut elements = Vec::<Box<Node>>::new();
+
+		loop {
+			start_pos = self.lexer.get_start_position();
+
+			match self.symbol.clone()? {
+				Symbols::LeftParen( _ , _ ) => {
+					let symbol1 = self.symbol.clone()?;
+					self.advance();
+
+					let right = match self.symbol.clone()? {
+						Symbols::RightParen( _ , _ ) => None,
+						_ => Some( self.parse_expression_list()? )
+					};
+
+					match self.symbol.clone()? {
+						Symbols::RightParen( _ , _ ) => {
+							let symbol2 = self.symbol.clone()?;
+							self.advance();
+
+							elements.push( Box::new( Node::Call(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right, Box::new(symbol2)) ) )
+						},
+						_ => return Err(Box::new(format!("Missing ')' in call at position: '{}'", start_pos)))
+					}
+				},
+				Symbols::Period( _ , _ ) => {
+					let symbol1 = self.symbol.clone()?;
+					self.advance();
+					match self.symbol.clone()? {
+						Symbols::Ident( _ , _ , _ ) => {
+							let start_pos2 = self.lexer.get_start_position();
+							let symbol2 = self.symbol.clone()?;
+							self.advance();
+							elements.push( Box::new( Node::DotName(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)))) ) )
+						},
+						_ => return Err(Box::new(format!("Expecting name literal after '.' at position: '{}'", start_pos)))
+					}
+				},
+				Symbols::LeftBracket( _ , _ ) => {
+					let symbol1 = self.symbol.clone()?;
+					self.advance();
+
+					let right = match self.symbol.clone()? {
+						Symbols::RightBracket( _ , _ ) => None,
+						_ => Some( self.parse_index_list()? )
+					};
+
+					match self.symbol.clone()? {
+						Symbols::RightBracket( _ , _ ) => {
+							let symbol2 = self.symbol.clone()?;
+							self.advance();
+
+							elements.push( Box::new( Node::Index(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right, Box::new(symbol2)) ) )
+						},
+						_ => return Err(Box::new(format!("Missing ']' in index at position: '{}'", start_pos)))
+					}
+				},
+				Symbols::Arrow( _ , _ ) => {
+					let symbol1 = self.symbol.clone()?;
+					self.advance();
+					elements.push( Box::new( Node::Arrow(start_pos, self.lexer.get_start_position(), Box::new(symbol1)) ) )
+				},
+				Symbols::Transpose( _ , _ ) => {
+					let symbol1 = self.symbol.clone()?;
+					self.advance();
+					elements.push( Box::new( Node::Transpose(start_pos, self.lexer.get_start_position(), Box::new(symbol1)) ) )
+				},
+				_ => break
+			}
+		}
+
+		Ok( Box::new( elements ) )
 	}
 
 	fn parse_expression_list(&mut self) -> Result<Box<Node>, Box<String>> {
