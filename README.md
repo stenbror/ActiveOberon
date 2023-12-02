@@ -1,5 +1,5 @@
 # ActiveOberon
-Native 64-bit ActiveOberon compiler for ARM v8 and x86-64 with inline assembler under Linux, Mac OS and Windows.
+Native 64-bit ActiveOberon compiler for ARM v8 and x86-64 with inline assembler under Linux, Mac OS, and Windows.
 
 I am starting to write the compiler front end. That is a scanner and parser with a symbol table handler and driver for taking commands from the command line.
 In addition, it will be UnitTests for all scanners and parser and symbol tables before I move on to build the backend for ARM and X86-64 and also the inline
@@ -7,20 +7,24 @@ assembler will be added later.
 
 I am just starting this project, so you will have very little to do with the compiler for quite some time. The compiler is expected to run only under Linux at this time.
 
-I first started this product in C++, but will use Rust instead for ease of testing and building the project. C++ does not have good build system and testing frameworks.
-When all code written in C++ is replaced in Rust, all C++, CMake and Makefiles will be removed. Rust also have enum types that replaces a lot of C++ classes in Symbols and Nodes.
+I first started this product in C++ but will use Rust instead for ease of testing and building the project. C++ does not have any good build system and testing frameworks.
+Rust also has enum types that replace a lot of C++ classes in Symbols and Nodes.
 
 ## Building the bootstrap compiler in <B> Rust </B>
 
 I also write a bootstrap compiler in <B> Rust </B> that can bootstrap the final compiler written in ActiveOberon later in a three-step build of the final compiler.
 To build it and execute its unit tests follow the below instructions: <BR />
 
+Install a rust build system, if you don't already have one on your computer. Easy install by executing the following command under Linux and Mac OS 'curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh' , 
+on Windows search internet for 'rustup'. About every 6 weeks, the build system is updated and you just run 'rustup update' to get the latest version. <BR />
+
+
 cd active_oberon_compiler <BR />
 cargo build <BR />
 cargo test <BR />
 cargo run <BR />
 
-Even if the final compiler will be written in ActiveOberon language, it will need to be compiled the first time by the bootstrap compiler written in Rust and also maybee
+Even if the final compiler will be written in ActiveOberon language, it will need to be compiled the first time by the bootstrap compiler written in Rust and also maybe
 a version written in C++. This Rust-based bootstrap compiler will be fully functional and contain all the functions of the final one. You can choose to use the bootstrap
 compiler instead of the final product if you like.
 
@@ -28,8 +32,8 @@ compiler instead of the final product if you like.
 
 Active Oberon is the latest member of the Algol family of languages. Derived directly from the language Oberon (-2) and languages such as Modula, Pascal, etc.
 
-I will first write a complete compiler/linker/build system with an inline assembler for ARM v8 and X86-64 instruction sets. With it a minimum of support
-libraries as source code that will be compiled and optimized each time you create your own programs. The design goal is to remove waste and bloated executables
+I will first write a complete compiler/linker/build system with an inline assembler for ARM v8 and X86-64 instruction sets. With it, a minimum of support
+libraries as source code will be compiled and optimized each time you create your own programs. The design goal is to remove waste and bloated executables
 that most languages and systems are used to now.
 
 Code will be native and optimized with only the library functions you need to be packed into a single executable file in ELF format.
