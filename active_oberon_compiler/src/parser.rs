@@ -63,6 +63,7 @@ pub enum Node {
 	Array( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Set( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	ExpressionList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
+	IndexList( u32, u32, Option<Box<Node>>, Option<Box<Symbols>>, Option<Box<Symbols>>, Option<Box<Symbols>>, Option<Box<Node>> ),
 }
 
 pub trait ParserMethods {
@@ -669,7 +670,57 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_index_list(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let mut left : Option<Box<Node>> = None;
+		let mut symbol1 : Option<Box<Symbols>> = None;
+		let mut symbol2 : Option<Box<Symbols>> = None;
+		let mut symbol3 : Option<Box<Symbols>> = None;
+		let mut right : Option<Box<Node>> = None;
+
+		match self.symbol.clone()? {
+			Symbols::QuestionMark( _ , _ ) => {
+				symbol2 = Some( Box::new( self.symbol.clone()? ) );
+				self.advance();
+				match self.symbol.clone()? {
+					Symbols::Comma( _ , _ ) => {
+						symbol3 = Some( Box::new( self.symbol.clone()? ) );
+						self.advance();
+						right = Some( self.parse_expression_list()? )
+					},
+					_ => ()
+				}
+			},
+			_ => {
+				left = Some( self.parse_expression_list()? );
+
+				match self.symbol.clone()? {
+					Symbols::Comma( _ , _ ) => {
+						symbol1 = Some( Box::new( self.symbol.clone()? ) );
+						self.advance();
+
+						match self.symbol.clone()? {
+							Symbols::QuestionMark( _ , _ ) => {
+								symbol2 = Some( Box::new( self.symbol.clone()? ) );
+								self.advance();
+								match self.symbol.clone()? {
+									Symbols::Comma( _ , _ ) => {
+										symbol3 = Some( Box::new( self.symbol.clone()? ) );
+										self.advance();
+										right = Some( self.parse_expression_list()? )
+									},
+									_ => ()
+								}
+							},
+							_ => return Err(Box::new(format!("Expecting '?' in index expression at position: '{}'", start_pos)))
+						}
+					},
+					_ => ()
+				}
+			}
+		}
+
+		Ok( Box::new( Node::IndexList(start_pos, self.lexer.get_start_position(), left, symbol1, symbol2, symbol3, right) ) )
 	}
 
 	fn parse_array(&mut self) -> Result<Box<Node>, Box<String>> {
