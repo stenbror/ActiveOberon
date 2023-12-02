@@ -41,6 +41,7 @@ pub enum Node {
 	Plus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Minus( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Or( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Range( u32, u32, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>>, Option<Symbols>, Option<Box<Node>> ),
 }
 
 pub trait ParserMethods {
@@ -131,7 +132,73 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_range_expression(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Times( _ , _ ) => {
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				Ok( Box::new( Node::Range(start_pos, self.lexer.get_start_position(), None, Box::new(symbol2), None, None, None) ) )
+			},
+			_ => {
+				let mut left : Option<Box<Node>> = None;
+				let mut upto  = Symbols::Empty;
+				let mut right : Option<Box<Node>> = None;
+				let mut by : Option<Symbols> = None;
+				let mut next : Option<Box<Node>> = None;
+
+				match self.symbol.clone()? {
+					Symbols::Upto( _ , _ ) => (),
+					_ => left = Some(self.parse_simple_expression()?)
+				}
+
+				match self.symbol.clone()? {
+					Symbols::Upto( _ , _ ) => {
+						upto = self.symbol.clone()?;
+						self.advance();
+
+						/* We need to handle all symbols that can follow '..' when right side is empty */
+						match self.symbol.clone()? {
+							Symbols::Equal( _ , _ ) |
+							Symbols::NotEqual( _ , _ ) |
+							Symbols::Less( _ , _ ) |
+							Symbols::LessEqual( _ , _ ) |
+							Symbols::Greater( _ , _ ) |
+							Symbols::GreaterEqual( _ , _ ) |
+							Symbols::In( _ , _ ) |
+							Symbols::Is( _ , _ ) |
+							Symbols::DotEqual( _ , _ ) |
+							Symbols::DotUnEqual( _ , _ ) |
+							Symbols::DotLess( _ , _ ) |
+							Symbols::DotLessEqual( _ , _ ) |
+							Symbols::DotGreaterEqual( _ , _ ) |
+							Symbols::DotGreater( _ , _ ) |
+							Symbols::QuestionMarks( _ , _ ) |
+							Symbols::ExclaimMarks( _ , _ ) |
+							Symbols::LessLessQ( _ , _ ) |
+							Symbols::GreaterGreaterQ( _ , _ ) |
+
+
+							Symbols::By( _ , _ ) => (),
+							_ => right = Some( self.parse_simple_expression()? )
+						}
+
+						match self.symbol.clone()? {
+							Symbols::By( _ , _ ) => {
+								by = Some(self.symbol.clone()?);
+								self.advance();
+								next = Some( self.parse_simple_expression()? )
+							},
+							_ => ()
+						}
+
+						Ok( Box::new( Node::Range(start_pos, self.lexer.get_start_position(), left, Box::new(upto), right, by, next ) ) )
+					},
+					_ => left.ok_or( Box::new(format!("Missing expression at position: '{}'", start_pos)) )
+				}
+			}
+		}
 	}
 
 	fn parse_simple_expression(&mut self) -> Result<Box<Node>, Box<String>> {
