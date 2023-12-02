@@ -28,6 +28,16 @@ pub enum Node {
 	UnaryPlus( u32, u32, Box<Symbols>, Box<Node> ),
 	UnaryMinus( u32, u32, Box<Symbols>, Box<Node> ),
 	UnaryNot( u32, u32, Box<Symbols>, Box<Node> ),
+	Times( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Slash( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Div( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Mod( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	And( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotTimes( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	DotSlash( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Backslash( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	TimesTimes( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	PlusTimes( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 }
 
 pub trait ParserMethods {
@@ -126,7 +136,76 @@ impl ExpressionRules for Parser {
 	}
 
 	fn parse_term(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut left = self.parse_factor()?;
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Times( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::Times(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::Slash( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::Slash(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::Div( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::Div(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::Mod( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::Mod(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::And( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::And(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::DotTimes( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::DotTimes(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::DotSlash( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::DotSlash(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::BackSlash( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::Backslash(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::TimesTimes( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::TimesTimes(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				Symbols::PlusTimes( _ , _ ) => {
+					let symbol2 = self.symbol.clone()?;
+					self.advance();
+					let right = self.parse_factor()?;
+					left = Box::new( Node::PlusTimes(start_pos, self.lexer.get_start_position(), left, Box::new(symbol2), right) )
+				},
+				_ => break
+			}
+		}
+
+		Ok(left)
 	}
 
 	fn parse_factor(&mut self) -> Result<Box<Node>, Box<String>> {
