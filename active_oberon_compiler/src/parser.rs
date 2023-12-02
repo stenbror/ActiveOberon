@@ -1470,4 +1470,348 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn expression_ident() {
+		let mut parser = Parser::new(Box::new(Scanner::new("variable1")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::Ident(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 9);
+						assert_eq!(*t, Symbols::Ident(0, 9, Box::new(String::from("variable1"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a = b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Equal(0, 5,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::Equal(2, 3) ),
+										 Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_not_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a # b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::NotEqual(0, 5,
+											Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											Box::new( Symbols::NotEqual(2, 3) ),
+											Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_less() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a < b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Less(0, 5,
+											   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											   Box::new( Symbols::Less(2, 3) ),
+											   Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_greater() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a > b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Greater(0, 5,
+											   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											   Box::new( Symbols::Greater(2, 3) ),
+											   Box::new( Node::Ident(4, 5, Box::new( Symbols::Ident(4, 5,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_less_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a <= b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::LessEqual(0, 6,
+											   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+											   Box::new( Symbols::LessEqual(2, 4) ),
+											   Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_greater_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a >= b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::GreaterEqual(0, 6,
+												Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+												Box::new( Symbols::GreaterEqual(2, 4) ),
+												Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_in() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a IN b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::In(0, 6,
+												   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+												   Box::new( Symbols::In(2, 4) ),
+												   Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_is() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a IS b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::Is(0, 6,
+										  Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										  Box::new( Symbols::Is(2, 4) ),
+										  Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .= b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::DotEqual(0, 6,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::DotEqual(2, 4) ),
+										 Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_unequal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .# b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::DotUnequal(0, 6,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::DotUnEqual(2, 4) ),
+										 Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_less() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .< b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::DotLess(0, 6,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::DotLess(2, 4) ),
+										 Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_greater() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .> b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::DotGreater(0, 6,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::DotGreater(2, 4) ),
+										 Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_question_marks() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a ?? b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::QuestionMarks(0, 6,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::QuestionMarks(2, 4) ),
+										 Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_explain_marks() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a !! b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::ExplainMarks(0, 6,
+										 Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+										 Box::new( Symbols::ExclaimMarks(2, 4) ),
+										 Box::new( Node::Ident(5, 6, Box::new( Symbols::Ident(5, 6,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_less_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .<= b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::DotLessEqual(0, 7,
+												   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+												   Box::new( Symbols::DotLessEqual(2, 5) ),
+												   Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_dot_greater_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a .>= b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::DotGreaterEqual(0, 7,
+												   Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+												   Box::new( Symbols::DotGreaterEqual(2, 5) ),
+												   Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_less_less_q() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a <<? b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::LessLessQ(0, 7,
+													  Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+													  Box::new( Symbols::LessLessQ(2, 5) ),
+													  Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn expression_greater_greater_q() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a >>? b")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::GreaterGreaterQ(0, 7,
+												Box::new( Node::Ident(0, 2, Box::new( Symbols::Ident(0, 1,Box::new(String::from("a"))) )) ),
+												Box::new( Symbols::GreaterGreaterQ(2, 5) ),
+												Box::new( Node::Ident(6, 7, Box::new( Symbols::Ident(6, 7,Box::new(String::from("b"))) )) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
