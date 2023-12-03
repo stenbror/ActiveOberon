@@ -2235,4 +2235,26 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn designator_call() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test()")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let elements = [
+			Box::new( Node::Call( 4, 6, Box::new( Symbols::LeftParen(4, 5)), None, Box::new(Symbols::RightParen(5, 6)) ) )
+		].to_vec();
+
+		let pattern = Box::new( Node::UnaryExpression(0, 6,
+											 Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
+							Some(Box::new(elements)),
+							None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
