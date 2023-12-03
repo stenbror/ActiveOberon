@@ -736,12 +736,14 @@ impl ExpressionRules for Parser {
 		loop {
 			match self.symbol.clone()? {
 				Symbols::Comma( _ , _ ) => {
-					separators.push( Box::new(self.symbol.clone()?) );
 					match self.lexer.peek_symbol()? {
 						Symbols::QuestionMark( _ , _ ) => {
 							break
 						},
-						_ => { self.advance() }
+						_ => {
+							separators.push( Box::new(self.symbol.clone()?) );
+							self.advance()
+						}
 					}
 
 					elements.push( self.parse_expression()? );
@@ -2489,6 +2491,36 @@ mod tests {
 		].to_vec();
 
 		let pattern = Box::new( Node::UnaryExpression(0, 10,
+													  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
+													  Some(Box::new(elements)),
+													  None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn designator_index_one_param_questionmark_and_more_front_and_back() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test[2, ?, 1]")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let el = [ Box::new( Node::Integer(11, 12, Box::new(Symbols::Integer(11, 12, Box::new(String::from("1"))))) ) ].to_vec();
+		let right_list = Box::new( Node::ExpressionList(11, 12, Box::new(el), Box::new(Vec::<Box<Symbols>>::new())));
+
+		let el2 = [ Box::new( Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("2"))))) ) ].to_vec();
+		let left_list = Box::new( Node::ExpressionList(5, 8, Box::new(el2), Box::new(Vec::<Box<Symbols>>::new())));
+
+		let exp_list = Box::new( Node::IndexList(5, 12, Some(left_list), Some(Box::new(Symbols::Comma(6, 7))), Some(Box::new(Symbols::QuestionMark(8, 9))), Some(Box::new(Symbols::Comma(9, 10))), Some(right_list.clone()) )  );
+
+		let elements = [
+			Box::new( Node::Index( 4, 13, Box::new( Symbols::LeftBracket(4, 5)), Some(exp_list), Box::new(Symbols::RightBracket(12, 13)) ) )
+		].to_vec();
+
+		let pattern = Box::new( Node::UnaryExpression(0, 13,
 													  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
 													  Some(Box::new(elements)),
 													  None) );
