@@ -2532,6 +2532,33 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn designator_index_one_param_questionmark_and_more_front() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test[2, ?]")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let el2 = [ Box::new( Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("2"))))) ) ].to_vec();
+		let left_list = Box::new( Node::ExpressionList(5, 8, Box::new(el2), Box::new(Vec::<Box<Symbols>>::new())));
+
+		let exp_list = Box::new( Node::IndexList(5, 9, Some(left_list), Some(Box::new(Symbols::Comma(6, 7))), Some(Box::new(Symbols::QuestionMark(8, 9))), None, None )  );
+
+		let elements = [
+			Box::new( Node::Index( 4, 10, Box::new( Symbols::LeftBracket(4, 5)), Some(exp_list), Box::new(Symbols::RightBracket(9, 10)) ) )
+		].to_vec();
+
+		let pattern = Box::new( Node::UnaryExpression(0, 10,
+													  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
+													  Some(Box::new(elements)),
+													  None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 
 }
