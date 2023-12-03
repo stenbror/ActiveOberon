@@ -3147,4 +3147,156 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn character_single_quote() {
+		let mut scan = Box::new(Scanner::new("'_'"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Character(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+						assert_eq!(*v, std::string::String::from("'_'"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn character_double_quote() {
+		let mut scan = Box::new(Scanner::new("\"_\""));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::Character(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 3);
+						assert_eq!(*v, std::string::String::from("\"_\""))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn string_empty_single_quote() {
+		let mut scan = Box::new(Scanner::new("''"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::String(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+						assert_eq!(*v, std::string::String::from("''"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn string_empty_double_quote() {
+		let mut scan = Box::new(Scanner::new("\"\""));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::String(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 2);
+						assert_eq!(*v, std::string::String::from("\"\""))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn string_empty_raw_double_quote() {
+		let mut scan = Box::new(Scanner::new("\\\"\\\""));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::String(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 4);
+						assert_eq!(*v, std::string::String::from("\\\"\\\""))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn string_raw_double_quote() {
+		let mut scan = Box::new(Scanner::new("\\\"This is \"a 'fake'\" \\r string!\\\""));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::String(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 33);
+						assert_eq!(*v, std::string::String::from("\\\"This is \"a 'fake'\" \\r string!\\\""))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn string_single_quote() {
+		let mut scan = Box::new(Scanner::new("'This is a string!'"));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::String(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 19);
+						assert_eq!(*v, std::string::String::from("'This is a string!'"))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn string_double_quote() {
+		let mut scan = Box::new(Scanner::new("\"This is a string!\""));
+		let symbol = scan.get_symbol();
+		match symbol {
+			Ok(x) => {
+				match x {
+					Symbols::String(s, e, v) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 19);
+						assert_eq!(*v, std::string::String::from("\"This is a string!\""))
+					},
+					_ => assert!(false)
+				}
+			},
+			_ => assert!(false)
+		}
+	}
+
 }
