@@ -1131,7 +1131,25 @@ mod tests {
 		}
 	}
 
-	// Unittests for string insert here!
+	#[test]
+	fn primary_expression_string() {
+		let mut parser = Parser::new(Box::new(Scanner::new("'This is a test!'")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		match res {
+			Ok(x) => {
+				match *x {
+					Node::String(s, e, t) => {
+						assert_eq!(s, 0);
+						assert_eq!(e, 17);
+						assert_eq!(*t, Symbols::String(0, 17, Box::new(String::from("'This is a test!'"))))
+					},
+					_ => assert!(false)
+				}
+			}, _ => assert!(false)
+		}
+	}
 
 	#[test]
 	fn primary_expression_nil() {
