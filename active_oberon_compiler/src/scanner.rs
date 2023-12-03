@@ -138,6 +138,7 @@ pub trait ScannerMethods
 	fn peek_char(&self) -> char;
 	fn get_start_position(&self) -> u32;
 	fn get_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
+	fn peek_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
 	fn is_reserved_keyword(&self, start : u32, end: u32, keyword: &str) -> Option<Symbols>;
 	fn is_string_or_character(&self) -> Result<Symbols, Box<std::string::String>>;
 }
@@ -703,6 +704,14 @@ impl ScannerMethods for Scanner
 		}
 
 		Err(Box::new(format!("Invalid symbol in source file at position: '{}'", self.index)))
+	}
+
+	/// Check next symbol in source code without advancing position in source code.
+	fn peek_symbol(&mut self) -> Result<Symbols, Box<string::String>> {
+		let save_start_pos = self.index;
+		let symbol = self.get_symbol();
+		self.index = save_start_pos;
+		symbol
 	}
 
 	/// Lookup valid reserved keywords and get symbol if found.

@@ -737,7 +737,12 @@ impl ExpressionRules for Parser {
 			match self.symbol.clone()? {
 				Symbols::Comma( _ , _ ) => {
 					separators.push( Box::new(self.symbol.clone()?) );
-					self.advance();
+					match self.lexer.peek_symbol()? {
+						Symbols::QuestionMark( _ , _ ) => {
+							break
+						},
+						_ => { self.advance() }
+					}
 
 					elements.push( self.parse_expression()? );
 				},
