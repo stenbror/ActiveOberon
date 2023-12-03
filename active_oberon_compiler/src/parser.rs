@@ -2381,4 +2381,92 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn designator_call_with_two_param_dot_name_transpose() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test(1, 2).run`")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let exp_list_element = [
+			Box::new( Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("1"))))) ),
+			Box::new( Node::Integer(8, 9, Box::new(Symbols::Integer(8, 9, Box::new(String::from("2"))))) )
+		].to_vec();
+
+		let separators = [ Box::new( Symbols::Comma(6, 7) ) ].to_vec();
+
+		let exp_list = Box::new( Node::ExpressionList(5, 9, Box::new(exp_list_element), Box::new( separators ) ) );
+
+		let elements = [
+			Box::new( Node::Call( 4, 10, Box::new( Symbols::LeftParen(4, 5)), Some(exp_list), Box::new(Symbols::RightParen(9, 10)) ) ),
+			Box::new( Node::DotName(10, 14, Box::new( Symbols::Period(10, 11) ), Box::new( Node::Ident(11, 14, Box::new(Symbols::Ident(11, 14, Box::new(String::from("run"))))) )) ),
+			Box::new( Node::Transpose(14, 15, Box::new(Symbols::Transpose(14, 15))) )
+		].to_vec();
+
+		let pattern = Box::new( Node::UnaryExpression(0, 15,
+													  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
+													  Some(Box::new(elements)),
+													  None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn designator_index_one_param() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test[1]")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let el = [ Box::new( Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("1"))))) ) ].to_vec();
+		let left_list = Box::new( Node::ExpressionList(5, 6, Box::new(el), Box::new(Vec::<Box<Symbols>>::new())));
+
+		let exp_list = Box::new( Node::IndexList(5, 6, Some(left_list), None, None, None, None )  );
+
+		let elements = [
+			Box::new( Node::Index( 4, 7, Box::new( Symbols::LeftBracket(4, 5)), Some(exp_list), Box::new(Symbols::RightBracket(6, 7)) ) )
+		].to_vec();
+
+		let pattern = Box::new( Node::UnaryExpression(0, 7,
+													  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
+													  Some(Box::new(elements)),
+													  None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	// COMMA ISSUES IN EXPRLIST AND INDEX !!! INSERT TEST HERE!
+
+	#[test]
+	fn designator_index_one_param_questionmark() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test[?]")));
+		parser.advance();
+		let res = parser.parse_expression();
+		
+		let exp_list = Box::new( Node::IndexList(5, 6, None, None, Some(Box::new(Symbols::QuestionMark(5, 6))), None, None )  );
+
+		let elements = [
+			Box::new( Node::Index( 4, 7, Box::new( Symbols::LeftBracket(4, 5)), Some(exp_list), Box::new(Symbols::RightBracket(6, 7)) ) )
+		].to_vec();
+
+		let pattern = Box::new( Node::UnaryExpression(0, 7,
+													  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) ) )),
+													  Some(Box::new(elements)),
+													  None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+
+
 }
