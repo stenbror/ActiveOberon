@@ -22,7 +22,7 @@ pub enum Node {
 	Result( u32, u32, Box<Symbols> ),
 	Address( u32, u32, Box<Symbols>, Option<Box<(Box<Symbols>, Box<Node>)>> ),
 	Size( u32, u32, Box<Symbols>, Option<Box<(Box<Symbols>, Box<Node>)>> ),
-	Alias( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
+	Alias( u32, u32, Box<Symbols>, Box<Symbols>, Box<Node> ),
 	New( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	ParenthesisExpression( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	UnaryExpression( u32, u32, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Vec<Box<Node>>>> ),
@@ -582,7 +582,6 @@ impl ExpressionRules for Parser {
 					},
 					Symbols::Alias( _ , _ ) => {
 						self.advance();
-						let left = self.parse_qualified_identifier()?;
 
 						let symbol2 = self.symbol.clone()?;
 						match symbol2 {
@@ -593,7 +592,7 @@ impl ExpressionRules for Parser {
 						}
 
 						let right = self.parse_factor()?;
-						Ok( Box::new(Node::Alias(start_pos, self.lexer.get_start_position(), Box::new(x), left, Box::new(symbol2), right)))
+						Ok( Box::new(Node::Alias(start_pos, self.lexer.get_start_position(), Box::new(x), Box::new(symbol2), right)))
 					},
 					Symbols::New( _ , _ ) => {
 						self.advance();
@@ -1313,7 +1312,60 @@ mod tests {
 		}
 	}
 
-	// Unittests for alias, new and parenthesis expression inserted here!
+	#[test]
+	fn primary_expression_size_of() {
+		let mut parser = Parser::new(Box::new(Scanner::new("SIZE OF a")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		let opt = (Box::new(Symbols::Of(5, 7)), Box::new( Node::Ident( 8, 9, Box::new(Symbols::Ident(8, 9, Box::new(String::from("a"))))) ));
+		let pattern = Box::new( Node::Size(0, 9, Box::new(Symbols::Size(0, 4)), Some(Box::new(opt))) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_address_of() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ADDRESS OF a")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		let opt = (Box::new(Symbols::Of(8, 10)), Box::new( Node::Ident( 11, 12, Box::new(Symbols::Ident(11, 12, Box::new(String::from("a"))))) ));
+		let pattern = Box::new( Node::Address(0, 12, Box::new(Symbols::Address(0, 7)), Some(Box::new(opt))) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn primary_expression_alias_of() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ALIAS OF a")));
+		parser.advance();
+		let res = parser.parse_primary_expression();
+
+		let pattern = Box::new( Node::Alias(
+			0,
+			10,
+			Box::new(Symbols::Alias(0, 5)),
+			Box::new( Symbols::Of(6, 8)),
+			Box::new( Node::Ident(9, 10, Box::new( Symbols::Ident(9, 10, Box::new(String::from("a"))) )) )
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	// Unittests for new  expression inserted here!
 
 	#[test]
 	fn unary_expression_ident() {
@@ -1335,7 +1387,31 @@ mod tests {
 		}
 	}
 
-	// Unittests for designator and flags inserted here!
+	#[test]
+	fn primary_expression_parenthesized() {
+		let mut parser = Parser::new(Box::new(Scanner::new("( a + b )")));
+		parser.advance();
+		let res = parser.parse_expression();
+
+		let pattern = Box::new( Node::ParenthesisExpression(
+			0,
+			9,
+			Box::new(Symbols::LeftParen(0, 1)),
+			Box::new( Node::Plus(2, 8,
+								 Box::new( Node::Ident(2, 4, Box::new(Symbols::Ident(2, 3, Box::new(String::from("a"))))) ),
+								 Box::new(Symbols::Plus(4, 5)),
+								 Box::new( Node::Ident(6, 8, Box::new(Symbols::Ident(6, 7, Box::new(String::from("b"))))) )) ),
+			Box::new(Symbols::RightParen(8, 9))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	// Unittests for flags inserted here!
 
 	#[test]
 	fn factor_expression_ident() {
