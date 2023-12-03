@@ -8,7 +8,7 @@ use crate::scanner::{Scanner, ScannerMethods, Symbols};
 #[derive(Clone, PartialEq, Debug)]
 pub enum Node {
 	Empty,
-	
+
 	/* Expression nodes */
 	Ident( u32, u32, Box<Symbols> ),
 	Integer( u32, u32, Box<Symbols> ),
@@ -74,7 +74,7 @@ pub enum Node {
 
 	/* Statement nodes */
 	StatementSequence( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
-	StatementBlock( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Box<Symbols> ),
+	StatementBlock( u32, u32, Box<Symbols>, Option<Box<Vec<Box<Node>>>>, Box<Node>, Box<Symbols> ),
 	If( u32, u32, Box<Symbols> , Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
 	Elsif( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
 	Else( u32, u32, Box<Symbols>, Box<Node> ),
@@ -922,7 +922,34 @@ impl StatementRules for Parser {
 	}
 
 	fn parse_statement_block(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Begin( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let flags = match self.symbol.clone()? {
+					Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+					_ => None
+				};
+
+				let right = self.parse_statement_sequence()?;
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => {
+						let symbol2 = self.symbol.clone()?;
+						self.advance();
+
+						Ok( Box::new( Node::StatementBlock(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, right, Box::new(symbol2)) ) )
+					},
+					_ => Err(Box::new(format!("Expecting 'END' in statement block at position: '{}'", start_pos)))
+				}
+			},
+			_ => {
+				Err(Box::new(format!("Expecting 'BEGIN' in statement block at position: '{}'", start_pos)))
+			}
+		}
 	}
 
 	fn parse_statement_sequence(&mut self) -> Result<Box<Node>, Box<String>> {
