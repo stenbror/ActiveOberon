@@ -140,7 +140,7 @@ pub trait ScannerMethods
 	fn get_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
 	fn peek_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
 	fn is_reserved_keyword(&self, start : u32, end: u32, keyword: &str) -> Option<Symbols>;
-	fn is_string_or_character(&self) -> Result<Symbols, Box<std::string::String>>;
+	fn is_string_or_character(&mut self) -> Result<Symbols, Box<std::string::String>>;
 }
 
 pub struct Scanner
@@ -778,8 +778,84 @@ impl ScannerMethods for Scanner
 		}
 	}
 
-	fn is_string_or_character(&self) -> Result<Symbols, Box<std::string::String>> {
-		todo!()
+	/// Handling string or character
+	fn is_string_or_character(&mut self) -> Result<Symbols, Box<std::string::String>> {
+		let mut buffer = std::string::String::new();
+
+		match self.peek_char() {
+			'\\' => {
+				buffer.push(self.get_char()); /* '\' */
+				buffer.push(self.get_char()); /* '"' */
+				loop {
+					match self.peek_char() {
+						'\\' => {
+							let s1 = self.get_char();
+							match self.peek_char() {
+								'"' => {
+									buffer.push(s1);
+									buffer.push(self.get_char());
+									break
+								},
+								'\0' => break,
+								_ => {
+									buffer.push('\\');
+									buffer.push(self.get_char() )
+								}
+							}
+						},
+						'\0' => {
+							return Err(Box::new(format!("Unterminated string of type '\\\"' at position: '{}'", self.index)))
+						}
+						_ => {
+							buffer.push(self.get_char())
+						}
+					}
+				}
+			},
+			'"' => {
+				buffer.push(self.get_char());
+				loop {
+					match self.peek_char() {
+						'\0' => {
+							return Err(Box::new(format!("Unterminated string of type '\"' at position: '{}'", self.index)))
+						},
+						'"' => {
+							buffer.push(self.get_char() );
+							break
+						},
+						_ => {
+							buffer.push(self.get_char() )
+						}
+					}
+				}
+			},
+			_ =>  { /* We have ' */
+				buffer.push(self.get_char());
+				loop {
+					match self.peek_char() {
+						'\0' => {
+							return Err(Box::new(format!("Unterminated string of type '\'' at position: '{}'", self.index)))
+						},
+						'\'' => {
+							buffer.push(self.get_char() );
+							break
+						},
+						_ => {
+							buffer.push(self.get_char() )
+						}
+					}
+				}
+			}
+		}
+
+		return match buffer.len() {
+			3 => {
+				Ok(Symbols::Character(self.start_pos, self.index, Box::new(buffer)))
+			},
+			_ => {
+				Ok(Symbols::String(self.start_pos, self.index, Box::new(buffer)))
+			}
+		}
 	}
 }
 
