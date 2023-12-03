@@ -8,6 +8,7 @@ use crate::scanner::{Scanner, ScannerMethods, Symbols};
 #[derive(Clone, PartialEq, Debug)]
 pub enum Node {
 	Empty,
+	
 	/* Expression nodes */
 	Ident( u32, u32, Box<Symbols> ),
 	Integer( u32, u32, Box<Symbols> ),
@@ -73,9 +74,25 @@ pub enum Node {
 
 	/* Statement nodes */
 	StatementSequence( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
+	StatementBlock( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Box<Symbols> ),
 	If( u32, u32, Box<Symbols> , Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
 	Elsif( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
-	Else( u32, u32, Box<Symbols>, Box<Node> )
+	Else( u32, u32, Box<Symbols>, Box<Node> ),
+	With( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
+	WithElement( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
+	Case( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Node>, Box<Symbols> ),
+	CaseElement( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
+	While( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	Repeat( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
+	For( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	Loop( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	Exit( u32, u32, Box<Symbols> ),
+	Return( u32, u32, Box<Symbols>, Option<Box<Node>> ),
+	Await( u32, u32, Box<Symbols>, Box<Node> ),
+	Code( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Symbols> ),
+	Ignore( u32, u32, Box<Symbols>, Box<Node> ),
+
+	/* Block nodes */
 }
 
 pub trait ParserMethods {
