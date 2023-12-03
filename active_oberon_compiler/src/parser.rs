@@ -70,7 +70,12 @@ pub enum Node {
 	Index( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Symbols> ),
 	Arrow( u32, u32, Box<Symbols> ),
 	Transpose( u32, u32, Box<Symbols> ),
+
 	/* Statement nodes */
+	StatementSequence( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
+	If( u32, u32, Box<Symbols> , Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
+	Elsif( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
+	Else( u32, u32, Box<Symbols>, Box<Node> )
 }
 
 pub trait ParserMethods {
@@ -97,7 +102,7 @@ pub trait StatementRules {
 	fn parse_statement(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_case(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_statement_block(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_element_sequence(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
+	fn parse_statement_sequence(&mut self) -> Result<Box<Node>, Box<String>>;
 }
 
 pub trait BlockRules {
@@ -903,8 +908,26 @@ impl StatementRules for Parser {
 		todo!()
 	}
 
-	fn parse_element_sequence(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+	fn parse_statement_sequence(&mut self) -> Result<Box<Node>, Box<String>> {
+		let start_pos = self.lexer.get_start_position();
+
+		let mut nodes = Box::new( Vec::<Box<Node>>::new() );
+		let mut separators = Box::new( Vec::<Box<Symbols>>::new() );
+
+		nodes.push( self.parse_statement()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::SemiColon( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+					nodes.push( self.parse_statement()? )
+				},
+				_ => break
+			}
+		}
+
+		Ok( Box::new( Node::StatementSequence(start_pos, self.lexer.get_start_position(), nodes, separators) ) )
 	}
 }
 
