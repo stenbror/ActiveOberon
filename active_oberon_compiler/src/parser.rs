@@ -117,7 +117,7 @@ pub trait ExpressionRules {
 
 pub trait StatementRules {
 	fn parse_statement(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_case(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
+	fn parse_case(&mut self, bar_optional: bool) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_statement_block(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_statement_sequence(&mut self) -> Result<Box<Node>, Box<String>>;
 }
@@ -917,8 +917,52 @@ impl StatementRules for Parser {
 		todo!()
 	}
 
-	fn parse_case(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+	fn parse_case(&mut self, bar_optional: bool) -> Result<Box<Node>, Box<String>> {
+		let start_pos = self.lexer.get_start_position();
+
+		let mut symbol1 = None;
+
+		if !bar_optional {
+			match self.symbol.clone()? {
+				Symbols::Bar( _ , _ ) => {
+					symbol1 = Some( Box::new( self.symbol.clone()? ) );
+					self.advance();
+				},
+				_ => {
+					return Err(Box::new(format!("Expecting '|' in case statement at position: '{}'", start_pos)))
+				}
+			}
+		}
+
+		let mut elements = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+
+		elements.push( self.parse_range_expression()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+					elements.push( self.parse_range_expression()? )
+				},
+				_ => break
+			}
+		}
+
+		let mut symbols2 = Symbols::Empty;
+
+		match self.symbol.clone()? {
+			Symbols::Colon( _ , _ ) => {
+				symbols2 = self.symbol.clone()?;
+				self.advance()
+			},
+			_ => return Err(Box::new(format!("Expecting ':' in case statement at position: '{}'", start_pos)))
+		}
+
+		let right = self.parse_statement_sequence()?;
+
+		Ok( Box::new( Node::CaseElement(start_pos, self.lexer.get_start_position(), symbol1, elements, separators, Box::new(symbols2), right ) ) )
 	}
 
 	fn parse_statement_block(&mut self) -> Result<Box<Node>, Box<String>> {
