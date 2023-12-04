@@ -923,7 +923,71 @@ impl StatementRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::If( _ , _ ) => {
-				todo!()
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let left = self.parse_expression()?;
+
+				match self.symbol.clone()? {
+					Symbols::Then( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'THEN' in if statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_statement_sequence().clone()?;
+
+				let mut elsif_nodes = Box::new(Vec::<Box<Node>>::new());
+				loop {
+					let start_pos2 = self.lexer.get_start_position();
+					match self.symbol.clone()? {
+						Symbols::Elsif( _ , _ ) => {
+							let symbol4 = self.symbol.clone()?;
+							self.advance();
+
+							let left3 = self.parse_expression()?;
+
+							match self.symbol.clone()? {
+								Symbols::Then( _ , _ ) => (),
+								_ => return Err(Box::new(format!("Expecting 'THEN' in elsif statement at position: '{}'", start_pos)))
+							}
+							let symbol5 = self.symbol.clone()?;
+							self.advance();
+
+							let right3 = self.parse_statement_sequence()?;
+
+							elsif_nodes.push( Box::new(Node::Elsif(start_pos2, self.lexer.get_start_position(), Box::new(symbol4), left3, Box::new(symbol5), right3 )) )
+						},
+						_ => break
+					}
+				}
+
+				let else_node = match self.symbol.clone()? {
+					Symbols::Else( _ , _) => {
+						let start_pos3 = self.lexer.get_start_position();
+
+						let symbol4 = self.symbol.clone()?;
+						self.advance();
+
+						let right2 = self.parse_statement_sequence()?;
+						Some( Box::new(Node::Else(start_pos3, self.lexer.get_start_position(), Box::new(symbol4), right2)))
+					},
+					_ => None
+				};
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in if statement at position: '{}'", start_pos)))
+				}
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				let nodes = match elsif_nodes.len() {
+					0 => None,
+					_ => Some( elsif_nodes.clone() )
+				};
+
+				Ok( Box::new(Node::If(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), right.clone(), nodes, else_node.clone(), Box::new(symbol3))) )
 			},
 			Symbols::With( _ , _ ) => {
 				todo!()
