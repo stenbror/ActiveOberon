@@ -78,8 +78,8 @@ pub enum Node {
 	If( u32, u32, Box<Symbols> , Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
 	Elsif( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
 	Else( u32, u32, Box<Symbols>, Box<Node> ),
-	With( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
-	WithElement( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
+	With( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Vec<Box<Node>>>, Option<Box<Node>>, Box<Symbols> ),
+	WithElement( u32, u32, Option<Box<Symbols>>, Box<Node>, Box<Symbols>, Box<Node> ),
 	Case( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Vec<Box<Node>>>, Option<Box<Node>>, Box<Symbols> ),
 	CaseElement( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
 	While( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
@@ -990,7 +990,85 @@ impl StatementRules for Parser {
 				Ok( Box::new(Node::If(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), right.clone(), nodes, else_node.clone(), Box::new(symbol3))) )
 			},
 			Symbols::With( _ , _ ) => {
-				todo!()
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let ident = match self.symbol.clone()? {
+					Symbols::Ident( _ , _ , _ ) => {
+						let start_pos2 = self.lexer.get_start_position();
+						let symbol2 = self.symbol.clone()?;
+						self.advance();
+						Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)))
+					},
+					_ => return Err(Box::new(format!("Expecting Identifier in for statement at position: '{}'", start_pos)))
+				};
+
+				match self.symbol.clone()? {
+					Symbols::Colon( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ':' in with statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				let mut is_first = true;
+				let mut nodes = Box::new( Vec::<Box<Node>>::new() );
+
+				loop {
+					let mut symbol_local : Option<Box<Symbols>> = None;
+					let start_pos5 = self.lexer.get_start_position();
+					match is_first {
+						true => {
+							is_first = false;
+							match self.symbol.clone()? {
+								Symbols::Bar( _ , _ ) => return Err(Box::new(format!("No '|' at first element in with statement at position: '{}'", start_pos))),
+								_ => ()
+							}
+						},
+						_ => {
+							match self.symbol.clone()? {
+								Symbols::Bar( _ , _ ) => {
+									symbol_local = Some(Box::new(self.symbol.clone()?));
+									self.advance()
+								},
+								_ => break
+							}
+						}
+					};
+					let left = self.parse_qualified_identifier()?;
+
+					match self.symbol.clone()? {
+						Symbols::Do( _ , _ ) => (),
+						_ => return Err(Box::new(format!("Expecting 'DO' in with statement at position: '{}'", start_pos)))
+					}
+					let symbol_local2 = self.symbol.clone()?;
+					self.advance();
+
+					let right = self.parse_statement_sequence()?;
+
+					nodes.push( Box::new(Node::WithElement(start_pos5, self.lexer.get_start_position(), symbol_local, left, Box::new(symbol_local2), right)) )
+				}
+
+				let else_node = match self.symbol.clone()? {
+					Symbols::Else( _ , _) => {
+						let start_pos3 = self.lexer.get_start_position();
+
+						let symbol4 = self.symbol.clone()?;
+						self.advance();
+
+						let right2 = self.parse_statement_sequence()?;
+						Some( Box::new(Node::Else(start_pos3, self.lexer.get_start_position(), Box::new(symbol4), right2)))
+					},
+					_ => None
+				};
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in with statement at position: '{}'", start_pos)))
+				}
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				Ok( Box::new( Node::With(start_pos, self.lexer.get_start_position(), Box::new(symbol1), ident, Box::new(symbol2),   nodes, else_node, Box::new(symbol3) ) ) )
 			},
 			Symbols::Case( _ , _ ) => {
 				let symbol1 = self.symbol.clone()?;
