@@ -1020,7 +1020,21 @@ impl StatementRules for Parser {
 				Ok( Box::new(Node::While(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), right, Box::new(symbol3))) )
 			},
 			Symbols::Repeat( _ , _ ) => {
-				todo!()
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let left = self.parse_statement_sequence()?;
+
+				match self.symbol.clone()? {
+					Symbols::Until( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'UNTIL' in repeat statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_expression()?;
+
+				Ok( Box::new(Node::Repeat(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), right)) )
 			},
 			Symbols::For( _ , _ ) => {
 				todo!()
