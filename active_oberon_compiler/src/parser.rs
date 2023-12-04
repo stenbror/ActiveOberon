@@ -91,6 +91,11 @@ pub enum Node {
 	Await( u32, u32, Box<Symbols>, Box<Node> ),
 	Code( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Symbols> ),
 	Ignore( u32, u32, Box<Symbols>, Box<Node> ),
+	BecomesStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	NotStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	QuestionmarkStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	LessLessStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	GreaterGreaterStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 
 	/* Block nodes */
 }
@@ -914,7 +919,129 @@ impl ExpressionRules for Parser {
 /// Implements all statement rules in grammar of ActiveOberon
 impl StatementRules for Parser {
 	fn parse_statement(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::If( _ , _ ) => {
+				todo!()
+			},
+			Symbols::With( _ , _ ) => {
+				todo!()
+			},
+			Symbols::Case( _ , _ ) => {
+				todo!()
+			},
+			Symbols::While( _ , _ ) => {
+				todo!()
+			},
+			Symbols::Repeat( _ , _ ) => {
+				todo!()
+			},
+			Symbols::For( _ , _ ) => {
+				todo!()
+			},
+			Symbols::Loop( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_statement_sequence()?;
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in loop statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				Ok( Box::new(Node::Loop(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right, Box::new(symbol2))) )
+			},
+			Symbols::Exit( _, _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				Ok( Box::new(Node::Exit(start_pos, self.lexer.get_start_position(), Box::new(symbol1) )))
+			},
+			Symbols::Return( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				match self.symbol.clone()? {
+					Symbols::SemiColon( _ , _ ) |
+					Symbols::End( _ , _ ) => {
+						Ok( Box::new(Node::Return(start_pos, self.lexer.get_start_position(), Box::new(symbol1), None)) )
+					}, _ => {
+						let right = self.parse_expression()?;
+						Ok( Box::new(Node::Return(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Some(right))) )
+					}
+				}
+			},
+			Symbols::Await( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_expression()?;
+
+				Ok( Box::new(Node::Await(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right)) )
+			},
+			Symbols::Begin( _ , _ ) => self.parse_statement_block(),
+			Symbols::Code( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				// Insert inline assembler parser here ....
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in code statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				Ok( Box::new(Node::Code(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(Vec::<Box<Node>>::new()), Box::new(symbol2))) )
+			},
+			Symbols::Ignore( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_expression()?;
+
+				Ok( Box::new(Node::Ignore(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right)) )
+			},
+			_ => {
+				let left = self.parse_expression()?;
+				match self.symbol.clone()? {
+					Symbols::Becomes( _ , _ ) => {
+						let symbol1 = Box::new( self.symbol.clone()? );
+						self.advance();
+						let right2 = self.parse_expression()?;
+						Ok(Box::new(Node::BecomesStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
+					},
+					Symbols::Not( _ , _ ) => {
+						let symbol1 = Box::new( self.symbol.clone()? );
+						self.advance();
+						let right2 = self.parse_expression()?;
+						Ok(Box::new(Node::NotStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
+					},
+					Symbols::QuestionMark( _ , _ ) => {
+						let symbol1 = Box::new( self.symbol.clone()? );
+						self.advance();
+						let right2 = self.parse_expression()?;
+						Ok(Box::new(Node::QuestionmarkStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
+					},
+					Symbols::GreaterGreater( _ , _ ) => {
+						let symbol1 = Box::new( self.symbol.clone()? );
+						self.advance();
+						let right2 = self.parse_expression()?;
+						Ok(Box::new(Node::GreaterGreaterStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
+					},
+					Symbols::LessLess( _ , _ ) => {
+						let symbol1 = Box::new( self.symbol.clone()? );
+						self.advance();
+						let right2 = self.parse_expression()?;
+						Ok(Box::new(Node::LessLessStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
+					},
+					_ => {
+						Ok(left)
+					}
+				}
+			}
+		}
 	}
 
 	fn parse_case(&mut self, bar_optional: bool) -> Result<Box<Node>, Box<String>> {
