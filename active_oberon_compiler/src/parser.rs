@@ -1037,7 +1037,66 @@ impl StatementRules for Parser {
 				Ok( Box::new(Node::Repeat(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), right)) )
 			},
 			Symbols::For( _ , _ ) => {
-				todo!()
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let ident = match self.symbol.clone()? {
+					Symbols::Ident( _ , _ , _ ) => {
+						let start_pos2 = self.lexer.get_start_position();
+						let symbol2 = self.symbol.clone()?;
+						self.advance();
+						Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)))
+					},
+					_ => return Err(Box::new(format!("Expecting Identifier in for statement at position: '{}'", start_pos)))
+				};
+
+				match self.symbol.clone()? {
+					Symbols::Becomes( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ':=' in for statement at position: '{}'", start_pos)))
+				}
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				let left = self.parse_expression()?;
+
+				match self.symbol.clone()? {
+					Symbols::To( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'TO' in for statement at position: '{}'", start_pos)))
+				}
+				let symbol4 = self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_expression()?;
+
+				let by_expr = match self.symbol.clone()? {
+					Symbols::By( _ , _ ) => {
+						let symbol5 = self.symbol.clone()?;
+						self.advance();
+
+						let next = self.parse_expression()?;
+
+						Some( (Box::new(symbol5), next) )
+					},
+					_ => None
+				};
+
+				match self.symbol.clone()? {
+					Symbols::Do( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'DO' in for statement at position: '{}'", start_pos)))
+				}
+				let symbol6 = self.symbol.clone()?;
+				self.advance();
+
+				let stmt = self.parse_statement_sequence()?;
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in for statement at position: '{}'", start_pos)))
+				}
+				let symbol7 = self.symbol.clone()?;
+				self.advance();
+
+				Ok( Box::new(Node::For(start_pos, self.lexer.get_start_position(), Box::new(symbol1), ident, Box::new(symbol3), left, Box::new(symbol4), right, by_expr, Box::new(symbol6), stmt, Box::new(symbol7))) )
 			},
 			Symbols::Loop( _ , _ ) => {
 				let symbol1 = self.symbol.clone()?;
