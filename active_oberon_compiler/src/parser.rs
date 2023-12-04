@@ -996,7 +996,28 @@ impl StatementRules for Parser {
 				todo!()
 			},
 			Symbols::While( _ , _ ) => {
-				todo!()
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let left = self.parse_expression()?;
+
+				match self.symbol.clone()? {
+					Symbols::Do( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'DO' in while statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_statement_sequence()?;
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in while statement at position: '{}'", start_pos)))
+				}
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				Ok( Box::new(Node::While(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), right, Box::new(symbol3))) )
 			},
 			Symbols::Repeat( _ , _ ) => {
 				todo!()
