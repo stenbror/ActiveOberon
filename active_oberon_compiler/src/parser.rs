@@ -80,7 +80,7 @@ pub enum Node {
 	Else( u32, u32, Box<Symbols>, Box<Node> ),
 	With( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
 	WithElement( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
-	Case( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Node>, Box<Symbols> ),
+	Case( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Vec<Box<Node>>>, Option<Box<Node>>, Box<Symbols> ),
 	CaseElement( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
 	While( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	Repeat( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
@@ -993,7 +993,51 @@ impl StatementRules for Parser {
 				todo!()
 			},
 			Symbols::Case( _ , _ ) => {
-				todo!()
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let left = self.parse_expression()?;
+
+				match self.symbol.clone()? {
+					Symbols::Of( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'OF' in case statement at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+
+				let mut nodes = Box::new( Vec::<Box<Node>>::new() );
+				nodes.push( self.parse_case(true)? );
+
+				loop {
+					match self.symbol.clone()? {
+						Symbols::Bar( _ , _ ) => {
+							nodes.push( self.parse_case(false)? )
+						},
+						_ => break
+					}
+				}
+
+				let else_node = match self.symbol.clone()? {
+					Symbols::Else( _ , _) => {
+						let start_pos3 = self.lexer.get_start_position();
+
+						let symbol4 = self.symbol.clone()?;
+						self.advance();
+
+						let right2 = self.parse_statement_sequence()?;
+						Some( Box::new(Node::Else(start_pos3, self.lexer.get_start_position(), Box::new(symbol4), right2)))
+					},
+					_ => None
+				};
+
+				match self.symbol.clone()? {
+					Symbols::Of( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in case statement at position: '{}'", start_pos)))
+				}
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				Ok( Box::new( Node::Case(start_pos, self.lexer.get_start_position(), Box::new(symbol1), left, Box::new(symbol2), nodes, else_node, Box::new(symbol3)) ) )
 			},
 			Symbols::While( _ , _ ) => {
 				let symbol1 = self.symbol.clone()?;
