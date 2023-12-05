@@ -3384,6 +3384,61 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_if_elsif_else_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IF test THEN count ELSIF order THEN cat ELSE count END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(13, 19, Box::new( Symbols::Ident(13, 18, Box::new(String::from("count"))) )) )
+		].to_vec() );
+
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+		let nodes2 : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(45, 51, Box::new( Symbols::Ident(45, 50, Box::new(String::from("count"))) )) )
+		].to_vec() );
+
+		let separators2 : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let else_part= Box::new( Node::Else(40, 51, Box::new( Symbols::Else(40, 44) ),
+											Box::new( Node::StatementSequence(45, 51, nodes2, separators2) )
+		) );
+
+		let separators3 : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+		let nodes3 : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(36, 40, Box::new( Symbols::Ident(36, 39, Box::new(String::from("cat"))) )) )
+		].to_vec() );
+
+
+
+		let elsif_nodes = Box::new( [
+			Box::new( Node::Elsif(19, 40,
+								  Box::new(Symbols::Elsif(19, 24)),
+								  Box::new( Node::Ident(25, 31, Box::new( Symbols::Ident(25, 30, Box::new(String::from("order"))) )) ),
+								  Box::new(Symbols::Then(31, 35)),
+								  Box::new( Node::StatementSequence(36, 40, nodes3, separators3) )) )
+		].to_vec() );
+
+		let pattern = Box::new( Node::If(0, 54,
+										 Box::new( Symbols::If(0,2) ),
+										 Box::new( Node::Ident(3, 8, Box::new( Symbols::Ident(3, 7, Box::new(String::from("test"))) )) ),
+										 Box::new( Symbols::Then(8, 12) ),
+										 Box::new(
+											 Node::StatementSequence(13, 19, nodes, separators)
+										 ),
+										 Some(elsif_nodes),
+										 Some( else_part ),
+										 Box::new( Symbols::End(51, 54) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 
 
