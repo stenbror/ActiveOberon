@@ -1571,13 +1571,15 @@ impl BlockRules for Parser {
 				let symbol_period = self.symbol.clone()?;
 				self.advance();
 
+				let start_pos2 = self.lexer.get_start_position();
+
 				match self.symbol.clone()? {
 					Symbols::Ident( _ , _ , _ ) => (),
 					_ => return Err(Box::new(format!("Expecting identifier after '.' at position: '{}'", start_pos)))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
-				let ident2 = Box::new(Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(symbol2)));
+				let ident2 = Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)));
 
 				Ok( Box::new(Node::QualifiedIdentifier(start_pos, self.lexer.get_start_position(), ident, Box::new(symbol_period), ident2)) )
 			},
@@ -1621,7 +1623,7 @@ impl BlockRules for Parser {
 
 #[cfg(test)]
 mod tests {
-	use crate::parser::{Parser, ParserMethods, Node, ExpressionRules};
+	use crate::parser::{Parser, ParserMethods, Node, ExpressionRules, BlockRules};
 	use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
 	#[test]
@@ -3226,6 +3228,93 @@ mod tests {
 			}, _ => assert!(false)
 		}
 	}
+
+	#[test]
+	fn qualified_identifier_single() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test")));
+		parser.advance();
+		let res = parser.parse_qualified_identifier();
+
+		let pattern = Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn qualified_identifier() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test.tull")));
+		parser.advance();
+		let res = parser.parse_qualified_identifier();
+
+		//let pattern = Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) );
+		let pattern = Box::new( Node::QualifiedIdentifier(0, 9,
+														  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) ),
+														  Box::new( Symbols::Period(4, 5) ),
+														  Box::new( Node::Ident(5, 9, Box::new( Symbols::Ident(5, 9, Box::new(String::from("tull"))) )) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn ident_definition_non_export() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test")));
+		parser.advance();
+		let res = parser.parse_identifier_definition();
+
+		let pattern = Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn ident_definition_read_write_export() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test*")));
+		parser.advance();
+		let res = parser.parse_identifier_definition();
+
+		let pattern = Box::new( Node::IdentifierReadWrite(0, 5,
+														  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) ),
+														Box::new( Symbols::Times(4, 5) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn ident_definition_read_export() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test-")));
+		parser.advance();
+		let res = parser.parse_identifier_definition();
+
+		let pattern = Box::new( Node::IdentifierRead(0, 5,
+														  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) ),
+														  Box::new( Symbols::Minus(4, 5) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 
 
