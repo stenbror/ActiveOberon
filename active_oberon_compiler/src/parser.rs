@@ -1558,8 +1558,31 @@ impl BlockRules for Parser {
 	fn parse_qualified_identifier(&mut self) -> Result<Box<Node>, Box<String>> {
 		let start_pos = self.lexer.get_start_position();
 
+		match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting identifier at position: '{}'", start_pos)))
+		}
+		let symbol = self.symbol.clone()?;
+		self.advance();
+		let ident = Box::new(Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(symbol)));
 
-		todo!()
+		return match self.symbol.clone()? {
+			Symbols::Period( _ , _ ) => {
+				let symbol_period = self.symbol.clone()?;
+				self.advance();
+
+				match self.symbol.clone()? {
+					Symbols::Ident( _ , _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting identifier after '.' at position: '{}'", start_pos)))
+				}
+				let symbol2 = self.symbol.clone()?;
+				self.advance();
+				let ident2 = Box::new(Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(symbol2)));
+
+				Ok( Box::new(Node::QualifiedIdentifier(start_pos, self.lexer.get_start_position(), ident, Box::new(symbol_period), ident2)) )
+			},
+			_ => Ok( ident )
+		}
 	}
 
 	fn parse_identifier_definition(&mut self) -> Result<Box<Node>, Box<String>> {
