@@ -1623,7 +1623,8 @@ impl BlockRules for Parser {
 
 #[cfg(test)]
 mod tests {
-	use crate::parser::{Parser, ParserMethods, Node, ExpressionRules, BlockRules};
+	use clap::builder::NonEmptyStringValueParser;
+	use crate::parser::{Parser, ParserMethods, Node, ExpressionRules, BlockRules, StatementRules};
 	use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
 	#[test]
@@ -3306,6 +3307,74 @@ mod tests {
 		let pattern = Box::new( Node::IdentifierRead(0, 5,
 														  Box::new( Node::Ident(0, 4, Box::new( Symbols::Ident(0, 4, Box::new(String::from("test"))) )) ),
 														  Box::new( Symbols::Minus(4, 5) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_if_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IF test THEN count END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+				Box::new( Node::Ident(13, 19, Box::new( Symbols::Ident(13, 18, Box::new(String::from("count"))) )) )
+			].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::If(0, 22,
+						Box::new( Symbols::If(0,2) ),
+						Box::new( Node::Ident(3, 8, Box::new( Symbols::Ident(3, 7, Box::new(String::from("test"))) )) ),
+						Box::new( Symbols::Then(8, 12) ),
+						Box::new(
+							Node::StatementSequence(13, 19, nodes, separators)
+						),
+						None,
+						None,
+						Box::new( Symbols::End(19, 22) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_if_else_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IF test THEN count ELSE count END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(13, 19, Box::new( Symbols::Ident(13, 18, Box::new(String::from("count"))) )) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+		let nodes2 : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(24, 30, Box::new( Symbols::Ident(24, 29, Box::new(String::from("count"))) )) )
+		].to_vec() );
+		let separators2 : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let else_part= Box::new( Node::Else(19, 30, Box::new( Symbols::Else(19, 23) ),
+											Box::new( Node::StatementSequence(24, 30, nodes2, separators2) )
+		) );
+
+		let pattern = Box::new( Node::If(0, 33,
+										 Box::new( Symbols::If(0,2) ),
+										 Box::new( Node::Ident(3, 8, Box::new( Symbols::Ident(3, 7, Box::new(String::from("test"))) )) ),
+										 Box::new( Symbols::Then(8, 12) ),
+										 Box::new(
+											 Node::StatementSequence(13, 19, nodes, separators)
+										 ),
+										 None,
+										 Some( else_part ),
+										 Box::new( Symbols::End(30, 33) )
 		) );
 
 		match res {
