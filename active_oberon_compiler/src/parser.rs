@@ -98,6 +98,9 @@ pub enum Node {
 	GreaterGreaterStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 
 	/* Block nodes */
+	QualifiedIdentifier( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	IdentifierReadWrite( u32, u32, Box<Node>, Box<Symbols> ),
+	IdentifierRead( u32, u32, Box<Node>, Box<Symbols> ),
 }
 
 pub trait ParserMethods {
@@ -1553,11 +1556,41 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_qualified_identifier(&mut self) -> Result<Box<Node>, Box<String>> {
+		let start_pos = self.lexer.get_start_position();
+
+
 		todo!()
 	}
 
 	fn parse_identifier_definition(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		return match self.symbol.clone()? {
+			Symbols::Ident( _, _ , _ ) => {
+				let symbol = self.symbol.clone()?;
+				self.advance();
+				let ident = Box::new(Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(symbol)));
+
+				match self.symbol.clone() ? {
+					Symbols::Times( _ , _ ) => { /* Export read / write */
+						let symbol_read_write = self.symbol.clone()?;
+						self.advance();
+
+						Ok( Box::new(Node::IdentifierReadWrite(start_pos, self.lexer.get_start_position(), ident, Box::new(symbol_read_write))) )
+					},
+					Symbols::Minus( _ , _ ) => { /* Export read only */
+						let symbol_read = self.symbol.clone()?;
+						self.advance();
+
+						Ok( Box::new(Node::IdentifierRead(start_pos, self.lexer.get_start_position(), ident, Box::new(symbol_read))) )
+					},
+					_ => {	/* No export out of module */
+						Ok( ident )
+					}
+				}
+			},
+			_ => Err(Box::new(format!("Expecting identifier at position: '{}'", start_pos)))
+		}
 	}
 }
 
