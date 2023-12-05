@@ -3467,5 +3467,33 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_repeat() {
+		let mut parser = Parser::new(Box::new(Scanner::new("REPEAT count UNTIL cat")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(7, 13, Box::new( Symbols::Ident(7, 12, Box::new(String::from("count"))) )) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::Repeat(0, 22,
+											Box::new( Symbols::Repeat(0,6) ),
+											 Box::new(
+												 Node::StatementSequence(7, 13, nodes, separators)
+											 ),
+											Box::new( Symbols::Until(13, 18) ),
+											 Box::new( Node::Ident(19, 22, Box::new( Symbols::Ident(19, 22, Box::new(String::from("cat"))) )) )
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
