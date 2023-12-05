@@ -3439,7 +3439,33 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_while() {
+		let mut parser = Parser::new(Box::new(Scanner::new("WHILE test DO count END")));
+		parser.advance();
+		let res = parser.parse_statement();
 
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(14, 20, Box::new( Symbols::Ident(14, 19, Box::new(String::from("count"))) )) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::While(0, 23,
+										 Box::new( Symbols::While(0,5) ),
+										 Box::new( Node::Ident(6, 11, Box::new( Symbols::Ident(6, 10, Box::new(String::from("test"))) )) ),
+										 Box::new( Symbols::Do(11, 13) ),
+										 Box::new(
+											 Node::StatementSequence(14, 20, nodes, separators)
+										 ),
+										 Box::new( Symbols::End(20, 23) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
 
 
 }
