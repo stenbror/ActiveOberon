@@ -3792,4 +3792,83 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_with_single_without_else() {
+		let mut parser = Parser::new(Box::new(Scanner::new("WITH a : tall DO test END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Ident(17, 22, Box::new(Symbols::Ident(17, 21, Box::new(String::from("test"))))))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [].to_vec();
+
+		let pattern = Box::new( Node::With(0, 25,
+										  Box::new( Symbols::With(0,4) ),
+										  Box::new( Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("a"))))) ),
+										  Box::new( Symbols::Colon(7, 8) ),
+										  Box::new([
+												Box::new( Node::WithElement(9, 22,
+																			None,
+																			Box::new( Node::Ident(9, 14, Box::new(Symbols::Ident(9, 13, Box::new(String::from("tall"))))) ),
+																			Box::new(Symbols::Do(14, 16)),
+																			Box::new( Node::StatementSequence(17, 22, Box::new(element_1_nodes), Box::new(element_1_separators)) ))
+												)
+										  ].to_vec()),
+										  None,
+										  Box::new( Symbols::End(22, 25) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_with_multiple_without_else() {
+		let mut parser = Parser::new(Box::new(Scanner::new("WITH a : tall DO test | dog DO test END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Ident(17, 22, Box::new(Symbols::Ident(17, 21, Box::new(String::from("test"))))))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [].to_vec();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Ident(31, 36, Box::new(Symbols::Ident(31, 35, Box::new(String::from("test"))))))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [].to_vec();
+
+		let pattern = Box::new( Node::With(0, 39,
+										   Box::new( Symbols::With(0,4) ),
+										   Box::new( Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("a"))))) ),
+										   Box::new( Symbols::Colon(7, 8) ),
+										   Box::new([
+											   Box::new( Node::WithElement(9, 22,
+																		   None,
+																		   Box::new( Node::Ident(9, 14, Box::new(Symbols::Ident(9, 13, Box::new(String::from("tall"))))) ),
+																		   Box::new(Symbols::Do(14, 16)),
+																		   Box::new( Node::StatementSequence(17, 22, Box::new(element_1_nodes), Box::new(element_1_separators)) ))
+											   ),
+											   Box::new( Node::WithElement(22, 36,
+																		   Some(Box::new(Symbols::Bar(22, 23))),
+																		   Box::new( Node::Ident(24, 28, Box::new(Symbols::Ident(24, 27, Box::new(String::from("dog"))))) ),
+																		   Box::new(Symbols::Do(28, 30)),
+																		   Box::new( Node::StatementSequence(31, 36, Box::new(element_2_nodes), Box::new(element_2_separators)) ))
+											   )
+										   ].to_vec()),
+										   None,
+										   Box::new( Symbols::End(36, 39) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
