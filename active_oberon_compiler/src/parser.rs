@@ -3607,5 +3607,24 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_ignore_expression() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IGNORE test")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::Ignore(0, 11,
+											Box::new( Symbols::Ignore(0,6) ),
+											Box::new(Node::Ident(7, 11, Box::new(Symbols::Ident(7, 11, Box::new(String::from("test"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
