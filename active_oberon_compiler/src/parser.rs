@@ -101,6 +101,13 @@ pub enum Node {
 	QualifiedIdentifier( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	IdentifierReadWrite( u32, u32, Box<Node>, Box<Symbols> ),
 	IdentifierRead( u32, u32, Box<Node>, Box<Symbols> ),
+
+	DeclarationSequence( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
+	ConstDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
+	TypeDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
+	VarDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
+	ProcedureDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
+	OperatorDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
 }
 
 pub trait ParserMethods {
@@ -1449,7 +1456,119 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_declaration_sequence(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let mut const_declarations = Box::new(Vec::<Box<Node>>::new());
+		let mut type_declarations = Box::new(Vec::<Box<Node>>::new());
+		let mut var_declarations = Box::new(Vec::<Box<Node>>::new());
+		let mut procedure_declarations = Box::new(Vec::<Box<Node>>::new());
+		let mut operator_declarations = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Const(_, _) => {
+					let symbol = self.symbol.clone()?;
+					self.advance();
+					let mut const_declaration_local = Box::new(Vec::<Box<Node>>::new());
+					match self.symbol.clone()? {
+						Symbols::Begin( _ , _ ) |
+						Symbols::End( _ , _ ) |
+						Symbols::Const( _ , _ ) |
+						Symbols::Var( _ , _ ) |
+						Symbols::Type( _ , _ ) |
+						Symbols::Procedure( _ , _ ) |
+						Symbols::Operator( _ , _ ) |
+						Symbols::SemiColon( _ , _ ) => (),
+						_ => {
+							const_declaration_local.push( self.parse_constant_declaration()? );
+							loop {
+								match self.symbol.clone()? {
+									Symbols::SemiColon( _ , _ ) => {
+										separators.push( Box::new(self.symbol.clone()?) );
+										self.advance();
+										const_declaration_local.push( self.parse_constant_declaration()? )
+									},
+									_ => break
+								}
+							}
+						}
+					}
+					const_declarations.push( Box::new(Node::ConstDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), const_declaration_local) ) )
+				},
+				Symbols::Type(_, _) => {
+					let symbol = self.symbol.clone()?;
+					self.advance();
+					let mut type_declaration_local = Box::new(Vec::<Box<Node>>::new());
+					match self.symbol.clone()? {
+						Symbols::Begin( _ , _ ) |
+						Symbols::End( _ , _ ) |
+						Symbols::Const( _ , _ ) |
+						Symbols::Var( _ , _ ) |
+						Symbols::Type( _ , _ ) |
+						Symbols::Procedure( _ , _ ) |
+						Symbols::Operator( _ , _ ) |
+						Symbols::SemiColon( _ , _ ) => (),
+						_ => {
+							type_declaration_local.push( self.parse_type_declaration()? );
+							loop {
+								match self.symbol.clone()? {
+									Symbols::SemiColon( _ , _ ) => {
+										separators.push( Box::new(self.symbol.clone()?) );
+										self.advance();
+										type_declaration_local.push( self.parse_type_declaration()? )
+									},
+									_ => break
+								}
+							}
+						}
+					}
+					type_declarations.push( Box::new(Node::TypeDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), type_declaration_local) ) )
+				},
+				Symbols::Var(_, _) => {
+					let symbol = self.symbol.clone()?;
+					self.advance();
+					let mut var_declaration_local = Box::new(Vec::<Box<Node>>::new());
+					match self.symbol.clone()? {
+						Symbols::Begin( _ , _ ) |
+						Symbols::End( _ , _ ) |
+						Symbols::Const( _ , _ ) |
+						Symbols::Var( _ , _ ) |
+						Symbols::Type( _ , _ ) |
+						Symbols::Procedure( _ , _ ) |
+						Symbols::Operator( _ , _ ) |
+						Symbols::SemiColon( _ , _ ) => (),
+						_ => {
+							var_declaration_local.push( self.parse_variable_declaration()? );
+							loop {
+								match self.symbol.clone()? {
+									Symbols::SemiColon( _ , _ ) => {
+										separators.push( Box::new(self.symbol.clone()?) );
+										self.advance();
+										var_declaration_local.push( self.parse_variable_declaration()? )
+									},
+									_ => break
+								}
+							}
+						}
+					}
+					var_declarations.push( Box::new(Node::VarDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), var_declaration_local) ) )
+				},
+				Symbols::Procedure(_, _) => {
+					procedure_declarations.push( self.parse_procedure_declaration()? )
+				},
+				Symbols::Operator(_, _) => {
+					operator_declarations.push( self.parse_operator_declaration()? )
+				},
+				Symbols::SemiColon(_, _) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+				}
+				_ => break
+			}
+		}
+
+		Ok( Box::new(Node::DeclarationSequence(start_pos, self.lexer.get_start_position(), const_declarations, type_declarations, var_declarations, procedure_declarations, operator_declarations, separators)) )
 	}
 
 	fn parse_constant_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
