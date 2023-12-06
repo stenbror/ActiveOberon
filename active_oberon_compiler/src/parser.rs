@@ -3495,5 +3495,32 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_loop_exit() {
+		let mut parser = Parser::new(Box::new(Scanner::new("LOOP EXIT END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Exit(5, 10, Box::new(Symbols::Exit(5, 9)) ) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::Loop(0, 13,
+											 Box::new( Symbols::Loop(0,4) ),
+											 Box::new(
+												 Node::StatementSequence(5, 10, nodes, separators)
+											 ),
+											 Box::new( Symbols::End(10, 13) )
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
