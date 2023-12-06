@@ -92,7 +92,7 @@ pub enum Node {
 	Code( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Symbols> ),
 	Ignore( u32, u32, Box<Symbols>, Box<Node> ),
 	BecomesStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
-	NotStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	ExclaimMarkStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	QuestionmarkStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	LessLessStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	GreaterGreaterStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
@@ -1295,11 +1295,11 @@ impl StatementRules for Parser {
 						let right2 = self.parse_expression()?;
 						Ok(Box::new(Node::BecomesStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
 					},
-					Symbols::Not( _ , _ ) => {
+					Symbols::ExclaimMark( _ , _ ) => {
 						let symbol1 = Box::new( self.symbol.clone()? );
 						self.advance();
 						let right2 = self.parse_expression()?;
-						Ok(Box::new(Node::NotStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
+						Ok(Box::new(Node::ExclaimMarkStatement(start_pos, self.lexer.get_start_position(), left, symbol1, right2)))
 					},
 					Symbols::QuestionMark( _ , _ ) => {
 						let symbol1 = Box::new( self.symbol.clone()? );
@@ -3616,6 +3616,106 @@ mod tests {
 		let pattern = Box::new( Node::Ignore(0, 11,
 											Box::new( Symbols::Ignore(0,6) ),
 											Box::new(Node::Ident(7, 11, Box::new(Symbols::Ident(7, 11, Box::new(String::from("test"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_expression_becomes() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a := 1")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::BecomesStatement(0, 6,
+											 Box::new(Node::Ident(0, 2, Box::new(Symbols::Ident(0, 1, Box::new(String::from("a")))))),
+											 Box::new( Symbols::Becomes(2,4) ),
+											 Box::new(Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("1"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_expression_less_less() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a << 1")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::LessLessStatement(0, 6,
+													   Box::new(Node::Ident(0, 2, Box::new(Symbols::Ident(0, 1, Box::new(String::from("a")))))),
+													   Box::new( Symbols::LessLess(2,4) ),
+													   Box::new(Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("1"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_expression_greater_greater() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a >> 1")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::GreaterGreaterStatement(0, 6,
+														Box::new(Node::Ident(0, 2, Box::new(Symbols::Ident(0, 1, Box::new(String::from("a")))))),
+														Box::new( Symbols::GreaterGreater(2,4) ),
+														Box::new(Node::Integer(5, 6, Box::new(Symbols::Integer(5, 6, Box::new(String::from("1"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_expression_exclaim() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a ! 1")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::ExclaimMarkStatement(0, 5,
+															  Box::new(Node::Ident(0, 2, Box::new(Symbols::Ident(0, 1, Box::new(String::from("a")))))),
+															  Box::new( Symbols::ExclaimMark(2,3) ),
+															  Box::new(Node::Integer(4, 5, Box::new(Symbols::Integer(4, 5, Box::new(String::from("1"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_expression_question_mark() {
+		let mut parser = Parser::new(Box::new(Scanner::new("a ? 1")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::QuestionmarkStatement(0, 5,
+														   Box::new(Node::Ident(0, 2, Box::new(Symbols::Ident(0, 1, Box::new(String::from("a")))))),
+														   Box::new( Symbols::QuestionMark(2,3) ),
+														   Box::new(Node::Integer(4, 5, Box::new(Symbols::Integer(4, 5, Box::new(String::from("1"))))))
 
 		) );
 
