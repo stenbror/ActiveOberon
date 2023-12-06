@@ -3588,5 +3588,24 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_await_expression() {
+		let mut parser = Parser::new(Box::new(Scanner::new("AWAIT test")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::Await(0, 10,
+											 Box::new( Symbols::Await(0,5) ),
+											 Box::new(Node::Ident(6, 10, Box::new(Symbols::Ident(6, 10, Box::new(String::from("test"))))))
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
