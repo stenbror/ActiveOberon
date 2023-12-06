@@ -4027,4 +4027,83 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_case_multiple_without_else() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CASE a OF | 1 ..100: test | *: dog END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Ident(21, 26, Box::new(Symbols::Ident(21, 25, Box::new(String::from("test"))))))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [].to_vec();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Ident(31, 35, Box::new(Symbols::Ident(31, 34, Box::new(String::from("dog"))))))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [].to_vec();
+
+		let pattern = Box::new( Node::Case(0, 38,
+										   Box::new( Symbols::Case(0,4) ),
+										   Box::new( Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("a"))))) ),
+										   Box::new( Symbols::Of(7, 9) ),
+										   Box::new([
+											   Box::new( Node::CaseElement(10, 26,
+																		   Some( Box::new(Symbols::Bar(10, 11)) ),
+																		   Box::new(
+																			   [
+																				   Box::new(
+																					   Node::Range(
+																						   12, 19,
+																						   Some(Box::new( Node::Integer(12, 14, Box::new(Symbols::Integer(12, 13, Box::new(String::from("1"))))) )),
+																						   Box::new(Symbols::Upto(14, 16)),
+																						   Some(Box::new( Node::Integer(16, 19, Box::new(Symbols::Integer(16, 19, Box::new(String::from("100"))))) )),
+																						   None,
+																						   None
+																					   )
+																				   )
+																			   ].to_vec()
+																		   ),
+																		   Box::new( [].to_vec() ),
+																		   Box::new(Symbols::Colon(19, 20)),
+																		   Box::new(
+																			   Node::StatementSequence(21, 26, Box::new(element_1_nodes), Box::new(element_1_separators))
+																		   )
+											   )),
+
+											   Box::new( Node::CaseElement(26, 35,
+																		   Some( Box::new(Symbols::Bar(26, 27)) ),
+																		   Box::new(
+																			   [
+																				   Box::new(
+																					   Node::Range(
+																						   28, 29,
+																						   None,
+																						   Box::new(Symbols::Times(28, 29)),
+																						   None,
+																						   None,
+																						   None
+																					   )
+																				   )
+																			   ].to_vec()
+																		   ),
+																		   Box::new( [].to_vec() ),
+																		   Box::new(Symbols::Colon(29, 30)),
+																		   Box::new(
+																			   Node::StatementSequence(31, 35, Box::new(element_2_nodes), Box::new(element_2_separators))
+																		   )
+											   ))
+
+										   ].to_vec()),
+										   None,
+										   Box::new( Symbols::End(35, 38) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
