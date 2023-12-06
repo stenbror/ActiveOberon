@@ -3522,5 +3522,33 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_block_with_simple_return() {
+		let mut parser = Parser::new(Box::new(Scanner::new("BEGIN RETURN END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Return(6, 13, Box::new(Symbols::Return(6, 12)), None ) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::StatementBlock(0, 16,
+										   Box::new( Symbols::Begin(0,5) ),
+										   None,
+										   Box::new(
+											   Node::StatementSequence(6, 13, nodes, separators)
+										   ),
+										   Box::new( Symbols::End(13, 16) )
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
