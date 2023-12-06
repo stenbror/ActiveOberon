@@ -102,12 +102,26 @@ pub enum Node {
 	IdentifierReadWrite( u32, u32, Box<Node>, Box<Symbols> ),
 	IdentifierRead( u32, u32, Box<Node>, Box<Symbols> ),
 
+	Module( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	TemplateParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	TemplateParameter( u32, u32, Box<Symbols>, Box<Node> ),
+	ImportList( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	Import( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
 	DeclarationSequence( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
 	ConstDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
 	TypeDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
 	VarDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
 	ProcedureDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
 	OperatorDeclaration( u32, u32, Box<Symbols>,  Box<Vec<Box<Node>>> ),
+	Const( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	Var( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	VarList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
+	VarName( u32, u32, Box<Node>, Box<Vec<Box<Node>>>, Option<(Box<Symbols>, Box<Node>)> ),
+	ExternVarName( u32, u32, Box<Symbols>, Box<Node> ),
+	Flags( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
+	Procedure( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
+	
 }
 
 pub trait ParserMethods {
