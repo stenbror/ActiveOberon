@@ -3726,5 +3726,70 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_for_without_by() {
+		let mut parser = Parser::new(Box::new(Scanner::new("FOR i := 1 TO 100 DO count END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(21, 27, Box::new(Symbols::Ident(21, 26, Box::new(String::from("count")))) ) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::For(0, 30,
+												 Box::new( Symbols::For(0,3) ),
+												 Box::new( Node::Ident(4, 6, Box::new(Symbols::Ident(4, 5, Box::new(String::from("i"))))) ),
+												 Box::new( Symbols::Becomes(6, 8) ),
+												 Box::new( Node::Integer(9, 11, Box::new(Symbols::Integer(9, 10, Box::new(String::from("1"))))) ),
+												 Box::new( Symbols::To(11, 13)),
+												 Box::new( Node::Integer(14, 18, Box::new(Symbols::Integer(14, 17, Box::new(String::from("100"))))) ),
+												 None,
+												 Box::new(Symbols::Do(18, 20)),
+												 Box::new(
+													  Node::StatementSequence(21, 27, nodes, separators)
+												 ),
+												Box::new( Symbols::End(27, 30) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_for_with_by() {
+		let mut parser = Parser::new(Box::new(Scanner::new("FOR i := 1 TO 100 BY 10 DO count END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let nodes : Box<Vec<Box<Node>>> =  Box::new( [
+			Box::new( Node::Ident(27, 33, Box::new(Symbols::Ident(27, 32, Box::new(String::from("count")))) ) )
+		].to_vec() );
+		let separators : Box<Vec<Box<Symbols>>> =  Box::new( [].to_vec() );
+
+		let pattern = Box::new( Node::For(0, 36,
+										  Box::new( Symbols::For(0,3) ),
+										  Box::new( Node::Ident(4, 6, Box::new(Symbols::Ident(4, 5, Box::new(String::from("i"))))) ),
+										  Box::new( Symbols::Becomes(6, 8) ),
+										  Box::new( Node::Integer(9, 11, Box::new(Symbols::Integer(9, 10, Box::new(String::from("1"))))) ),
+										  Box::new( Symbols::To(11, 13)),
+										  Box::new( Node::Integer(14, 18, Box::new(Symbols::Integer(14, 17, Box::new(String::from("100"))))) ),
+										  Some((Box::new(Symbols::By(18, 20)), Box::new(Node::Integer(21, 24, Box::new(Symbols::Integer(21, 23, Box::new(String::from("10")))))))),
+										  Box::new(Symbols::Do(24, 26)),
+										  Box::new(
+											  Node::StatementSequence(27, 33, nodes, separators)
+										  ),
+										  Box::new( Symbols::End(33, 36) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
 
 }
