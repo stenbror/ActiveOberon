@@ -1112,7 +1112,7 @@ impl StatementRules for Parser {
 				};
 
 				match self.symbol.clone()? {
-					Symbols::Of( _ , _ ) => (),
+					Symbols::End( _ , _ ) => (),
 					_ => return Err(Box::new(format!("Expecting 'END' in case statement at position: '{}'", start_pos)))
 				}
 				let symbol3 = self.symbol.clone()?;
@@ -3917,6 +3917,56 @@ mod tests {
 																	)) )
 										   ),
 										   Box::new( Symbols::End(45, 48) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_case_single_without_else_and_bar() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CASE a OF 1 ..100: test END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Ident(19, 24, Box::new(Symbols::Ident(19, 23, Box::new(String::from("test"))))))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [].to_vec();
+
+		let pattern = Box::new( Node::Case(0, 27,
+										   Box::new( Symbols::Case(0,4) ),
+										   Box::new( Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("a"))))) ),
+										   Box::new( Symbols::Of(7, 9) ),
+										   Box::new([
+											   Box::new( Node::CaseElement(10, 24,
+																		   None,
+												   							Box::new(
+																				[
+																					Box::new(
+																						Node::Range(
+																							10, 17,
+																							Some(Box::new( Node::Integer(10, 12, Box::new(Symbols::Integer(10, 11, Box::new(String::from("1"))))) )),
+																							Box::new(Symbols::Upto(12, 14)),
+																							Some(Box::new( Node::Integer(14, 17, Box::new(Symbols::Integer(14, 17, Box::new(String::from("100"))))) )),
+																							None,
+																							None
+																						)
+																					)
+																				].to_vec()
+																			),
+												   							Box::new( [].to_vec() ),
+												   							Box::new(Symbols::Colon(17, 18)),
+												   							Box::new(
+																				Node::StatementSequence(19, 24, Box::new(element_1_nodes), Box::new(element_1_separators))
+																			)
+																		     ))
+										   ].to_vec()),
+										   None,
+										   Box::new( Symbols::End(24, 27) )
 		) );
 
 		match res {
