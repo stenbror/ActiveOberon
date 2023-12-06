@@ -3550,5 +3550,43 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn statement_code() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CODE END")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::Code(0, 8,
+													 Box::new( Symbols::Code(0,4) ),
+													 Box::new(Vec::<Box<Node>>::new()),
+													 Box::new( Symbols::End(5, 8) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn statement_return_expression() {
+		let mut parser = Parser::new(Box::new(Scanner::new("RETURN test")));
+		parser.advance();
+		let res = parser.parse_statement();
+
+		let pattern = Box::new( Node::Return(0, 11,
+										   Box::new( Symbols::Return(0,6) ),
+										   Some( Box::new(Node::Ident(7, 11, Box::new(Symbols::Ident(7, 11, Box::new(String::from("test")))))) )
+
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
