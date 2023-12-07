@@ -1652,7 +1652,28 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_type_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let left = self.parse_identifier_definition()?;
+
+		match self.symbol.clone()? {
+			Symbols::Equal( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting '=' in type declaration at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
+
+		let right = self.parse_type()?;
+
+		match self.symbol.clone()? {
+			Symbols::SemiColon( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting ';' in type declaration at position: '{}'", start_pos)))
+		}
+		let symbol2 = self.symbol.clone()?;
+		self.advance();
+
+
+		Ok( Box::new(Node::TypeDeclarationElement(start_pos, self.lexer.get_start_position(), left, Box::new(symbol1), right, Box::new(symbol2))) )
 	}
 
 	fn parse_type(&mut self) -> Result<Box<Node>, Box<String>> {
