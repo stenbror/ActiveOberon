@@ -192,8 +192,6 @@ pub trait BlockRules {
 	fn parse_type_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_type(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_array_type(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_math_array_type(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_math_array_size(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_record_type(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_pointer_type(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_procedure_type(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
@@ -1674,15 +1672,80 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_array_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
-	}
+		let start_pos = self.lexer.get_start_position();
 
-	fn parse_math_array_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
-	}
+		match self.symbol.clone()? {
+			Symbols::Array( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'ARRAY' in array type at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
 
-	fn parse_math_array_size(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+		let mut is_math = false;
+
+		match self.symbol.clone()? {
+			Symbols::Of( _ , _ ) => (),
+			Symbols::Times( _ , _ ) |
+			Symbols::QuestionMark( _ , _ ) => {
+				is_math = true;
+				nodes.push( Box::new(Node::MathArraySize(start_pos, self.lexer.get_start_position(), None, Some(Box::new(self.symbol.clone()?)))) );
+				self.advance()
+			}
+			_ => {
+				nodes.push( self.parse_expression()? );
+			}
+		}
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+
+					let start_pos_2 = self.lexer.get_start_position();
+
+					match self.symbol.clone()? {
+						Symbols::Times( _ , _ ) |
+						Symbols::QuestionMark( _ , _ ) => {
+							is_math = true;
+							nodes.push( Box::new(Node::MathArraySize(start_pos_2, self.lexer.get_start_position(), None, Some(Box::new(self.symbol.clone()?)))) );
+							self.advance();
+						}
+						_ => {
+							match is_math {
+								true => {
+									let right = self.parse_expression()?;
+									nodes.push( Box::new(Node::MathArraySize(start_pos_2, self.lexer.get_start_position(), Some(right), None)) )
+								},
+								_ => nodes.push( self.parse_expression()? )
+							}
+						}
+					}
+				},
+				_ => break
+			}
+		}
+
+		match self.symbol.clone()? {
+			Symbols::Of( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'OF' in array type at position: '{}'", start_pos)))
+		}
+		let symbol2= self.symbol.clone()?;
+		self.advance();
+
+		let right = self.parse_type()?;
+
+		let elements = match ( nodes.len(), separators.len() ) {
+			( 0, 0 ) => None,
+			_ => Some( ( nodes, separators ) )
+		};
+
+		match is_math {
+			true => Ok( Box::new(Node::MathArrayType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), elements, Box::new(symbol2), right)) ),
+			_ => Ok( Box::new(Node::ArrayType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), elements, Box::new(symbol2), right)) )
+		}
 	}
 
 	fn parse_record_type(&mut self) -> Result<Box<Node>, Box<String>> {
