@@ -131,7 +131,7 @@ pub enum Node {
 	PointerType( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	ProcedureType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>> ),
 	ObjectTypeEmpty( u32, u32, Box<Symbols> ),
-	ObjectType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
+	ObjectType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
 	EnumerationType( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	EnumElement( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
 	CellType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
@@ -1897,7 +1897,89 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_object_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Object( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'OBJECT' in object type at position: '{}'", start_pos)))
+		}
+		let symbol1= self.symbol.clone()?;
+		self.advance();
+
+		match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) |
+			Symbols::LeftBrace( _ , _ ) |
+			Symbols::Begin( _ , _ ) |
+			Symbols::End( _ , _ ) |
+			Symbols::SemiColon( _ , _ ) |
+			Symbols::Var( _ , _ ) |
+			Symbols::Const( _ , _ ) |
+			Symbols::Type( _ , _ ) |
+			Symbols::Procedure( _ , _ ) |
+			Symbols::Operator( _ , _ ) => {
+
+				let flags = match self.symbol.clone()? {
+					Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+					_ => None
+				};
+
+				let first = match self.symbol.clone()? {
+					Symbols::LeftParen( _ , _ ) => {
+						let symbol11= self.symbol.clone()?;
+						self.advance();
+
+						let right = self.parse_qualified_identifier()?;
+
+						match self.symbol.clone()? {
+							Symbols::RightParen( _ , _ ) => (),
+							_ => return Err(Box::new(format!("Expecting ')' in object type at position: '{}'", start_pos)))
+						}
+						let symbol12= self.symbol.clone()?;
+						self.advance();
+
+						Some( (Box::new(symbol11), right, Box::new(symbol12)) )
+					},
+					_ => None
+				};
+
+				let second = match self.symbol.clone()? {
+					Symbols::SemiColon( _ , _ ) |
+					Symbols::Var( _ , _ ) |
+					Symbols::Const( _ , _ ) |
+					Symbols::Type( _ , _ ) |
+					Symbols::Procedure( _ , _ ) |
+					Symbols::Operator( _ , _ ) => {
+						Some( self.parse_declaration_sequence()? )
+					},
+					_ => None
+				};
+
+				let body = match self.symbol.clone()? {
+					Symbols::Begin( _ , _ ) => Some( self.parse_statement_block()? ),
+					_ => None
+				};
+
+				match self.symbol.clone()? {
+					Symbols::End( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting 'END' in object type at position: '{}'", start_pos)))
+				}
+				let symbol2= self.symbol.clone()?;
+				self.advance();
+
+				let ident = match self.symbol.clone()? {
+					Symbols::Ident( _ , _ , _ ) => {
+						let start_pos2 = self.lexer.get_start_position();
+						let symbol3 = self.symbol.clone()?;
+						self.advance();
+						Some( Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol3))) )
+					},
+					_ => None
+				};
+
+				Ok( Box::new(Node::ObjectType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, first, second, body, Box::new(symbol2), ident )) )
+			},
+			_ => Ok( Box::new(Node::ObjectTypeEmpty(start_pos, self.lexer.get_start_position(), Box::new(symbol1))) )
+		}
 	}
 
 	fn parse_enumeration_type(&mut self) -> Result<Box<Node>, Box<String>> {
