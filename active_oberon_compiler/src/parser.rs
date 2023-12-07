@@ -1648,7 +1648,44 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_body(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		return match self.symbol.clone()? {
+			Symbols::Code( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				// Handle inline assembler later here!
+
+				Ok( Box::new( Node::BodyCode(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(Node::Empty)) ) )
+			},
+			Symbols::Begin( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let flags = match self.symbol.clone()? {
+					Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+					_ => None
+				};
+
+				let right = self.parse_statement_sequence()?;
+
+				let fin = match self.symbol.clone()? {
+					Symbols::Finally( _ , _ ) => {
+						let symbol2 = self.symbol.clone()?;
+						self.advance();
+
+						let right_local = self.parse_statement_sequence()?;
+
+						Some( ( Box::new(symbol2), right_local ) )
+					},
+					_ => None
+				};
+
+				Ok( Box::new( Node::Body(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, right, fin) ) )
+			},
+			_ => Err(Box::new(format!("Expecting ';' in type declaration at position: '{}'", start_pos)))
+		}
 	}
 
 	fn parse_type_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
