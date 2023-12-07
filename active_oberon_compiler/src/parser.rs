@@ -2059,7 +2059,29 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_port_list(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+		let mut is_first = true;
+
+		loop {
+
+			if !is_first {
+				match self.symbol.clone()? {
+					Symbols::SemiColon( _ , _ ) => {
+						separators.push( Box::new(self.symbol.clone()?) );
+						self.advance()
+					},
+					_ => break
+				}
+				is_first = false
+			}
+
+			nodes.push( self.parse_port_declaration()? )
+		}
+
+		Ok( Box::new(Node::PortList(start_pos, self.lexer.get_start_position(), nodes, separators)) )
 	}
 
 	fn parse_port_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
