@@ -1983,7 +1983,75 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_enumeration_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Enum( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'ENUM' in enum type at position: '{}'", start_pos)))
+		}
+		let symbol1= self.symbol.clone()?;
+		self.advance();
+
+		let first = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol11= self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_qualified_identifier()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ')' in enum type at position: '{}'", start_pos)))
+				}
+				let symbol12= self.symbol.clone()?;
+				self.advance();
+
+				Some( (Box::new(symbol11), right, Box::new(symbol12)) )
+			},
+			_ => None
+		};
+
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+		let mut is_first = true;
+
+		loop {
+			let start_pos2 = self.lexer.get_start_position();
+
+			if !is_first {
+				match self.symbol.clone()? {
+					Symbols::Comma( _ , _ ) => {
+						separators.push( Box::new(self.symbol.clone()?) );
+						self.advance()
+					},
+					_ => break
+				}
+				is_first = false
+			}
+
+			let left = self.parse_identifier_definition()?;
+
+			let right = match self.symbol.clone()? {
+				Symbols::Equal( _ , _ ) => {
+					let symbol10 = self.symbol.clone()?;
+					self.advance();
+					let right_2 = self.parse_expression()?;
+					Some( (Box::new(symbol10), right_2) )
+				},
+				_ => None
+			};
+
+			nodes.push( Box::new(Node::EnumElement(start_pos2, self.lexer.get_start_position(), left, right)) )
+		}
+
+		match self.symbol.clone()? {
+			Symbols::End( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'END' in enum type at position: '{}'", start_pos)))
+		}
+		let symbol2= self.symbol.clone()?;
+		self.advance();
+
+		Ok( Box::new(Node::EnumerationType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), first, nodes, separators, Box::new(symbol2))) )
 	}
 
 	fn parse_cell_type(&mut self) -> Result<Box<Node>, Box<String>> {
