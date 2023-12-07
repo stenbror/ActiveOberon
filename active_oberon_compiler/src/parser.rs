@@ -134,7 +134,7 @@ pub enum Node {
 	ObjectType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
 	EnumerationType( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	EnumElement( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
-	CellType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
+	CellType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Symbols>>, Option<Box<Node>>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
 	PortList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
 	PortDeclaration( u32, u32, Box<Vec<Box<(Box<Node>, Option<Box<Node>>)>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
 	Port( u32, u32, Box<Node>, Option<Box<Node>> ),
@@ -2055,7 +2055,95 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_cell_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::Cell( _ , _ ) => {
+				let res1 = self.symbol.clone()?;
+				self.advance();
+				Box::new(res1)
+			},
+			Symbols::Cellnet( _ , _ ) => {
+				let res1 = self.symbol.clone()?;
+				self.advance();
+				Box::new(res1)
+			},
+			_ => return Err(Box::new(format!("Expecting 'CELL' or 'CELLNET' in cell or cellnet type at position: '{}'", start_pos)))
+		};
+
+		let flags = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+			_ => None
+		};
+
+		let first = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol11= self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_port_list()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ')' in cell / cellnet type at position: '{}'", start_pos)))
+				}
+				let symbol12= self.symbol.clone()?;
+				self.advance();
+
+				Some( (Box::new(symbol11), right, Box::new(symbol12)) )
+			},
+			_ => None
+		};
+
+		let symbol2 = match self.symbol.clone()? {
+			Symbols::SemiColon( _ , _ ) => {
+				let symbol11= self.symbol.clone()?;
+				self.advance();
+				Some( Box::new(symbol11) )
+			},
+			_ => None
+		};
+
+		let import = match self.symbol.clone()? {
+			Symbols::Import( _ , _ ) => Some( self.parse_import_list()? ),
+			_ => None
+		};
+
+		let decl = match self.symbol.clone()? {
+			Symbols::SemiColon( _ , _ ) |
+			Symbols::Var( _ ,_ ) |
+			Symbols::Const( _ , _ ) |
+			Symbols::Type( _ , _ ) |
+			Symbols::Procedure( _ , _ ) |
+			Symbols::Operator( _ , _ ) => {
+				Some( self.parse_declaration_sequence()? )
+			},
+			_ => None
+		};
+
+		let body = match self.symbol.clone()? {
+			Symbols::Begin( _ , _ ) => Some( self.parse_statement_block()? ),
+			_ => None
+		};
+
+		match self.symbol.clone()? {
+			Symbols::End( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'END' in cell / cellnet type at position: '{}'", start_pos)))
+		}
+		let symbol3= self.symbol.clone()?;
+		self.advance();
+
+		let id = match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => {
+				let start_pos3 = self.lexer.get_start_position();
+				let idx = self.symbol.clone()?;
+				self.advance();
+				Some( Box::new( Node::Ident(start_pos3, self.lexer.get_start_position(), Box::new(idx)) ) )
+			},
+			_ => None
+		};
+
+		Ok( Box::new( Node::CellType(start_pos, self.lexer.get_start_position(), symbol1, flags, first, symbol2, import, decl, body, Box::new(symbol3), id  ) ) )
 	}
 
 	fn parse_port_list(&mut self) -> Result<Box<Node>, Box<String>> {
