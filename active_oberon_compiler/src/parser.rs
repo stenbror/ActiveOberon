@@ -1658,7 +1658,19 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		match self.symbol.clone()? {
+			Symbols::Array( _ , _ ) => self.parse_array_type(),
+			Symbols::Record( _ , _ ) => self.parse_record_type(),
+			Symbols::Pointer( _ , _ ) => self.parse_pointer_type(),
+			Symbols::Object( _ , _ ) => self.parse_object_type(),
+			Symbols::Procedure( _ , _ ) => self.parse_procedure_type(),
+			Symbols::Enum( _ , _ ) => self.parse_enumeration_type(),
+			Symbols::Ident( _ , _ , _ ) => self.parse_qualified_identifier(),
+			Symbols::Cell( _ , _ ) |
+			Symbols::Cellnet( _ , _ ) => self.parse_cell_type(),
+			Symbols::Port( _ , _ ) => self.parse_port_type(),
+			_ => Err(Box::new(format!("Expecting type at position: '{}'", self.lexer.get_start_position())))
+		}
 	}
 
 	fn parse_array_type(&mut self) -> Result<Box<Node>, Box<String>> {
