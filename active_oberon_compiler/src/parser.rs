@@ -2067,7 +2067,45 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_port_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Port( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'PORT' in port type at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
+
+		let direction = match self.symbol.clone()? {
+			Symbols::In( _ , _ ) |
+			Symbols::Out( _ , _ ) => {
+				let dir = self.symbol.clone()?;
+				self.advance();
+				Box::new(dir)
+			},
+			_ => return Err(Box::new(format!("Expecting 'IN' or 'OUT' in port type at position: '{}'", start_pos)))
+		};
+
+		let first = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol11= self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_expression()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ')' in port type at position: '{}'", start_pos)))
+				}
+				let symbol12= self.symbol.clone()?;
+				self.advance();
+
+				Some( (Box::new(symbol11), right, Box::new(symbol12)) )
+			},
+			_ => None
+		};
+
+		Ok( Box::new(Node::PortType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), direction, first )) )
 	}
 
 	fn parse_qualified_identifier(&mut self) -> Result<Box<Node>, Box<String>> {
