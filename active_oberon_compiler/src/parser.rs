@@ -98,10 +98,6 @@ pub enum Node {
 	GreaterGreaterStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 
 	/* Block nodes */
-	QualifiedIdentifier( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
-	IdentifierReadWrite( u32, u32, Box<Node>, Box<Symbols> ),
-	IdentifierRead( u32, u32, Box<Node>, Box<Symbols> ),
-
 	Module( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	TemplateParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	TemplateParameter( u32, u32, Box<Symbols>, Box<Node> ),
@@ -121,7 +117,31 @@ pub enum Node {
 	Flags( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
 	Procedure( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
-	
+	Operator( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
+	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Node>)> ),
+	ParameterDeclaration( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
+	Parameter( u32, u32, Box<Node>, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
+	Body( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
+	BodyCode( u32, u32, Box<Symbols>, Box<Node> ),
+	TypeDeclarationElement( u32, u32, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	ArrayType( u32, u32, Box<Symbols>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>,  Box<Symbols>, Box<Node> ),
+	MathArrayType( u32, u32, Box<Symbols>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>,  Box<Symbols>, Box<Node> ),
+	MathArraySize( u32, u32, Option<Box<Node>>, Option<Box<Symbols>> ),
+	RecordType( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	PointerType( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
+	ProcedureType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>> ),
+	ObjectTypeEmpty( u32, u32, Box<Symbols> ),
+	ObjectType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
+	EnumerationType( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	EnumElement( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
+	CellType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
+	PortList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
+	PortDeclaration( u32, u32, Box<Node>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
+	Port( u32, u32, Box<Node>, Option<Box<Node>> ),
+	PortType( u32, u32, Box<Symbols>, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)> ),
+	QualifiedIdentifier( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
+	IdentifierReadWrite( u32, u32, Box<Node>, Box<Symbols> ),
+	IdentifierRead( u32, u32, Box<Node>, Box<Symbols> ),
 }
 
 pub trait ParserMethods {
