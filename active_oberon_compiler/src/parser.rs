@@ -1976,7 +1976,7 @@ impl BlockRules for Parser {
 				};
 
 				let body = match self.symbol.clone()? {
-					Symbols::Begin( _ , _ ) => Some( self.parse_statement_block()? ),
+					Symbols::Begin( _ , _ ) | Symbols::Code( _ , _ ) => Some( self.parse_statement_block()? ),
 					_ => None
 				};
 
@@ -2143,7 +2143,7 @@ impl BlockRules for Parser {
 		};
 
 		let body = match self.symbol.clone()? {
-			Symbols::Begin( _ , _ ) => Some( self.parse_statement_block()? ),
+			Symbols::Begin( _ , _ ) | Symbols::Code( _ , _ ) => Some( self.parse_statement_block()? ),
 			_ => None
 		};
 
