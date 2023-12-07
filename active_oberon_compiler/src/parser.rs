@@ -136,7 +136,7 @@ pub enum Node {
 	EnumElement( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
 	CellType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>> ),
 	PortList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
-	PortDeclaration( u32, u32, Box<Node>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
+	PortDeclaration( u32, u32, Box<Vec<Box<(Box<Node>, Option<Box<Node>>)>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
 	Port( u32, u32, Box<Node>, Option<Box<Node>> ),
 	PortType( u32, u32, Box<Symbols>, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)> ),
 	QualifiedIdentifier( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
@@ -2063,7 +2063,52 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_port_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let mut nodes = Box::new(Vec::<Box<(Box<Node>, Option<Box<Node>>)>>::new());
+		let mut separators= Box::new(Vec::<Box<Symbols>>::new());
+		let mut is_first = true;
+
+		loop {
+
+			if !is_first {
+				match self.symbol.clone()? {
+					Symbols::Comma( _ , _ ) => {
+						separators.push( Box::new(self.symbol.clone()?) );
+						self.advance()
+					},
+					_ => break
+				}
+				is_first = false
+			}
+
+			let ident = match self.symbol.clone()? {
+				Symbols::Ident( _ , _ , _ ) => {
+					let id = self.symbol.clone()?;
+					self.advance();
+					Box::new( Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(id)) )
+				},
+				_ => return Err(Box::new(format!("Expecting 'Ident' literal in port declaration at position: '{}'", start_pos)))
+			};
+
+			let flags = match self.symbol.clone()? {
+				Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+				_ => None
+			};
+
+			nodes.push(Box::new( ( ident, flags ) ) )
+		}
+
+		match self.symbol.clone()? {
+			Symbols::Colon( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting ':' in port declaration at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
+
+		let right = self.parse_port_type()?;
+
+		Ok( Box::new(Node::PortDeclaration(start_pos, self.lexer.get_start_position(), nodes, separators, Box::new(symbol1), right)) )
 	}
 
 	fn parse_port_type(&mut self) -> Result<Box<Node>, Box<String>> {
