@@ -26,7 +26,7 @@ pub enum Node {
 	Alias( u32, u32, Box<Symbols>, Box<Symbols>, Box<Node> ),
 	New( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	ParenthesisExpression( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols> ),
-	UnaryExpression( u32, u32, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Vec<Box<Node>>>> ),
+	UnaryExpression( u32, u32, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>> ),
 	UnaryPlus( u32, u32, Box<Symbols>, Box<Node> ),
 	UnaryMinus( u32, u32, Box<Symbols>, Box<Node> ),
 	UnaryNot( u32, u32, Box<Symbols>, Box<Node> ),
@@ -74,7 +74,7 @@ pub enum Node {
 
 	/* Statement nodes */
 	StatementSequence( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
-	StatementBlock( u32, u32, Box<Symbols>, Option<Box<Vec<Box<Node>>>>, Box<Node>, Box<Symbols> ),
+	StatementBlock( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Box<Symbols> ),
 	If( u32, u32, Box<Symbols> , Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Box<Symbols> ),
 	Elsif( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node> ),
 	Else( u32, u32, Box<Symbols>, Box<Node> ),
@@ -182,7 +182,7 @@ pub trait BlockRules {
 	fn parse_variable_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_name_list(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_name(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_flags(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<std::string::String>>;
+	fn parse_flags(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_flag(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_procedure_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_operator_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
@@ -1623,7 +1623,7 @@ impl BlockRules for Parser {
 		todo!()
 	}
 
-	fn parse_flags(&mut self) -> Result<Box<Vec<Box<Node>>>, Box<String>> {
+	fn parse_flags(&mut self) -> Result<Box<Node>, Box<String>> {
 		todo!()
 	}
 
@@ -1847,7 +1847,30 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_pointer_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Pointer( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'POINTER' in pointer type at position: '{}'", start_pos)))
+		}
+		let symbol1= self.symbol.clone()?;
+		self.advance();
+
+		let flags = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+			_ => None
+		};
+
+		match self.symbol.clone()? {
+			Symbols::To( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'TO' in pointer type at position: '{}'", start_pos)))
+		}
+		let symbol2= self.symbol.clone()?;
+		self.advance();
+
+		let right = self.parse_type()?;
+
+		Ok( Box::new(Node::PointerType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, Box::new(symbol2), right)) )
 	}
 
 	fn parse_procedure_type(&mut self) -> Result<Box<Node>, Box<String>> {
