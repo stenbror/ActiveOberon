@@ -1874,7 +1874,26 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_procedure_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Procedure( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'PROCEDURE' in procedure type at position: '{}'", start_pos)))
+		}
+		let symbol1= self.symbol.clone()?;
+		self.advance();
+
+		let flags = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+			_ => None
+		};
+
+		let para = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => Some( self.parse_formal_parameters()? ),
+			__ => None
+		};
+
+		Ok( Box::new(Node::ProcedureType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, para)) )
 	}
 
 	fn parse_object_type(&mut self) -> Result<Box<Node>, Box<String>> {
