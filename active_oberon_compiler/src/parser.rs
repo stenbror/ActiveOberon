@@ -127,7 +127,7 @@ pub enum Node {
 	ArrayType( u32, u32, Box<Symbols>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>,  Box<Symbols>, Box<Node> ),
 	MathArrayType( u32, u32, Box<Symbols>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>,  Box<Symbols>, Box<Node> ),
 	MathArraySize( u32, u32, Option<Box<Node>>, Option<Box<Symbols>> ),
-	RecordType( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
+	RecordType( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>, Option<(Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>)>, Box<Symbols> ),
 	PointerType( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	ProcedureType( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>> ),
 	ObjectTypeEmpty( u32, u32, Box<Symbols> ),
@@ -1749,7 +1749,101 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_record_type(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Record( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'RECORD' in record type at position: '{}'", start_pos)))
+		}
+		let symbol1= self.symbol.clone()?;
+		self.advance();
+
+		let base = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol10= self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_qualified_identifier()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ')' in record type at position: '{}'", start_pos)))
+				}
+				let symbol11= self.symbol.clone()?;
+				self.advance();
+
+				Some( (Box::new(symbol10), right, Box::new(symbol11)) )
+			},
+			_ => None
+		};
+
+		let mut nodes_var = Box::new(Vec::<Box<Node>>::new());
+		let mut separators_var = Box::new(Vec::<Box<Symbols>>::new());
+
+		match self.symbol.clone()? {
+			Symbols::Procedure( _ , _ ) | Symbols::Operator( _ , _ ) | Symbols::End( _ , _ ) => (),
+			_ => {
+				nodes_var.push( self.parse_variable_declaration()? );
+				loop {
+					match self.symbol.clone()? {
+						Symbols::SemiColon( _ , _ ) => {
+							separators_var.push( Box::new(self.symbol.clone()?) );
+							self.advance();
+							nodes_var.push( self.parse_variable_declaration()? )
+						},
+						_ => break
+					}
+				}
+			}
+		}
+
+		let el_var = match (nodes_var.len(), separators_var.len()) {
+			( 0, 0 ) => None,
+			_ => Some( ( nodes_var, separators_var ) )
+		};
+
+		let mut nodes_op = Box::new(Vec::<Box<Node>>::new());
+		let mut separators_op = Box::new(Vec::<Box<Symbols>>::new());
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Procedure( _ , _ ) => {
+					nodes_op.push( self.parse_procedure_declaration()? );
+					match self.symbol.clone()? {
+						Symbols::SemiColon( _ , _ ) => {
+							separators_op.push( Box::new(self.symbol.clone()?) );
+							self.advance()
+						},
+						_ => ()
+					}
+				},
+				Symbols::Operator( _ , _ ) => {
+					nodes_op.push( self.parse_operator_declaration()? );
+					match self.symbol.clone()? {
+						Symbols::SemiColon( _ , _ ) => {
+							separators_op.push( Box::new(self.symbol.clone()?) );
+							self.advance()
+						},
+						_ => ()
+					}
+				},
+				_ => break
+			}
+		}
+
+		let el_op = match (nodes_op.len(), separators_op.len()) {
+			( 0, 0 ) => None,
+			_ => Some( ( nodes_op, separators_op ) )
+		};
+
+		match self.symbol.clone()? {
+			Symbols::End( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'END' in record type at position: '{}'", start_pos)))
+		}
+		let symbol2= self.symbol.clone()?;
+		self.advance();
+
+		Ok( Box::new(Node::RecordType(start_pos, self.lexer.get_start_position(), Box::new(symbol1), base, el_var, el_op, Box::new(symbol2))) )
 	}
 
 	fn parse_pointer_type(&mut self) -> Result<Box<Node>, Box<String>> {
