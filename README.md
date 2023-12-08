@@ -183,4 +183,11 @@ All characters are internally handled as UTF-32 characters, so a char is between
 
 All strings are arrays of UTF-32 characters. Defined as " Text goes here! "
 
+#### Simplest program to parse possible
+
+<Code>
+  MODULE test; <BR />
+  END test. <BR />
+</Code>
+
 <B> More to come later! </B>
