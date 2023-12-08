@@ -186,8 +186,8 @@ All strings are arrays of UTF-32 characters. Defined as " Text goes here! "
 #### Simplest program to parse possible
 
 <Code>
-  MODULE test; <BR />
-  END test. <BR />
-</Code>
+MODULE test; <BR />
+END test. <BR />
+</Code> <BR />
 
 <B> More to come later! </B>
