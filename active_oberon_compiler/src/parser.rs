@@ -1628,7 +1628,27 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_template_parameter(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::Const( _ , _ ) | Symbols::Type( _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Box::new(symbol11)
+			},
+			_ => return Err(Box::new(format!("Expecting 'CONST' or 'TYPE' in template declaration at position: '{}'", start_pos)))
+		};
+
+		let idx = match self.symbol.clone()? {
+			Symbols::Ident( s , _ , _ ) => {
+				let symbol12 = self.symbol.clone()?;
+				self.advance();
+				Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol12)) )
+			},
+			_ => return Err(Box::new(format!("Expecting 'ident' literal in template declaration at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new(Node::TemplateParameter(start_pos, self.lexer.get_start_position(), symbol1, idx)) )
 	}
 
 	fn parse_import_list(&mut self) -> Result<Box<Node>, Box<String>> {
