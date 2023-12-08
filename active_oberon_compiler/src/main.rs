@@ -11,7 +11,7 @@ use console::style;
 use build_time::{build_time_local};
 use clap::Parser;
 
-use crate::parser::{Parser as ActiveOberonParser, ParserMethods, Node, StatementRules};
+use crate::parser::{Parser as ActiveOberonParser, ParserMethods, Node, BlockRules};
 use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods, Symbols};
 
 #[derive(Parser)]
@@ -34,10 +34,10 @@ fn main() {
     //let _args = Cli::parse();
 
     /* Temporary code to be removed later! */
-    let mut parser = Box::new( ActiveOberonParser::new( Box::new( ActiveOberonScanner::new("test * counter") ) ) );
-    parser.advance();
-    let res = parser.parse_statement();
+    let mut parser = Box::new( ActiveOberonParser::new( Box::new( ActiveOberonScanner::new("MODULE test; END test.") ) ) );
+    let res = parser.parse_module();
 
+    println!("\r\n");
     match res {
         Ok(x) => println!("Success parsing statement!"),
         _ => println!("Failed during parsing of statement!")
