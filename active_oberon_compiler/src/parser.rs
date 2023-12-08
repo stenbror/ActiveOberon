@@ -1589,7 +1589,42 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_template_parameters(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Box::new(symbol11)
+			},
+			_ => return Err(Box::new(format!("Expecting '(' in template list declaration at position: '{}'", start_pos)))
+		};
+
+		nodes.push( self.parse_template_parameter()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new( self.symbol.clone()?) );
+					self.advance();
+					nodes.push( self.parse_template_parameter()? );
+				},
+				_ => break
+			}
+		}
+
+		let symbol2 = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol12 = self.symbol.clone()?;
+				self.advance();
+				Box::new(symbol12)
+			},
+			_ => return Err(Box::new(format!("Expecting ')' in template list declaration at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new(Node::TemplateParameters(start_pos, self.lexer.get_start_position(), symbol1, nodes, separators, symbol2)) )
 	}
 
 	fn parse_template_parameter(&mut self) -> Result<Box<Node>, Box<String>> {
