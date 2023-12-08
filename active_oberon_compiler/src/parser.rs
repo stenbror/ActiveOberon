@@ -3,6 +3,7 @@
 // Written by Richard Magnor Stenbro. Licensed under GPL v3
 // Parser module for syntax analyzing of source files
 
+use console::style;
 use crate::scanner::{Scanner, ScannerMethods, Symbols};
 
 #[derive(Clone, PartialEq, Debug)]
@@ -1491,6 +1492,7 @@ impl BlockRules for Parser {
 				let symbol2 = match self.symbol.clone()? {
 					Symbols::Ident( s , _ , t ) => {
 						module_name_start = *t;
+						println!("  Compiling module: '{}'", style(&module_name_start).green());
 						let symbol18 = self.symbol.clone()?;
 						self.advance();
 						Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol18)) )
