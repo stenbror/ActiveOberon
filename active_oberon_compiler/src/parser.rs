@@ -98,7 +98,7 @@ pub enum Node {
 	GreaterGreaterStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 
 	/* Block nodes */
-	Module( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	Module( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	TemplateParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	TemplateParameter( u32, u32, Box<Symbols>, Box<Node> ),
 	ImportList( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
@@ -1472,7 +1472,118 @@ impl StatementRules for Parser {
 /// Implements all block rules in grammar of ActiveOberon
 impl BlockRules for Parser {
 	fn parse_module(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut module_name_start = String::new();
+		let mut module_name_end = String::new();
+
+		self.advance(); /* Get the first symbol from source code before starting parsing */
+
+		return match self.symbol.clone()? {
+			Symbols::Module( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				let template : Option<Box<Node>> = match self.symbol.clone()? {
+					Symbols::LeftParen( _ , _ ) => Some( self.parse_template_parameters()? ),
+					_ => None
+				};
+
+				let symbol2 = match self.symbol.clone()? {
+					Symbols::Ident( s , _ , t ) => {
+						module_name_start = *t;
+						let symbol18 = self.symbol.clone()?;
+						self.advance();
+						Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol18)) )
+					},
+					_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'MODULE' at position: '{}'", start_pos)))
+				};
+
+				let in_part = match self.symbol.clone()? {
+					Symbols::In( _ , _ ) => {
+						let symbol16 = self.symbol.clone()?;
+						self.advance();
+
+						match self.symbol.clone()? {
+							Symbols::Ident( _ , _ , _ ) => {
+								let start_pos2 = self.lexer.get_start_position();
+								let symbol15 = self.symbol.clone()?;
+								self.advance();
+
+								Some( (Box::new(symbol16), Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol15)))) )
+							},
+							_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'IN' at position: '{}'", start_pos)))
+						}
+					},
+					_ => None
+				};
+
+				let symbol3 = match self.symbol.clone()? {
+					Symbols::SemiColon( _ , _ ) => {
+						let symbol17 = self.symbol.clone()?;
+						self.advance();
+						Box::new( symbol17 )
+					},
+					_ => return Err(Box::new(format!("Expecting ';' of module after 'MODULE' ident at position: '{}'", start_pos)))
+				};
+
+				let imp = match self.symbol.clone()? {
+					Symbols::Import( _ , _ ) => Some( self.parse_import_list()? ),
+					_ => None
+				};
+
+				let decl = match self.symbol.clone()? {
+					Symbols::Type( _ , _ ) |
+					Symbols::Var( _ , _ ) |
+					Symbols::Const( _ , _ ) |
+					Symbols::Procedure( _ , _ ) |
+					Symbols::Operator( _ , _ ) |
+					Symbols::SemiColon( _ , _ ) => Some( self.parse_declaration_sequence()? ),
+					_ => None
+				};
+
+				let body = match self.symbol.clone()? {
+					Symbols::Begin( _ , _ ) | Symbols::Code( _ , _ ) => Some( self.parse_body()? ),
+					_ => None
+				};
+
+				/* Parsing 'END' ident '.' and ignore everything after that! */
+
+				let symbol11 = match self.symbol.clone()? {
+					Symbols::End( _ , _) => {
+						let symbol19 = self.symbol.clone()?;
+						self.advance();
+						Box::new( symbol19 )
+					},
+					_ => return Err(Box::new(format!("Expecting 'END' in module at position: '{}'", start_pos)))
+				};
+
+				let symbol12 = match self.symbol.clone()? {
+					Symbols::Ident( s , _ , t ) => {
+						module_name_end = *t;
+						let symbol21 = self.symbol.clone()?;
+						self.advance();
+						Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new( symbol21 )) )
+ 					},
+					_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'END' at position: '{}'", start_pos)))
+				};
+
+				let period = match self.symbol.clone()? {
+					Symbols::Period( _ , _ ) => {
+						let symbol20 = self.symbol.clone()?;
+						self.advance();
+						Box::new( symbol20 )
+					},
+					_ => return Err(Box::new(format!("Expecting '.' at end of module at position: '{}'", start_pos)))
+				};
+
+				if module_name_start != module_name_end {
+					return Err(Box::new(format!("Expecting 'MODULE' name '{}' to be equal to 'END' name '{}' in module declaration at position: '{}'", module_name_start, module_name_end, start_pos)))
+				}
+
+				Ok( Box::new( Node::Module(start_pos, self.lexer.get_start_position(), Box::new(symbol1), template, symbol2, in_part, symbol3, imp, decl, body, symbol11, symbol12, period) ) )
+			},
+			_ => Err(Box::new(format!("Expecting 'MODULE' in module declaration at position: '{}'", start_pos)))
+		}
 	}
 
 	fn parse_template_parameters(&mut self) -> Result<Box<Node>, Box<String>> {
