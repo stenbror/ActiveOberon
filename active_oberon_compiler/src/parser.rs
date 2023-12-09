@@ -1921,7 +1921,29 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_variable_name_list(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut nodes = Box::new( Vec::<Box<Node>>::new() );
+		let mut separators = Box::new( Vec::<Box<Symbols>>::new() );
+
+		match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration list at position: '{}'", start_pos)))
+		};
+
+		nodes.push( self.parse_variable_name()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+					nodes.push( self.parse_variable_name()? );
+				},
+				_ => break
+			}
+		}
+
+		Ok( Box::new(Node::VarList(start_pos, self.lexer.get_start_position(), nodes, separators)) )
 	}
 
 	fn parse_variable_name(&mut self) -> Result<Box<Node>, Box<String>> {
