@@ -177,6 +177,7 @@ pub trait BlockRules {
 	fn parse_template_parameters(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_template_parameter(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_import_list(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
+	fn parse_import(&mut self) -> Result<Box<Node>, Box<String>>;
 	fn parse_declaration_sequence(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_constant_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_constant_expression(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
@@ -1652,6 +1653,46 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_import_list(&mut self) -> Result<Box<Node>, Box<String>> {
+		let start_pos = self.lexer.get_start_position();
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::Import( _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Box::new(symbol11)
+			},
+			_ => return Err(Box::new(format!("Expecting 'IMPORT' in import declaration at position: '{}'", start_pos)))
+		};
+
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+
+		nodes.push( self.parse_import()? );
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance();
+					nodes.push( self.parse_import()? );
+				},
+				_ => break
+			}
+		}
+
+		let symbol2 = match self.symbol.clone()? {
+			Symbols::SemiColon( _ , _ ) => {
+				let symbol12 = self.symbol.clone()?;
+				self.advance();
+				Box::new(symbol12)
+			},
+			_ => return Err(Box::new(format!("Expecting ';' in import declaration at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new(Node::ImportList(start_pos, self.lexer.get_start_position(), symbol1, nodes, separators, symbol2)) )
+	}
+
+	fn parse_import(&mut self) -> Result<Box<Node>, Box<String>> {
 		todo!()
 	}
 
