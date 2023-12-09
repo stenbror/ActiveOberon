@@ -1693,7 +1693,72 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_import(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::Ident( s , _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol11)) )
+			},
+			_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration at position: '{}'", start_pos)))
+		};
+
+		let left = match self.symbol.clone()? {
+			Symbols::Becomes( _ , _ ) => {
+				let symbol21 = self.symbol.clone()?;
+				self.advance();
+
+				match self.symbol.clone()? {
+					Symbols::Ident( s, _ , _ ) => {
+						let symbol22 = self.symbol.clone()?;
+						self.advance();
+						let node = Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol22)) );
+						Some( (Box::new(symbol21), node) )
+					},
+					_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration after ':=' at position: '{}'", start_pos)))
+				}
+			},
+			_ => None
+		};
+
+		let right = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol31 = self.symbol.clone()?;
+				self.advance();
+				let right2 = self.parse_expression_list()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => {
+						let symbol32 = self.symbol.clone()?;
+						self.advance();
+						Some( ( Box::new(symbol31), right2, Box::new(symbol32) ) )
+					},
+					_ => return Err(Box::new(format!("Expecting ')' literal in import declaration at position: '{}'", start_pos)))
+				}
+			},
+			_ => None
+		};
+
+		let next = match self.symbol.clone()? {
+			Symbols::In( _ , _ ) => {
+				let symbol41 = self.symbol.clone()?;
+				self.advance();
+
+				match self.symbol.clone()? {
+					Symbols::Ident( s, _ , _ ) => {
+						let symbol42 = self.symbol.clone()?;
+						self.advance();
+						let node = Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol42)) );
+						Some( (Box::new(symbol41), node) )
+					},
+					_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration after 'IN' at position: '{}'", start_pos)))
+				}
+			},
+			_ => None
+		};
+
+		Ok( Box::new(Node::Import(start_pos, self.lexer.get_start_position(), symbol1, left, right, next)) )
 	}
 
 	fn parse_declaration_sequence(&mut self) -> Result<Box<Node>, Box<String>> {
