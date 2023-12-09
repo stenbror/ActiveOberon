@@ -180,7 +180,6 @@ pub trait BlockRules {
 	fn parse_import(&mut self) -> Result<Box<Node>, Box<String>>;
 	fn parse_declaration_sequence(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_constant_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
-	fn parse_constant_expression(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_declaration(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_name_list(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
 	fn parse_variable_name(&mut self) -> Result<Box<Node>, Box<std::string::String>>;
@@ -1878,11 +1877,25 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_constant_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
-	}
+		let start_pos = self.lexer.get_start_position();
 
-	fn parse_constant_expression(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let first = match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => self.parse_identifier_definition()?,
+			_ => return Err(Box::new(format!("Expecting 'indent' literal in const declaration at position: '{}'", start_pos)))
+		};
+
+		let symbol = match self.symbol.clone()? {
+			Symbols::Equal( _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Box::new(symbol11)
+			},
+			_ => return Err(Box::new(format!("Expecting '=' literal in const declaration at position: '{}'", start_pos)))
+		};
+
+		let second = self.parse_expression()?;
+
+		Ok( Box::new(Node::Const(start_pos, self.lexer.get_start_position(), first, symbol, second)) )
 	}
 
 	fn parse_variable_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
