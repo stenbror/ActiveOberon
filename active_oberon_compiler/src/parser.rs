@@ -1898,11 +1898,85 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_flags(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut nodes = Box::new( Vec::<Box<Node>>::new() );
+		let mut separators = Box::new( Vec::<Box<Symbols>>::new() );
+
+		return match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+
+				match self.symbol.clone()? {
+					Symbols::RightBrace( _ , _ ) => (),
+					_ => {
+						nodes.push( self.parse_flag()? );
+						loop {
+							match self.symbol.clone()? {
+								Symbols::Comma( _ , _ ) => {
+									separators.push( Box::new(self.symbol.clone()?) );
+									self.advance();
+									nodes.push( self.parse_flag()? )
+								},
+								_ => break
+							}
+						}
+					}
+				}
+
+				let symbol2 = match self.symbol.clone()? {
+					Symbols::RightBrace( _ ,_ ) => {
+						let symbol51 = self.symbol.clone()?;
+						self.advance();
+						Box::new(symbol51)
+					},
+					_ => return Err(Box::new(format!("Expecting end of flag list declaration at position: '{}'", start_pos)))
+				};
+
+				Ok( Box::new(Node::Flags(start_pos, self.lexer.get_start_position(), Box::new(symbol1), nodes, separators, symbol2)) )
+			},
+			_ => Err(Box::new(format!("Expecting start of flag list declaration at position: '{}'", start_pos)))
+		}
 	}
 
 	fn parse_flag(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		return match self.symbol.clone()? {
+			Symbols::Ident( s, _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let flag = Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol1)) );
+
+				match self.symbol.clone()? {
+					Symbols::LeftParen( _ , _ ) => {
+						let symbol21 = self.symbol.clone()?;
+						self.advance();
+
+						let right3 = self.parse_expression()?;
+
+						match self.symbol.clone()? {
+							Symbols::RightParen( _ , _ ) => (),
+							_ => return Err(Box::new(format!("Expecting ')' in flag declaration at position: '{}'", start_pos)))
+						};
+						let symbol22 = self.symbol.clone()?;
+						self.advance();
+
+						Ok( Box::new(Node::Flag(start_pos, self.lexer.get_start_position(), flag, Some( ( Box::new(symbol21), right3, Box::new(symbol22)) ) , None) ) )
+					},
+					Symbols::Equal( _ , _ ) => {
+						let symbol31 = self.symbol.clone()?;
+						self.advance();
+						let right2 = self.parse_expression()?;
+						Ok( Box::new(Node::Flag(start_pos, self.lexer.get_start_position(), flag, None, Some( (Box::new(symbol31), right2) ))) )
+					},
+					_ => {
+						Ok( Box::new(Node::Flag(start_pos, self.lexer.get_start_position(), flag, None, None)) )
+					}
+				}
+			},
+			_ => Err(Box::new(format!("Expecting 'ident' in flag declaration at position: '{}'", start_pos)))
+		}
 	}
 
 	fn parse_procedure_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
