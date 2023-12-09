@@ -113,7 +113,7 @@ pub enum Node {
 	Const( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	Var( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	VarList( u32, u32, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>> ),
-	VarName( u32, u32, Box<Node>, Box<Vec<Box<Node>>>, Option<(Box<Symbols>, Box<Node>)> ),
+	VarName( u32, u32, Box<Node>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>)> ),
 	ExternVarName( u32, u32, Box<Symbols>, Box<Node> ),
 	Flags( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
@@ -1947,7 +1947,43 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_variable_name(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		let first = match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => self.parse_identifier_definition()?,
+			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration at position: '{}'", start_pos)))
+		};
+
+		let flags = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+			_ => None
+		};
+
+		return match self.symbol.clone()? {
+			Symbols::Becomes( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let right = self.parse_expression()?;
+				Ok( Box::new(Node::VarName(start_pos, self.lexer.get_start_position(), first, flags, Some( ( Box::new(symbol1), right ) ))) )
+			},
+			Symbols::Extern( _ , _ ) => {
+				let symbol1 = self.symbol.clone()?;
+				self.advance();
+				let txt = match self.symbol.clone()? {
+					Symbols::String( s , _ , _ ) => {
+						let symbol2 = self.symbol.clone()?;
+						self.advance();
+						Box::new(Node::String(s, self.lexer.get_start_position(), Box::new(symbol2)))
+					},
+					_ => return Err(Box::new(format!("Expecting 'string' literal in var declaration at position: '{}'", start_pos)))
+				};
+
+				Ok( Box::new(Node::VarName(start_pos, self.lexer.get_start_position(), first, flags, Some( (Box::new(symbol1), txt) ))) )
+			}
+			_ => {
+				Ok( Box::new(Node::VarName(start_pos, self.lexer.get_start_position(), first, flags, None)) )
+			}
+		}
 	}
 
 	fn parse_flags(&mut self) -> Result<Box<Node>, Box<String>> {
