@@ -22,7 +22,9 @@ on Windows search internet for 'rustup'. About every 6 weeks, the build system i
 cd active_oberon_compiler <BR />
 cargo build <BR />
 cargo test <BR />
-cargo run <BR />
+cargo run <BR /> <BR />
+
+For now, you can create a small Active Oberon program and check its syntax with the command 'active_oberon_compiler compile test.mod' , you need to write the test.mod file and place it in the same directory as the executable.
 
 Even if the final compiler will be written in ActiveOberon language, it will need to be compiled the first time by the bootstrap compiler written in Rust and also maybe
 a version written in C++. This Rust-based bootstrap compiler will be fully functional and contain all the functions of the final one. You can choose to use the bootstrap
