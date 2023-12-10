@@ -119,7 +119,7 @@ pub enum Node {
 	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
 	Procedure( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	Operator( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
-	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Box<Node>, Box<Node>)> ),
+	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Option<Box<Node>>, Box<Node>)> ),
 	ParameterDeclaration( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
 	Parameter( u32, u32, Box<Node>, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
 	Body( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
@@ -2077,7 +2077,59 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_formal_parameters(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+
+		match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting '(' in formal parameters declaration at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
+
+		match self.symbol.clone()? {
+			Symbols::RightParen( _ , _ ) => (),
+			_ => {
+				nodes.push( self.parse_parameter_declaration()? );
+				loop {
+					match self.symbol.clone()? {
+						Symbols::SemiColon( _ , _ ) => {
+							separators.push( Box::new(self.symbol.clone()?) );
+							self.advance();
+							nodes.push( self.parse_parameter_declaration()? );
+						},
+						_ => break
+					}
+				}
+			}
+		}
+
+		match self.symbol.clone()? {
+			Symbols::RightParen( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting ')' in formal parameters declaration at position: '{}'", start_pos)))
+		}
+		let symbol2 = self.symbol.clone()?;
+		self.advance();
+
+		let element = match self.symbol.clone()? {
+			Symbols::Colon( _ , _ ) => {
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				let flags = match self.symbol.clone()? {
+					Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+					_ => None
+				};
+
+				let right = self.parse_type()?;
+
+				Some( (Box::new(symbol3), flags, right))
+			},
+			_ => None
+		};
+
+		Ok( Box::new(Node::FormalParameters(start_pos, self.lexer.get_start_position(), Box::new(symbol1), nodes, separators, Box::new(symbol2), element)) )
 	}
 
 	fn parse_parameter_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
