@@ -13,12 +13,11 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
-use std::fs::File;
+use std::fs::{File, read_to_string};
 use std::io::prelude::*;
 
 use crate::parser::{Parser as ActiveOberonParser, ParserMethods, BlockRules, Node};
 use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods };
-
 
 
 /// Parse a given source file into a node tree or error if parsing fails!
@@ -47,6 +46,52 @@ fn parse_from_file(file_name: String) -> Result<Box<Node>, Box<String>> {
         },
         _ => Err(Box::new(format!("Unable to find or open '{}' file.", style(file_name).red())))
     }
+}
+
+/// Present Syntax Error messages correctly with position and source line
+fn present_error_message(msg: &String, file_name: &String) {
+    let parts = msg.split("position: '").collect::<Vec<&str>>();
+
+    if parts.len() < 2 {
+        println!("\r\n{} in file: {}", style("SyntaxError").red(), file_name);
+        println!("{}", msg);
+        return
+    }
+
+    let t : String = parts[1].chars().filter(|char| char.is_digit(10)).collect();
+    let pos : usize = t.parse::<u32>().unwrap() as usize;
+
+    let mut line : usize = 0;
+    let mut col : usize = 0;
+    let mut cur_pos : usize = 0;
+    let mut syntax_line = String::new();
+
+    let lines : Vec<String> = read_to_string(file_name)
+        .unwrap()
+        .lines()
+        .map(String::from)
+        .collect();
+
+    for source_line in lines {
+        let start_of_line = cur_pos;
+        cur_pos += source_line.len();
+        line += 1;
+        if pos > cur_pos {
+            continue
+        }
+        col = (pos - start_of_line) + 1;
+        syntax_line = source_line.clone();
+        break
+    }
+
+    println!("\r\n{} in file: {}", style("SyntaxError").red(), file_name);
+    println!("Line: {}, Col: {} => {}\r\n", style(line).yellow(), style(col).yellow(), msg);
+    println!("{}", syntax_line);
+    println!("{}{}", (0..col).map(|_| " ").collect::<String>(), style("^").red())
+
+
+
+
 }
 
 
@@ -132,7 +177,7 @@ fn main() {
 
             match res {
                 Ok( _ ) => println!("Success parsing statement!/r/n"),
-                Err( s ) => println!("{}\r\n", s)
+                Err( s ) => present_error_message(&s, module_file)
             }
         },
         Commands::Lint {}  => {
