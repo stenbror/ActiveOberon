@@ -115,7 +115,7 @@ pub enum Node {
 	Flags( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
 	Procedure( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
-	Operator( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
+	Operator( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<Box<Symbols>>, Box<Node>, Option<Box<Symbols>>, Box<Node>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Option<Box<Node>>, Box<Node>)> ),
 	ParameterDeclaration( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
 	Parameter( u32, u32, Box<Node>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>)> ),
@@ -2069,7 +2069,88 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_operator_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Operator( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'OPERATOR' in operator declaration at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
+
+		let flags = match self.symbol.clone()? {
+			Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+			_ => None
+		};
+
+		let symbol2 = match self.symbol.clone()? {
+			Symbols::Minus( _ , _ ) => {
+				let symbol21 = self.symbol.clone()?;
+				self.advance();
+				Some( Box::new(symbol21) )
+			},
+			_ => None
+		};
+
+		let first = match self.symbol.clone()? {
+			Symbols::String( s , _ , _ ) => {
+				let symbol30 = self.symbol.clone()?;
+				self.advance();
+				Box::new( Node::String(s, self.lexer.get_start_position(), Box::new(symbol30)) )
+			},
+			_ => return Err(Box::new(format!("Expecting 'string' literal in operator declaration at position: '{}'", start_pos)))
+		};
+
+		let symbol3 = match self.symbol.clone()? {
+			Symbols::Times( _ , _ ) | Symbols::Minus( _ , _ ) => {
+				let symbol21 = self.symbol.clone()?;
+				self.advance();
+				Some( Box::new(symbol21) )
+			},
+			_ => None
+		};
+
+		let second = self.parse_formal_parameters()?;
+
+		match self.symbol.clone()? {
+			Symbols::SemiColon( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting ';' in operator declaration at position: '{}'", start_pos)))
+		}
+		let symbol4 = self.symbol.clone()?;
+		self.advance();
+
+		let decl = match self.symbol.clone()? {
+			Symbols::Const( _ , _ ) |
+			Symbols::Var( _ , _ ) |
+			Symbols::Type( _ , _ ) |
+			Symbols::Procedure( _ , _ ) |
+			Symbols::Operator( _ , _ ) |
+			Symbols::SemiColon( _ , _ ) => Some( self.parse_declaration_sequence()? ),
+			_ => None
+		};
+
+		let body = match self.symbol.clone()? {
+			Symbols::Begin( _ , _ ) | Symbols::Code( _ , _  ) => Some( self.parse_body()? ),
+			_ => None
+		};
+
+		match self.symbol.clone()? {
+			Symbols::End( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'END' in operator declaration at position: '{}'", start_pos)))
+		}
+		let symbol5 = self.symbol.clone()?;
+		self.advance();
+
+		let third = match self.symbol.clone()? {
+			Symbols::String( s , _ , _ ) => {
+				let symbol40 = self.symbol.clone()?;
+				self.advance();
+				Box::new( Node::String(s, self.lexer.get_start_position(), Box::new(symbol40)) )
+			},
+			_ => return Err(Box::new(format!("Expecting 'string' literal in operator declaration at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new(Node::Operator(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, symbol2, first, symbol3, second, Box::new(symbol4), decl, body, Box::new(symbol5), third)) )
 	}
 
 	fn parse_formal_parameters(&mut self) -> Result<Box<Node>, Box<String>> {
