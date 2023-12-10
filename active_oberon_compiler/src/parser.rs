@@ -121,7 +121,7 @@ pub enum Node {
 	Operator( u32, u32, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Option<Box<Node>>, Box<Node>)> ),
 	ParameterDeclaration( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
-	Parameter( u32, u32, Box<Node>, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
+	Parameter( u32, u32, Box<Node>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>)> ),
 	Body( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)> ),
 	BodyCode( u32, u32, Box<Symbols>, Box<Node> ),
 	TypeDeclarationElement( u32, u32, Box<Node>, Box<Symbols>, Box<Node>, Box<Symbols> ),
@@ -2133,7 +2133,67 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_parameter_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+		let mut nodes = Box::new(Vec::<Box<Node>>::new());
+		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
+
+		let symbol1 = match self.symbol.clone()? {
+			Symbols::Var( _ , _ ) | Symbols::Const( _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Some( Box::new(symbol11) )
+			},
+			_ => None
+		};
+
+		loop {
+			match self.symbol.clone()? {
+				Symbols::Ident( s, _ , _ ) => {
+					let tmp = self.symbol.clone()?;
+					self.advance();
+					let node = Box::new(Node::Ident(s, self.lexer.get_start_position(), Box::new(tmp)));
+
+					let flags = match self.symbol.clone()? {
+						Symbols::LeftBrace( _ , _ ) => Some( self.parse_flags()? ),
+						_ => None
+					};
+
+					let right = match self.symbol.clone()? {
+						Symbols::Equal( _ , _ ) => {
+							let symbol21 = self.symbol.clone()?;
+							self.advance();
+							let right_local = self.parse_expression()?;
+							Some( (Box::new(symbol21), right_local) )
+						},
+						_ => None
+					};
+					nodes.push( Box::new(Node::Parameter(s, self.lexer.get_start_position(), node, flags, right )) )
+				},
+				_ => return Err(Box::new(format!("Expecting 'indent' literal in parameter declaration at position: '{}'", start_pos)))
+			}
+
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance()
+				},
+				_ => break
+			}
+		}
+
+		let ( element, node ) = match self.symbol.clone()? {
+			Symbols::Colon( _ , _ ) => {
+				let symbol3 = self.symbol.clone()?;
+				self.advance();
+
+				let right = self.parse_type()?;
+
+				(Box::new(symbol3), right)
+			},
+			_ => return Err(Box::new(format!("Expecting ':' in type declaration at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new(Node::ParameterDeclaration(start_pos, self.lexer.get_start_position(), symbol1, nodes, separators, element, node)) )
 	}
 
 	fn parse_body(&mut self) -> Result<Box<Node>, Box<String>> {
