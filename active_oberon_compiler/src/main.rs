@@ -9,7 +9,10 @@ mod parser;
 
 use console::style;
 use build_time::{build_time_local};
-use clap::Parser;
+use std::path::PathBuf;
+
+use clap::{Parser, Subcommand};
+
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -47,14 +50,39 @@ fn parse_from_file(file_name: String) -> Result<Box<Node>, Box<String>> {
 }
 
 
-
 #[derive(Parser)]
+#[command(author, version, about, long_about = None)]
 struct Cli {
-    /// The pattern to look for
-    pattern: String,
-    /// The path to the file to read
-    path: std::path::PathBuf,
+    
+    /// Rename output binary file
+    #[arg(short, long, value_name = "FILE")]
+    out_file: Option<PathBuf>,
+
+    #[command(subcommand)]
+    command: Commands,
 }
+
+#[derive(Subcommand)]
+enum Commands {
+
+    /// Build project out of given main module file
+    Build {
+
+    },
+    /// Compile and not link current module file only
+    Compile {
+        module_file: String
+    },
+    /// Check module source file for valid syntax
+    Lint {
+
+    },
+    /// Build and Execute all tests in project
+    Test {
+
+    }
+}
+
 
 fn main() {
     const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -65,13 +93,26 @@ fn main() {
              style(build_time_local!("%Y-%m-%d")).green());
     println!("Written by Richard Magnor Stenbro. Licensed under GPL V3 - Linux ARM v8 & X86-64\r\n");
 
-    //let _args = Cli::parse();
+    let cli = Cli::parse();
 
-    let res = parse_from_file(String::from("test.mod"));
+    match &cli.command {
+        Commands::Build {}  => {
 
-    match res {
-        Ok( _ ) => println!("Success parsing statement!/r/n"),
-        Err( s ) => println!("{}\r\n", s)
+        },
+        Commands::Compile { module_file} => {
+            let res = parse_from_file(String::from(module_file));
+
+            match res {
+                Ok( _ ) => println!("Success parsing statement!/r/n"),
+                Err( s ) => println!("{}\r\n", s)
+            }
+        },
+        Commands::Lint {}  => {
+
+        },
+        Commands::Test {}  => {
+
+        },
+        _ => { }
     }
-
 }

@@ -9,3 +9,5 @@ edition = "2021"
 build-time = "0.1.3"
 clap = { version = "4.0", features = ["derive"] }
 console = "0.15.7"
+matches = { version = "0.1.10", features = [] }
+unreachable = "1.0.0"
