@@ -53,10 +53,38 @@ fn parse_from_file(file_name: String) -> Result<Box<Node>, Box<String>> {
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
-    
+
     /// Rename output binary file
     #[arg(short, long, value_name = "FILE")]
     out_file: Option<PathBuf>,
+
+    /// Build for release, no debug information
+    #[arg(short, long)]
+    release: Option<bool>,
+
+    /// Generate code for ARM v8 CPU
+    #[arg(short, long)]
+    arm_v8: Option<bool>,
+
+    /// Generate code for X86-64 CPU
+    #[arg(short, long)]
+    x86_64: Option<bool>,
+
+    /// Generate code for Risc V 64 bits
+    #[arg(short, long)]
+    risc_v: Option<bool>,
+
+    #[arg(short, long)]
+    linux: Option<bool>,
+
+    #[arg(short, long)]
+    windows: Option<bool>,
+
+    #[arg(short, long)]
+    mac_os: Option<bool>,
+
+    #[arg(short, long)]
+    dynamic_library: Option<bool>,
 
     #[command(subcommand)]
     command: Commands,
