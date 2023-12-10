@@ -10,9 +10,43 @@ mod parser;
 use console::style;
 use build_time::{build_time_local};
 use clap::Parser;
+use std::fs::File;
+use std::io::prelude::*;
 
-use crate::parser::{Parser as ActiveOberonParser, ParserMethods, BlockRules};
+use crate::parser::{Parser as ActiveOberonParser, ParserMethods, BlockRules, Node};
 use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods };
+
+
+
+/// Parse a given source file into a node tree or error if parsing fails!
+fn parse_from_file(file_name: String) -> Result<Box<Node>, Box<String>> {
+
+    let mut file = File::open(file_name.as_str());
+
+    return match &mut file {
+        Ok( f ) => {
+            let mut contents = String::new();
+            let size = f.read_to_string(&mut contents);
+
+            match &size {
+                Ok(s) => {
+                    match s {
+                        0 => Err(Box::new(format!("File '{}' is empty!", style(file_name).red()))),
+                        _ => {
+                            let mut parser = Box::new( ActiveOberonParser::new( Box::new( ActiveOberonScanner::new( Box::leak(contents.into_boxed_str() ) ) ) ) );
+                            let res =  parser.parse_module()?;
+                            Ok( res )
+                        }
+                    }
+                },
+                _ => Err(Box::new(format!("File '{}' is empty or i am unable to find size!", style(file_name).red())))
+            }
+        },
+        _ => Err(Box::new(format!("Unable to find or open '{}' file.", style(file_name).red())))
+    }
+}
+
+
 
 #[derive(Parser)]
 struct Cli {
@@ -33,14 +67,11 @@ fn main() {
 
     //let _args = Cli::parse();
 
-    /* Temporary code to be removed later! */
-    let mut parser = Box::new( ActiveOberonParser::new( Box::new( ActiveOberonScanner::new("MODULE test; END test.") ) ) );
-    let res = parser.parse_module();
+    let res = parse_from_file(String::from("test.mod"));
 
-    println!("\r\n");
     match res {
-        Ok( _ ) => println!("Success parsing statement!"),
-        _ => println!("Failed during parsing of statement!")
+        Ok( _ ) => println!("Success parsing statement!/r/n"),
+        Err( s ) => println!("{}\r\n", s)
     }
 
 }
