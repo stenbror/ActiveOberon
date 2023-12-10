@@ -3,10 +3,7 @@
 // Written by Richard Magnor Stenbro. Licensed under GPL v3
 // Scanner module for lexical analyzing of source files
 
-use std::ffi::c_double;
-use std::io::IsTerminal;
 use std::string;
-use crate::scanner::Symbols::String;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Symbols

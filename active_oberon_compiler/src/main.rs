@@ -11,8 +11,8 @@ use console::style;
 use build_time::{build_time_local};
 use clap::Parser;
 
-use crate::parser::{Parser as ActiveOberonParser, ParserMethods, Node, BlockRules};
-use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods, Symbols};
+use crate::parser::{Parser as ActiveOberonParser, ParserMethods, BlockRules};
+use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods };
 
 #[derive(Parser)]
 struct Cli {
@@ -39,7 +39,7 @@ fn main() {
 
     println!("\r\n");
     match res {
-        Ok(x) => println!("Success parsing statement!"),
+        Ok( _ ) => println!("Success parsing statement!"),
         _ => println!("Failed during parsing of statement!")
     }
 
