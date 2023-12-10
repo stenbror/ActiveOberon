@@ -114,7 +114,7 @@ pub enum Node {
 	VarName( u32, u32, Box<Node>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>)> ),
 	Flags( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
-	Procedure( u32, u32, Box<Symbols>, Option<(Box<Symbols>, Box<Node>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
+	Procedure( u32, u32, Box<Symbols>, Option<(Option<Box<Node>>, Option<Box<Symbols>>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	Operator( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<Box<Symbols>>, Box<Node>, Option<Box<Symbols>>, Box<Node>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Option<Box<Node>>, Box<Node>)> ),
 	ParameterDeclaration( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
@@ -2065,7 +2065,121 @@ impl BlockRules for Parser {
 	}
 
 	fn parse_procedure_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
-		todo!()
+		let start_pos = self.lexer.get_start_position();
+
+		match self.symbol.clone()? {
+			Symbols::Procedure( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'PROCEDURE' in procedure declaration at position: '{}'", start_pos)))
+		}
+		let symbol1 = self.symbol.clone()?;
+		self.advance();
+
+		let first = match self.symbol.clone()? {
+			Symbols::Arrow( _ , _ ) | Symbols::And( _ , _ ) | Symbols::Not( _ , _ ) | Symbols::Minus( _ , _ ) => {
+				let symbol11 = self.symbol.clone()?;
+				self.advance();
+				Some( ( None, Some( Box::new(symbol11)) ) )
+			},
+			Symbols::LeftParen( _ , _ ) => {
+				let flags = Some( self.parse_flags()? );
+
+				let symbol12 = match self.symbol.clone()? {
+					Symbols::Minus( _ , _ ) => {
+						let symbol22 = self.symbol.clone()?;
+						self.advance();
+						Some( Box::new(symbol22) )
+					},
+					_ => None
+				};
+
+				Some( ( flags, symbol12) )
+			},
+			_ => None
+		};
+
+		let second = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol51 = self.symbol.clone()?;
+				self.advance();
+
+				let right2 = self.parse_parameter_declaration()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ')' in procedure declaration at position: '{}'", start_pos)))
+				}
+				let symbol52 = self.symbol.clone()?;
+				self.advance();
+
+				Some( (Box::new(symbol51), right2, Box::new(symbol52)) )
+			},
+			_ => None
+		};
+
+		match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting name of procedure in declaration at position: '{}'", start_pos)))
+		};
+		let third = self.parse_identifier_definition()?;
+
+		let forth = match self.symbol.clone()? {
+			Symbols::LeftParen( _ , _ ) => {
+				let symbol53 = self.symbol.clone()?;
+				self.advance();
+
+				let right2 = self.parse_formal_parameters()?;
+
+				match self.symbol.clone()? {
+					Symbols::RightParen( _ , _ ) => (),
+					_ => return Err(Box::new(format!("Expecting ')' in procedure declaration at position: '{}'", start_pos)))
+				}
+				let symbol54 = self.symbol.clone()?;
+				self.advance();
+
+				Some( (Box::new(symbol53), right2, Box::new(symbol54)) )
+			},
+			_ => None
+		};
+
+		match self.symbol.clone()? {
+			Symbols::SemiColon( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting ';' in procedure declaration at position: '{}'", start_pos)))
+		}
+		let symbol2 = self.symbol.clone()?;
+		self.advance();
+
+		let decl = match self.symbol.clone()? {
+			Symbols::Const( _ , _ ) |
+			Symbols::Var( _ , _ ) |
+			Symbols::Type( _ , _ ) |
+			Symbols::Procedure( _ , _ ) |
+			Symbols::Operator( _ , _ ) |
+			Symbols::SemiColon( _ , _ ) => Some( self.parse_declaration_sequence()? ),
+			_ => None
+		};
+
+		let body = match self.symbol.clone()? {
+			Symbols::Begin( _ , _ ) | Symbols::Code( _ , _  ) => Some( self.parse_body()? ),
+			_ => None
+		};
+
+		match self.symbol.clone()? {
+			Symbols::End( _ , _ ) => (),
+			_ => return Err(Box::new(format!("Expecting 'END' in procedure declaration at position: '{}'", start_pos)))
+		}
+		let symbol3 = self.symbol.clone()?;
+		self.advance();
+
+		let fifth = match self.symbol.clone()? {
+			Symbols::Ident( s , _ , _ ) => {
+				let symbol40 = self.symbol.clone()?;
+				self.advance();
+				Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol40)) )
+			},
+			_ => return Err(Box::new(format!("Expecting 'name' literal in procedure declaration at position: '{}'", start_pos)))
+		};
+
+		Ok( Box::new(Node::Procedure(start_pos, self.lexer.get_start_position(), Box::new(symbol1), first, second, third, forth, Box::new(symbol2), decl, body, Box::new(symbol3), fifth)) )
 	}
 
 	fn parse_operator_declaration(&mut self) -> Result<Box<Node>, Box<String>> {
