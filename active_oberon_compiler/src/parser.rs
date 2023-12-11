@@ -6258,4 +6258,120 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn empty_flags() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{}")));
+		parser.advance();
+		let res = parser.parse_flags();
+
+		let nodes = [].to_vec();
+		let separators = [].to_vec();
+
+		let pattern = Box::new( Node::Flags(0, 2, Box::new(Symbols::LeftBrace(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightBrace(1, 2))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn empty_flags_single() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{ a }")));
+		parser.advance();
+		let res = parser.parse_flags();
+
+		let nodes = [
+			Box::new(Node::Flag(2, 4, Box::new(Node::Ident(2, 4, Box::new(Symbols::Ident(2, 3, Box::new(String::from("a")))))), None, None))
+		].to_vec();
+		let separators = [].to_vec();
+
+		let pattern = Box::new( Node::Flags(0, 5, Box::new(Symbols::LeftBrace(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightBrace(4, 5))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn empty_flags_multiple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{ a, b }")));
+		parser.advance();
+		let res = parser.parse_flags();
+
+		let nodes = [
+			Box::new(Node::Flag(2, 3, Box::new(Node::Ident(2, 3, Box::new(Symbols::Ident(2, 3, Box::new(String::from("a")))))), None, None)),
+			Box::new(Node::Flag(5, 7, Box::new(Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("b")))))), None, None))
+		].to_vec();
+		let separators = [
+			Box::new(Symbols::Comma(3, 4))
+		].to_vec();
+
+		let pattern = Box::new( Node::Flags(0, 8, Box::new(Symbols::LeftBrace(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightBrace(7, 8))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn empty_flags_multiple_equal() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{ a, b = c }")));
+		parser.advance();
+		let res = parser.parse_flags();
+
+		let nodes = [
+			Box::new(Node::Flag(2, 3, Box::new(Node::Ident(2, 3, Box::new(Symbols::Ident(2, 3, Box::new(String::from("a")))))), None, None)),
+			Box::new(Node::Flag(5, 11, Box::new(Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("b")))))), None, Some( (
+				Box::new(Symbols::Equal(7, 8)),
+				Box::new(Node::Ident(9, 11, Box::new(Symbols::Ident(9, 10, Box::new(String::from("c"))))))
+			) )))
+		].to_vec();
+		let separators = [
+			Box::new(Symbols::Comma(3, 4))
+		].to_vec();
+
+		let pattern = Box::new( Node::Flags(0, 12, Box::new(Symbols::LeftBrace(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightBrace(11, 12))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn empty_flags_multiple_parenthesis() {
+		let mut parser = Parser::new(Box::new(Scanner::new("{ a, b ( c ) }")));
+		parser.advance();
+		let res = parser.parse_flags();
+
+		let nodes = [
+			Box::new(Node::Flag(2, 3, Box::new(Node::Ident(2, 3, Box::new(Symbols::Ident(2, 3, Box::new(String::from("a")))))), None, None)),
+			Box::new(Node::Flag(5, 13, Box::new(Node::Ident(5, 7, Box::new(Symbols::Ident(5, 6, Box::new(String::from("b")))))), Some(
+				(
+					Box::new(Symbols::LeftParen(7, 8)),
+					Box::new(Node::Ident(9, 11, Box::new(Symbols::Ident(9, 10, Box::new(String::from("c")))))),
+					Box::new(Symbols::RightParen(11, 12))
+				)
+			), None))
+		].to_vec();
+		let separators = [
+			Box::new(Symbols::Comma(3, 4))
+		].to_vec();
+
+		let pattern = Box::new( Node::Flags(0, 14, Box::new(Symbols::LeftBrace(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightBrace(13, 14))));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
