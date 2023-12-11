@@ -99,7 +99,7 @@ pub enum Node {
 	GreaterGreaterStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 
 	/* Block nodes */
-	Module( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Box<Symbols> ),
+	Module( u32, u32, Box<Symbols>, Option<Box<Node>>, Box<Node>, Option<(Box<Symbols>, Box<Node>)>, Box<Symbols>, Option<Box<Vec<Box<Node>>>>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node>, Box<Symbols> ),
 	TemplateParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	TemplateParameter( u32, u32, Box<Symbols>, Box<Node> ),
 	ImportList( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
@@ -1525,7 +1525,16 @@ impl BlockRules for Parser {
 				};
 
 				let imp = match self.symbol.clone()? {
-					Symbols::Import( _ , _ ) => Some( self.parse_import_list()? ),
+					Symbols::Import( _ , _ ) => {
+						let mut nodes = Box::new(Vec::<Box<Node>>::new());
+						loop {
+							match self.symbol.clone()? {
+								Symbols::Import( _ , _ ) => nodes.push( self.parse_import_list()? ),
+								_ => break
+							}
+						}
+						Some( nodes )
+					},
 					_ => None
 				};
 
@@ -5919,6 +5928,49 @@ mod tests {
 											Box::new(Symbols::End(20, 23)),
 											Box::new(Node::Ident(24, 28, Box::new(Symbols::Ident(24, 28, Box::new(String::from("Test")))))),
 											Box::new(Symbols::Period(28, 29))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_module_in_import_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test IN run; IMPORT io; END Test.")));
+		let res = parser.parse_module();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Import(27, 29, Box::new(Node::Ident(27, 29, Box::new(Symbols::Ident(27, 29, Box::new(String::from("io")))))), None, None, None))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [ ].to_vec();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new( Node::ImportList(20, 31,
+				Box::new(Symbols::Import(20, 26)),
+				Box::new(element_2_nodes),
+				Box::new(element_2_separators),
+				Box::new(Symbols::SemiColon(29, 30))
+			) )
+		].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 40,
+											Box::new(Symbols::Module(0, 6)),
+											None,
+											Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+											Some( (
+												Box::new(Symbols::In(12, 14)),
+												Box::new(Node::Ident(15, 18, Box::new(Symbols::Ident(15, 18, Box::new(String::from("run")))))))
+											),
+											Box::new(Symbols::SemiColon(18, 19)),
+											Some( Box::new(element_1_nodes) ),
+											None,
+											None,
+											Box::new(Symbols::End(31, 34)),
+											Box::new(Node::Ident(35, 39, Box::new(Symbols::Ident(35, 39, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(39, 40))
 		));
 
 		match res {
