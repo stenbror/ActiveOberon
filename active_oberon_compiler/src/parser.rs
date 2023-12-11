@@ -6606,4 +6606,39 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn formal_parameters_multiple_simple_with_types() {
+		let mut parser = Parser::new(Box::new(Scanner::new("(a: INT64; b: BOOLEAN)")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let fd_nodes = [
+			Box::new(Node::Parameter(1, 2, Box::new(Node::Ident(1, 2, Box::new(Symbols::Ident(1, 2, Box::new(String::from("a")))))), None, None))
+		].to_vec();
+		let fd_separators = [].to_vec();
+
+
+		let fd_nodes2 = [
+			Box::new(Node::Parameter(11, 12, Box::new(Node::Ident(11, 12, Box::new(Symbols::Ident(11, 12, Box::new(String::from("b")))))), None, None))
+		].to_vec();
+		let fd_separators2 = [].to_vec();
+
+
+		let fp_nodes = [
+			Box::new(Node::ParameterDeclaration(1, 9, None, Box::new(fd_nodes), Box::new(fd_separators), Box::new(Symbols::Colon(2, 3)), Box::new(Node::Ident(4, 9, Box::new(Symbols::Ident(4, 9, Box::new(String::from("INT64")))))))),
+			Box::new(Node::ParameterDeclaration(11, 21, None, Box::new(fd_nodes2), Box::new(fd_separators2), Box::new(Symbols::Colon(12, 13)), Box::new(Node::Ident(14, 21, Box::new(Symbols::Ident(14, 21, Box::new(String::from("BOOLEAN"))))))))
+		].to_vec();
+		let fp_separators = [
+			Box::new(Symbols::SemiColon(9, 10))
+		].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 22, Box::new(Symbols::LeftParen(0, 1)), Box::new(fp_nodes), Box::new(fp_separators), Box::new(Symbols::RightParen(21, 22)), None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
