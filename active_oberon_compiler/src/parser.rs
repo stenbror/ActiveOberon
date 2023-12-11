@@ -1612,7 +1612,7 @@ impl BlockRules for Parser {
 		}
 
 		let symbol2 = match self.symbol.clone()? {
-			Symbols::LeftParen( _ , _ ) => {
+			Symbols::RightParen( _ , _ ) => {
 				let symbol12 = self.symbol.clone()?;
 				self.advance();
 				Box::new(symbol12)
@@ -5772,6 +5772,75 @@ mod tests {
 											Box::new(Symbols::End(39, 42)),
 											Box::new(Node::Ident(43, 47, Box::new(Symbols::Ident(43, 47, Box::new(String::from("Test")))))),
 											Box::new(Symbols::Period(47, 48))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_module_simple_template() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE ( CONST a ) Test; BEGIN test := 1; run := 6 END Test.")));
+		let res = parser.parse_module();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::BecomesStatement(31, 40,
+											Box::new(Node::Ident(31, 36, Box::new(Symbols::Ident(31, 35, Box::new(String::from("test")))))),
+											Box::new(Symbols::Becomes(36, 38)),
+											Box::new(Node::Integer(39, 40, Box::new(Symbols::Integer(39, 40, Box::new(String::from("1"))))))
+			)),
+			Box::new(Node::BecomesStatement(42, 51,
+											Box::new(Node::Ident(42, 46, Box::new(Symbols::Ident(42, 45, Box::new(String::from("run")))))),
+											Box::new(Symbols::Becomes(46, 48)),
+											Box::new(Node::Integer(49, 51, Box::new(Symbols::Integer(49, 50, Box::new(String::from("6"))))))
+			))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [ Box::new(Symbols::SemiColon(40, 41)) ].to_vec();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::TemplateParameter(
+				9, 17,
+				Box::new(Symbols::Const(9, 14)),
+				Box::new(Node::Ident(15, 17, Box::new(Symbols::Ident(15, 16, Box::new(String::from("a"))))))
+			))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [  ].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 60,
+											Box::new(Symbols::Module(0, 6)),
+											Some(
+												Box::new(Node::TemplateParameters(7, 19,
+												Box::new(Symbols::LeftParen(7, 8)),
+												Box::new(element_2_nodes),
+												Box::new(element_2_separators),
+												Box::new(Symbols::RightParen(17, 18))
+												))
+											),
+											Box::new(Node::Ident(19, 23, Box::new(Symbols::Ident(19, 23, Box::new(String::from("Test")))))),
+											None,
+											Box::new(Symbols::SemiColon(23, 24)),
+											None,
+											None,
+											Some(
+												Box::new(
+													Node::Body(25, 51,
+															   Box::new(Symbols::Begin(25, 30)),
+															   None,
+															   Box::new(Node::StatementSequence(
+																   31, 51,
+																   Box::new(element_1_nodes),
+																   Box::new(element_1_separators)
+															   )),
+															   None
+													)
+												)
+											),
+											Box::new(Symbols::End(51, 54)),
+											Box::new(Node::Ident(55, 59, Box::new(Symbols::Ident(55, 59, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(59, 60))
 		));
 
 		match res {
