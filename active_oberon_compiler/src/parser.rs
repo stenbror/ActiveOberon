@@ -5980,4 +5980,58 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module_in_import_multiple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test IN run; IMPORT io; IMPORT SYSTEM; END Test.")));
+		let res = parser.parse_module();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Import(27, 29, Box::new(Node::Ident(27, 29, Box::new(Symbols::Ident(27, 29, Box::new(String::from("io")))))), None, None, None))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [ ].to_vec();
+
+		let element_3_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Import(38, 44, Box::new(Node::Ident(38, 44, Box::new(Symbols::Ident(38, 44, Box::new(String::from("SYSTEM")))))), None, None, None))
+		].to_vec();
+		let element_3_separators : Vec<Box<Symbols>> = [ ].to_vec();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new( Node::ImportList(20, 31,
+									   Box::new(Symbols::Import(20, 26)),
+									   Box::new(element_2_nodes),
+									   Box::new(element_2_separators),
+									   Box::new(Symbols::SemiColon(29, 30))
+			) ),
+			Box::new( Node::ImportList(31, 46,
+									   Box::new(Symbols::Import(31, 37)),
+									   Box::new(element_3_nodes),
+									   Box::new(element_3_separators),
+									   Box::new(Symbols::SemiColon(44, 45))
+			) )
+		].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 55,
+											Box::new(Symbols::Module(0, 6)),
+											None,
+											Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+											Some( (
+												Box::new(Symbols::In(12, 14)),
+												Box::new(Node::Ident(15, 18, Box::new(Symbols::Ident(15, 18, Box::new(String::from("run")))))))
+											),
+											Box::new(Symbols::SemiColon(18, 19)),
+											Some( Box::new(element_1_nodes) ),
+											None,
+											None,
+											Box::new(Symbols::End(46, 49)),
+											Box::new(Node::Ident(50, 54, Box::new(Symbols::Ident(50, 54, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(54, 55))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
