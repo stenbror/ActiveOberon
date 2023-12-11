@@ -5702,4 +5702,30 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test; END Test.")));
+		let res = parser.parse_module();
+
+		let pattern = Box::new(Node::Module(0, 22,
+			Box::new(Symbols::Module(0, 6)),
+			None,
+			Box::new(Node::Ident(7, 11, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+			None,
+			Box::new(Symbols::SemiColon(11, 12)),
+			None,
+			None,
+			None,
+			Box::new(Symbols::End(13, 16)),
+			Box::new(Node::Ident(17, 21, Box::new(Symbols::Ident(17, 21, Box::new(String::from("Test")))))),
+			Box::new(Symbols::Period(21, 22))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
