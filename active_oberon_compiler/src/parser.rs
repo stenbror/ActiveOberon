@@ -6436,4 +6436,57 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn formal_parameters_single_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("(a: INT64)")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let fd_nodes = [
+			Box::new(Node::Parameter(1, 2, Box::new(Node::Ident(1, 2, Box::new(Symbols::Ident(1, 2, Box::new(String::from("a")))))), None, None))
+		].to_vec();
+		let fd_separators = [].to_vec();
+
+		let fp_nodes = [
+			Box::new(Node::ParameterDeclaration(1, 9, None, Box::new(fd_nodes), Box::new(fd_separators), Box::new(Symbols::Colon(2, 3)), Box::new(Node::Ident(4, 9, Box::new(Symbols::Ident(4, 9, Box::new(String::from("INT64"))))))))
+		].to_vec();
+		let fp_separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 10, Box::new(Symbols::LeftParen(0, 1)), Box::new(fp_nodes), Box::new(fp_separators), Box::new(Symbols::RightParen(9, 10)), None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn formal_parameters_multiple_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("(a, b: INT64)")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let fd_nodes = [
+			Box::new(Node::Parameter(1, 2, Box::new(Node::Ident(1, 2, Box::new(Symbols::Ident(1, 2, Box::new(String::from("a")))))), None, None)),
+			Box::new(Node::Parameter(4, 5, Box::new(Node::Ident(4, 5, Box::new(Symbols::Ident(4, 5, Box::new(String::from("b")))))), None, None))
+		].to_vec();
+		let fd_separators = [
+			Box::new(Symbols::Comma(2, 3))
+		].to_vec();
+
+		let fp_nodes = [
+			Box::new(Node::ParameterDeclaration(1, 12, None, Box::new(fd_nodes), Box::new(fd_separators), Box::new(Symbols::Colon(5, 6)), Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 12, Box::new(String::from("INT64"))))))))
+		].to_vec();
+		let fp_separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 13, Box::new(Symbols::LeftParen(0, 1)), Box::new(fp_nodes), Box::new(fp_separators), Box::new(Symbols::RightParen(12, 13)), None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
