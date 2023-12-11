@@ -6198,4 +6198,64 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module_in_import_simple_with_assignment_and_parenthesis_in_name() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test IN run; IMPORT io := InOut( a, b ) IN r; END Test.")));
+		let res = parser.parse_module();
+
+		let element_3_nodes = [
+			Box::new(Node::Ident(40, 41, Box::new(Symbols::Ident(40, 41, Box::new(String::from("a")))))),
+			Box::new(Node::Ident(43, 45, Box::new(Symbols::Ident(43, 44, Box::new(String::from("b"))))))
+		].to_vec();
+		let element_3_separators = [
+			Box::new(Symbols::Comma(41, 42))
+		].to_vec();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Import(27, 51,
+								  Box::new(Node::Ident(27, 30, Box::new(Symbols::Ident(27, 29, Box::new(String::from("io")))))),
+								  Some( (Box::new(Symbols::Becomes(30, 32)), Box::new(Node::Ident(33, 38, Box::new(Symbols::Ident(33, 38, Box::new(String::from("InOut"))))))) ),
+								  Some( (
+									  Box::new(Symbols::LeftParen(38, 39)),
+									  Box::new( Node::ExpressionList(40, 45, Box::new(element_3_nodes), Box::new(element_3_separators)) ),
+									  Box::new(Symbols::RightParen(45, 46))
+								  ) ),
+								  Some( (Box::new(Symbols::In(47, 49)), Box::new(Node::Ident(50, 51, Box::new(Symbols::Ident(50, 51, Box::new(String::from("r"))))))) )
+			))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [ ].to_vec();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new( Node::ImportList(20, 53,
+									   Box::new(Symbols::Import(20, 26)),
+									   Box::new(element_2_nodes),
+									   Box::new(element_2_separators),
+									   Box::new(Symbols::SemiColon(51, 52))
+			) )
+		].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 62,
+											Box::new(Symbols::Module(0, 6)),
+											None,
+											Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+											Some( (
+												Box::new(Symbols::In(12, 14)),
+												Box::new(Node::Ident(15, 18, Box::new(Symbols::Ident(15, 18, Box::new(String::from("run")))))))
+											),
+											Box::new(Symbols::SemiColon(18, 19)),
+											Some( Box::new(element_1_nodes) ),
+											None,
+											None,
+											Box::new(Symbols::End(53, 56)),
+											Box::new(Node::Ident(57, 61, Box::new(Symbols::Ident(57, 61, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(61, 62))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
