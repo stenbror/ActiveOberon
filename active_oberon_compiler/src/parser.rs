@@ -6374,4 +6374,66 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn formal_parameters_empty() {
+		let mut parser = Parser::new(Box::new(Scanner::new("()")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let nodes = [].to_vec();
+		let separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 2, Box::new(Symbols::LeftParen(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightParen(1, 2)), None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn formal_parameters_empty_with_type() {
+		let mut parser = Parser::new(Box::new(Scanner::new("() : INT64")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let nodes = [].to_vec();
+		let separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 10, Box::new(Symbols::LeftParen(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightParen(1, 2)),
+													   Some( ( Box::new(Symbols::Colon(3, 4)), None, Box::new(Node::Ident(5, 10, Box::new(Symbols::Ident(5, 10, Box::new(String::from("INT64")))))) ) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn formal_parameters_empty_with_type_and_flags() {
+		let mut parser = Parser::new(Box::new(Scanner::new("() : {} INT64")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let nodes = [].to_vec();
+		let separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 13, Box::new(Symbols::LeftParen(0, 1)), Box::new(nodes), Box::new(separators), Box::new(Symbols::RightParen(1, 2)),
+													   Some( ( Box::new(Symbols::Colon(3, 4)),
+															   Some( Box::new(Node::Flags(
+																   5, 8, Box::new(Symbols::LeftBrace(5, 6)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(6, 7))
+															   ))),
+															   Box::new(Node::Ident(8, 13, Box::new(Symbols::Ident(8, 13, Box::new(String::from("INT64")))))) ) )
+		) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
