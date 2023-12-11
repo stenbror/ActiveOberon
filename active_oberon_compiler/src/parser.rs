@@ -5850,4 +5850,53 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module_double_template() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE ( CONST a, TYPE b ) Test; END Test.")));
+		let res = parser.parse_module();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::TemplateParameter(
+				9, 16,
+				Box::new(Symbols::Const(9, 14)),
+				Box::new(Node::Ident(15, 16, Box::new(Symbols::Ident(15, 16, Box::new(String::from("a"))))))
+			)),
+			Box::new(Node::TemplateParameter(
+				18, 25,
+				Box::new(Symbols::Type(18, 22)),
+				Box::new(Node::Ident(23, 25, Box::new(Symbols::Ident(23, 24, Box::new(String::from("b"))))))
+			))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [
+			Box::new(Symbols::Comma(16, 17))
+		].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 42,
+											Box::new(Symbols::Module(0, 6)),
+											Some(
+												Box::new(Node::TemplateParameters(7, 27,
+																				  Box::new(Symbols::LeftParen(7, 8)),
+																				  Box::new(element_1_nodes),
+																				  Box::new(element_1_separators),
+																				  Box::new(Symbols::RightParen(25, 26))
+												))
+											),
+											Box::new(Node::Ident(27, 31, Box::new(Symbols::Ident(27, 31, Box::new(String::from("Test")))))),
+											None,
+											Box::new(Symbols::SemiColon(31, 32)),
+											None,
+											None,
+											None,
+											Box::new(Symbols::End(33, 36)),
+											Box::new(Node::Ident(37, 41, Box::new(Symbols::Ident(37, 41, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(41, 42))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
