@@ -6034,4 +6034,52 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module_in_import_simple_with_assignment() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test IN run; IMPORT io := InOut; END Test.")));
+		let res = parser.parse_module();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Import(27, 38,
+								  Box::new(Node::Ident(27, 30, Box::new(Symbols::Ident(27, 29, Box::new(String::from("io")))))),
+								  Some( (Box::new(Symbols::Becomes(30, 32)), Box::new(Node::Ident(33, 38, Box::new(Symbols::Ident(33, 38, Box::new(String::from("InOut"))))))) ),
+								  None,
+								  None
+			))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [ ].to_vec();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new( Node::ImportList(20, 40,
+									   Box::new(Symbols::Import(20, 26)),
+									   Box::new(element_2_nodes),
+									   Box::new(element_2_separators),
+									   Box::new(Symbols::SemiColon(38, 39))
+			) )
+		].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 49,
+											Box::new(Symbols::Module(0, 6)),
+											None,
+											Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+											Some( (
+												Box::new(Symbols::In(12, 14)),
+												Box::new(Node::Ident(15, 18, Box::new(Symbols::Ident(15, 18, Box::new(String::from("run")))))))
+											),
+											Box::new(Symbols::SemiColon(18, 19)),
+											Some( Box::new(element_1_nodes) ),
+											None,
+											None,
+											Box::new(Symbols::End(40, 43)),
+											Box::new(Node::Ident(44, 48, Box::new(Symbols::Ident(44, 48, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(48, 49))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
