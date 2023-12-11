@@ -6545,4 +6545,65 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn formal_parameters_multiple_simple_const_and_value() {
+		let mut parser = Parser::new(Box::new(Scanner::new("(CONST a, b = 1: INT64)")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let fd_nodes = [
+			Box::new(Node::Parameter(7, 8, Box::new(Node::Ident(7, 8, Box::new(Symbols::Ident(7, 8, Box::new(String::from("a")))))), None, None)),
+			Box::new(Node::Parameter(10, 15, Box::new(Node::Ident(10, 12, Box::new(Symbols::Ident(10, 11, Box::new(String::from("b")))))), None,
+				Some( (Box::new(Symbols::Equal(12, 13)), Box::new(Node::Integer(14, 15, Box::new(Symbols::Integer(14, 15, Box::new(String::from("1"))))))) )
+			))
+		].to_vec();
+		let fd_separators = [
+			Box::new(Symbols::Comma(8, 9))
+		].to_vec();
+
+		let fp_nodes = [
+			Box::new(Node::ParameterDeclaration(1, 22, Some(Box::new(Symbols::Const(1, 6))), Box::new(fd_nodes), Box::new(fd_separators), Box::new(Symbols::Colon(15, 16)), Box::new(Node::Ident(17, 22, Box::new(Symbols::Ident(17, 22, Box::new(String::from("INT64"))))))))
+		].to_vec();
+		let fp_separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 23, Box::new(Symbols::LeftParen(0, 1)), Box::new(fp_nodes), Box::new(fp_separators), Box::new(Symbols::RightParen(22, 23)), None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn formal_parameters_multiple_simple_const_and_value_and_flag() {
+		let mut parser = Parser::new(Box::new(Scanner::new("(CONST a, b {} = 1: INT64)")));
+		parser.advance();
+		let res = parser.parse_formal_parameters();
+
+		let fd_nodes = [
+			Box::new(Node::Parameter(7, 8, Box::new(Node::Ident(7, 8, Box::new(Symbols::Ident(7, 8, Box::new(String::from("a")))))), None, None)),
+			Box::new(Node::Parameter(10, 18, Box::new(Node::Ident(10, 12, Box::new(Symbols::Ident(10, 11, Box::new(String::from("b")))))),
+									 Some( Box::new( Node::Flags(12, 15, Box::new(Symbols::LeftBrace(12, 13)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(13, 14))) )),
+									 Some( (Box::new(Symbols::Equal(15, 16)), Box::new(Node::Integer(17, 18, Box::new(Symbols::Integer(17, 18, Box::new(String::from("1"))))))) )
+			))
+		].to_vec();
+		let fd_separators = [
+			Box::new(Symbols::Comma(8, 9))
+		].to_vec();
+
+		let fp_nodes = [
+			Box::new(Node::ParameterDeclaration(1, 25, Some(Box::new(Symbols::Const(1, 6))), Box::new(fd_nodes), Box::new(fd_separators), Box::new(Symbols::Colon(18, 19)), Box::new(Node::Ident(20, 25, Box::new(Symbols::Ident(20, 25, Box::new(String::from("INT64"))))))))
+		].to_vec();
+		let fp_separators = [].to_vec();
+
+		let pattern = Box::new( Node::FormalParameters(0, 26, Box::new(Symbols::LeftParen(0, 1)), Box::new(fp_nodes), Box::new(fp_separators), Box::new(Symbols::RightParen(25, 26)), None) );
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
