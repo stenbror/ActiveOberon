@@ -6082,4 +6082,60 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module_in_import_multiple_with_assignment() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test IN run; IMPORT io := InOut, SYSTEM; END Test.")));
+		let res = parser.parse_module();
+
+		let element_2_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::Import(27, 38,
+								  Box::new(Node::Ident(27, 30, Box::new(Symbols::Ident(27, 29, Box::new(String::from("io")))))),
+								  Some( (Box::new(Symbols::Becomes(30, 32)), Box::new(Node::Ident(33, 38, Box::new(Symbols::Ident(33, 38, Box::new(String::from("InOut"))))))) ),
+								  None,
+								  None
+			)),
+			Box::new(Node::Import(40, 46,
+								  Box::new(Node::Ident(40, 46, Box::new(Symbols::Ident(40, 46, Box::new(String::from("SYSTEM")))))),
+								  None,
+								  None,
+								  None
+			))
+		].to_vec();
+		let element_2_separators : Vec<Box<Symbols>> = [
+			Box::new(Symbols::Comma(38, 39))
+		].to_vec();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new( Node::ImportList(20, 48,
+									   Box::new(Symbols::Import(20, 26)),
+									   Box::new(element_2_nodes),
+									   Box::new(element_2_separators),
+									   Box::new(Symbols::SemiColon(46, 47))
+			) )
+		].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 57,
+											Box::new(Symbols::Module(0, 6)),
+											None,
+											Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+											Some( (
+												Box::new(Symbols::In(12, 14)),
+												Box::new(Node::Ident(15, 18, Box::new(Symbols::Ident(15, 18, Box::new(String::from("run")))))))
+											),
+											Box::new(Symbols::SemiColon(18, 19)),
+											Some( Box::new(element_1_nodes) ),
+											None,
+											None,
+											Box::new(Symbols::End(48, 51)),
+											Box::new(Node::Ident(52, 56, Box::new(Symbols::Ident(52, 56, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(56, 57))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
