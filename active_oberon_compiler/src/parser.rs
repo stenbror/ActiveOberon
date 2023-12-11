@@ -5728,4 +5728,57 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_module_begin() {
+		let mut parser = Parser::new(Box::new(Scanner::new("MODULE Test; BEGIN test := 1; run := 6 END Test.")));
+		let res = parser.parse_module();
+
+		let element_1_nodes : Vec::<Box<Node>> = [
+			Box::new(Node::BecomesStatement(19, 28,
+				Box::new(Node::Ident(19, 24, Box::new(Symbols::Ident(19, 23, Box::new(String::from("test")))))),
+				Box::new(Symbols::Becomes(24, 26)),
+				Box::new(Node::Integer(27, 28, Box::new(Symbols::Integer(27, 28, Box::new(String::from("1"))))))
+			)),
+			Box::new(Node::BecomesStatement(30, 39,
+											Box::new(Node::Ident(30, 34, Box::new(Symbols::Ident(30, 33, Box::new(String::from("run")))))),
+											Box::new(Symbols::Becomes(34, 36)),
+											Box::new(Node::Integer(37, 39, Box::new(Symbols::Integer(37, 38, Box::new(String::from("6"))))))
+			))
+		].to_vec();
+		let element_1_separators : Vec<Box<Symbols>> = [ Box::new(Symbols::SemiColon(28, 29)) ].to_vec();
+
+		let pattern = Box::new(Node::Module(0, 48,
+											Box::new(Symbols::Module(0, 6)),
+											None,
+											Box::new(Node::Ident(7, 11, Box::new(Symbols::Ident(7, 11, Box::new(String::from("Test")))))),
+											None,
+											Box::new(Symbols::SemiColon(11, 12)),
+											None,
+											None,
+											Some(
+												Box::new(
+													Node::Body(13, 39,
+														Box::new(Symbols::Begin(13, 18)),
+														None,
+														Box::new(Node::StatementSequence(
+															19, 39,
+															Box::new(element_1_nodes),
+															Box::new(element_1_separators)
+														)),
+														None
+													)
+												)
+											),
+											Box::new(Symbols::End(39, 42)),
+											Box::new(Node::Ident(43, 47, Box::new(Symbols::Ident(43, 47, Box::new(String::from("Test")))))),
+											Box::new(Symbols::Period(47, 48))
+		));
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
