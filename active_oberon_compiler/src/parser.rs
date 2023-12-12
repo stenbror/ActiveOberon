@@ -6669,4 +6669,116 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_procedure_with_arrow() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE^ Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 23,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (None, Some(Box::new(Symbols::Arrow(9, 10)))) ),
+							None,
+							Box::new(Node::Ident(11, 14, Box::new(Symbols::Ident(11, 14, Box::new(String::from("Run")))))),
+							None,
+							Box::new(Symbols::SemiColon(14, 15)),
+							None,
+							None,
+							Box::new(Symbols::End(16, 19)),
+							Box::new(Node::Ident(20, 23, Box::new(Symbols::Ident(20, 23, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_procedure_with_and() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE& Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 23,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (None, Some(Box::new(Symbols::And(9, 10)))) ),
+							None,
+							Box::new(Node::Ident(11, 14, Box::new(Symbols::Ident(11, 14, Box::new(String::from("Run")))))),
+							None,
+							Box::new(Symbols::SemiColon(14, 15)),
+							None,
+							None,
+							Box::new(Symbols::End(16, 19)),
+							Box::new(Node::Ident(20, 23, Box::new(Symbols::Ident(20, 23, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_procedure_with_not() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE~ Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 23,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (None, Some(Box::new(Symbols::Not(9, 10)))) ),
+							None,
+							Box::new(Node::Ident(11, 14, Box::new(Symbols::Ident(11, 14, Box::new(String::from("Run")))))),
+							None,
+							Box::new(Symbols::SemiColon(14, 15)),
+							None,
+							None,
+							Box::new(Symbols::End(16, 19)),
+							Box::new(Node::Ident(20, 23, Box::new(Symbols::Ident(20, 23, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_procedure_with_minus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE- Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 23,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (None, Some(Box::new(Symbols::Minus(9, 10)))) ),
+							None,
+							Box::new(Node::Ident(11, 14, Box::new(Symbols::Ident(11, 14, Box::new(String::from("Run")))))),
+							None,
+							Box::new(Symbols::SemiColon(14, 15)),
+							None,
+							None,
+							Box::new(Symbols::End(16, 19)),
+							Box::new(Node::Ident(20, 23, Box::new(Symbols::Ident(20, 23, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
