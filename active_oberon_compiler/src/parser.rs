@@ -6932,5 +6932,80 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_procedure_with_flags_minus_return_type_and_formal_parameters_decl() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE{}- (a: INT32) Run(); VAR END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 42,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (Some(Box::new(Node::Flags(9, 11,
+															 Box::new(Symbols::LeftBrace(9, 10)),
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new(Symbols::RightBrace(10, 11))))), Some(Box::new(Symbols::Minus(11, 12)))) ),
+							Some(
+								(
+									Box::new(Symbols::LeftParen(13, 14)),
+									Box::new(Node::ParameterDeclaration(14, 22,
+																		None,
+																		Box::new([
+																			Box::new(Node::Parameter(14, 15, Box::new(Node::Ident(14, 15, Box::new(Symbols::Ident(14, 15, Box::new(String::from("a")))))), None, None))
+																		].to_vec()),
+																		Box::new([].to_vec()),
+																		Box::new(Symbols::Colon(15, 16)),
+																		Box::new(Node::Ident(17, 22, Box::new(Symbols::Ident(17, 22, Box::new(String::from("INT32"))))))
+									)),
+									Box::new(Symbols::RightParen(22, 23))
+								)
+							),
+							Box::new(Node::Ident(24, 27, Box::new(Symbols::Ident(24, 27, Box::new(String::from("Run")))))),
+							Some(
+								Box::new(
+									Node::FormalParameters(27, 29,
+														   Box::new(Symbols::LeftParen(27, 28)),
+														   Box::new([].to_vec()),
+														   Box::new([].to_vec()),
+														   Box::new(Symbols::RightParen(28, 29)),
+														   None)
+								)
+							),
+							Box::new(Symbols::SemiColon(29, 30)),
+							Some(
+								Box::new(
+									Node::DeclarationSequence(31, 35,
+																Box::new([].to_vec()),
+															  	Box::new([].to_vec()),
+																Box::new(
+																	[
+																		Box::new(
+																			Node::VarDeclaration(31, 35,
+																								 Box::new(Symbols::Var(31, 34)),
+																								 Box::new([].to_vec())
+																			)
+																		)
+																	].to_vec()
+																),
+															  	Box::new([].to_vec()),
+															  	Box::new([].to_vec()),
+															  	Box::new([].to_vec())
+									)
+								)
+							),
+							None,
+							Box::new(Symbols::End(35, 38)),
+							Box::new(Node::Ident(39, 42, Box::new(Symbols::Ident(39, 42, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
