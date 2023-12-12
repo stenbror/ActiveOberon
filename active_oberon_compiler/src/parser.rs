@@ -7470,5 +7470,92 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_operator_with_flags_and_minus_export_read_decl_and_body() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OPERATOR {}-\"+\"-(a, b: REAL64) : REAL64; VAR BEGIN test := 1 END \"+\"")));
+		parser.advance();
+		let res = parser.parse_operator_declaration();
+
+		let pattern = Box::new(
+			Node::Operator(0, 68,
+						   Box::new(Symbols::Operator(0, 8)),
+						   Some(
+							   Box::new(Node::Flags(9, 11, Box::new(Symbols::LeftBrace(9, 10)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(10, 11))))
+						   ),
+						   Some(Box::new(Symbols::Minus(11, 12))),
+						   Box::new(Node::String(12, 15, Box::new(Symbols::String(12, 15, Box::new(String::from("\"+\"")))))),
+						   Some(Box::new(Symbols::Minus(15, 16))),
+						   Box::new(
+							   Node::FormalParameters(16, 39,
+													  Box::new(Symbols::LeftParen(16, 17)),
+													  Box::new([
+														  Box::new(Node::ParameterDeclaration(17, 29,
+																							  None,
+																							  Box::new([
+																								  Box::new(
+																									  Node::Parameter(17, 18, Box::new(Node::Ident(17, 18, Box::new(Symbols::Ident(17, 18, Box::new(String::from("a")))))), None, None)
+																								  ),
+																								  Box::new(
+																									  Node::Parameter(20, 21, Box::new(Node::Ident(20, 21, Box::new(Symbols::Ident(20, 21, Box::new(String::from("b")))))), None, None)
+																								  ),
+																							  ].to_vec()),
+																							  Box::new([
+																								  Box::new(Symbols::Comma(18, 19))
+																							  ].to_vec()),
+																							  Box::new(Symbols::Colon(21, 22)),
+																							  Box::new(Node::Ident(23, 29, Box::new(Symbols::Ident(23, 29, Box::new(String::from("REAL64"))))))
+														  ))
+													  ].to_vec()),
+													  Box::new([].to_vec()),
+													  Box::new(Symbols::RightParen(29, 30)),
+													  Some(
+														  (
+															  Box::new(Symbols::Colon(31, 32)),
+															  None,
+															  Box::new(Node::Ident(33, 39, Box::new(Symbols::Ident(33, 39, Box::new(String::from("REAL64"))))))
+														  )
+													  ))),
+						   Box::new(Symbols::SemiColon(39, 40)),
+						   Some(
+							   Box::new(
+								   Node::DeclarationSequence(41, 45,
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new( [ Box::new(Node::VarDeclaration(41, 45, Box::new(Symbols::Var(41, 44)), Box::new([].to_vec()))) ].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()))
+							   )
+						   ),
+						   Some(
+							   Box::new(
+								   Node::Body(45, 61,
+											  	Box::new(Symbols::Begin(45, 50)),
+									   			None,
+									   			Box::new(Node::StatementSequence(51, 61,
+																Box::new([
+																	Box::new(Node::BecomesStatement(51, 61,
+																									Box::new(Node::Ident(51, 56, Box::new(Symbols::Ident(51, 55, Box::new(String::from("test")))))),
+																									Box::new(Symbols::Becomes(56, 58)),
+																									Box::new(Node::Integer(59, 61, Box::new(Symbols::Integer(59, 60, Box::new(String::from("1"))))))))
+																].to_vec()),
+																Box::new([].to_vec())
+												)),
+									   			None
+								   )
+							   )
+						   ),
+						   Box::new(Symbols::End(61, 64)),
+						   Box::new(Node::String(65, 68, Box::new(Symbols::String(65, 68, Box::new(String::from("\"+\""))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
