@@ -114,7 +114,7 @@ pub enum Node {
 	VarName( u32, u32, Box<Node>, Option<Box<Node>>, Option<(Box<Symbols>, Box<Node>)> ),
 	Flags( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols> ),
 	Flag( u32, u32, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Option<(Box<Symbols>, Box<Node>)> ),
-	Procedure( u32, u32, Box<Symbols>, Option<(Option<Box<Node>>, Option<Box<Symbols>>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
+	Procedure( u32, u32, Box<Symbols>, Option<(Option<Box<Node>>, Option<Box<Symbols>>)>, Option<(Box<Symbols>, Box<Node>, Box<Symbols>)>, Box<Node>, Option<Box<Node>>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	Operator( u32, u32, Box<Symbols>, Option<Box<Node>>, Option<Box<Symbols>>, Box<Node>, Option<Box<Symbols>>, Box<Node>, Box<Symbols>, Option<Box<Node>>, Option<Box<Node>>, Box<Symbols>, Box<Node> ),
 	FormalParameters( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Option<(Box<Symbols>, Option<Box<Node>>, Box<Node>)> ),
 	ParameterDeclaration( u32, u32, Option<Box<Symbols>>, Box<Vec<Box<Node>>>, Box<Vec<Box<Symbols>>>, Box<Symbols>, Box<Node> ),
@@ -2132,21 +2132,7 @@ impl BlockRules for Parser {
 		let third = self.parse_identifier_definition()?;
 
 		let forth = match self.symbol.clone()? {
-			Symbols::LeftParen( _ , _ ) => {
-				let symbol53 = self.symbol.clone()?;
-				self.advance();
-
-				let right2 = self.parse_formal_parameters()?;
-
-				match self.symbol.clone()? {
-					Symbols::RightParen( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ')' in procedure declaration at position: '{}'", start_pos)))
-				}
-				let symbol54 = self.symbol.clone()?;
-				self.advance();
-
-				Some( (Box::new(symbol53), right2, Box::new(symbol54)) )
-			},
+			Symbols::LeftParen( _ , _ ) =>  Some( self.parse_formal_parameters()? ),
 			_ => None
 		};
 
@@ -6890,5 +6876,61 @@ mod tests {
 			}, _ => assert!(false)
 		}
 	}
+
+	#[test]
+	fn simple_procedure_with_flags_minus_return_type_and_formal_parameters() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE{}- (a: INT32) Run(); END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 38,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (Some(Box::new(Node::Flags(9, 11,
+															 Box::new(Symbols::LeftBrace(9, 10)),
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new(Symbols::RightBrace(10, 11))))), Some(Box::new(Symbols::Minus(11, 12)))) ),
+							Some(
+								(
+									Box::new(Symbols::LeftParen(13, 14)),
+									Box::new(Node::ParameterDeclaration(14, 22,
+																		None,
+																		Box::new([
+																			Box::new(Node::Parameter(14, 15, Box::new(Node::Ident(14, 15, Box::new(Symbols::Ident(14, 15, Box::new(String::from("a")))))), None, None))
+																		].to_vec()),
+																		Box::new([].to_vec()),
+																		Box::new(Symbols::Colon(15, 16)),
+																		Box::new(Node::Ident(17, 22, Box::new(Symbols::Ident(17, 22, Box::new(String::from("INT32"))))))
+									)),
+									Box::new(Symbols::RightParen(22, 23))
+								)
+							),
+							Box::new(Node::Ident(24, 27, Box::new(Symbols::Ident(24, 27, Box::new(String::from("Run")))))),
+							Some(
+								Box::new(
+									Node::FormalParameters(27, 29,
+														   Box::new(Symbols::LeftParen(27, 28)),
+														   Box::new([].to_vec()),
+														   Box::new([].to_vec()),
+														   Box::new(Symbols::RightParen(28, 29)),
+														   None)
+								)
+							),
+							Box::new(Symbols::SemiColon(29, 30)),
+							None,
+							None,
+							Box::new(Symbols::End(31, 34)),
+							Box::new(Node::Ident(35, 38, Box::new(Symbols::Ident(35, 38, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
