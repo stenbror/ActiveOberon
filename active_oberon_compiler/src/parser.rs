@@ -6641,4 +6641,32 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn simple_procedure() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 22,
+				Box::new(Symbols::Procedure(0, 9)),
+				None,
+				None,
+				Box::new(Node::Ident(10, 13, Box::new(Symbols::Ident(10, 13, Box::new(String::from("Run")))))),
+				None,
+				Box::new(Symbols::SemiColon(13, 14)),
+				None,
+				None,
+				Box::new(Symbols::End(15, 18)),
+				Box::new(Node::Ident(19, 22, Box::new(Symbols::Ident(19, 22, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
