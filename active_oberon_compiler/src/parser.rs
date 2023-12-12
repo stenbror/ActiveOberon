@@ -2089,7 +2089,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Some( ( None, Some( Box::new(symbol11)) ) )
 			},
-			Symbols::LeftParen( _ , _ ) => {
+			Symbols::LeftBrace( _ , _ ) => {
 				let flags = Some( self.parse_flags()? );
 
 				let symbol12 = match self.symbol.clone()? {
@@ -6771,6 +6771,70 @@ mod tests {
 							None,
 							Box::new(Symbols::End(16, 19)),
 							Box::new(Node::Ident(20, 23, Box::new(Symbols::Ident(20, 23, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_procedure_with_flags() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE{} Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 24,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (Some(Box::new(Node::Flags(9, 12,
+															 Box::new(Symbols::LeftBrace(9, 10)),
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new(Symbols::RightBrace(10, 11))))), None) ),
+							None,
+							Box::new(Node::Ident(12, 15, Box::new(Symbols::Ident(12, 15, Box::new(String::from("Run")))))),
+							None,
+							Box::new(Symbols::SemiColon(15, 16)),
+							None,
+							None,
+							Box::new(Symbols::End(17, 20)),
+							Box::new(Node::Ident(21, 24, Box::new(Symbols::Ident(21, 24, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_procedure_with_flags_minus() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE{}- Run; END Run")));
+		parser.advance();
+		let res = parser.parse_procedure_declaration();
+
+		let pattern = Box::new(
+			Node::Procedure(0, 25,
+							Box::new(Symbols::Procedure(0, 9)),
+							Some( (Some(Box::new(Node::Flags(9, 11,
+															 Box::new(Symbols::LeftBrace(9, 10)),
+															 Box::new([].to_vec()),
+															 Box::new([].to_vec()),
+															 Box::new(Symbols::RightBrace(10, 11))))), Some(Box::new(Symbols::Minus(11, 12)))) ),
+							None,
+							Box::new(Node::Ident(13, 16, Box::new(Symbols::Ident(13, 16, Box::new(String::from("Run")))))),
+							None,
+							Box::new(Symbols::SemiColon(16, 17)),
+							None,
+							None,
+							Box::new(Symbols::End(18, 21)),
+							Box::new(Node::Ident(22, 25, Box::new(Symbols::Ident(22, 25, Box::new(String::from("Run"))))))
 			)
 		);
 
