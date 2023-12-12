@@ -778,9 +778,11 @@ impl ScannerMethods for Scanner
 	/// Handling string or character
 	fn is_string_or_character(&mut self) -> Result<Symbols, Box<std::string::String>> {
 		let mut buffer = std::string::String::new();
+		let mut single_quote = true;
 
 		match self.peek_char() {
 			'\\' => {
+				single_quote = true;
 				buffer.push(self.get_char()); /* '\' */
 				buffer.push(self.get_char()); /* '"' */
 				loop {
@@ -810,6 +812,7 @@ impl ScannerMethods for Scanner
 				}
 			},
 			'"' => {
+				single_quote = false;
 				buffer.push(self.get_char());
 				loop {
 					match self.peek_char() {
@@ -847,7 +850,10 @@ impl ScannerMethods for Scanner
 
 		return match buffer.len() {
 			3 => {
-				Ok(Symbols::Character(self.start_pos, self.index, Box::new(buffer)))
+				match single_quote {
+					true => Ok(Symbols::Character(self.start_pos, self.index, Box::new(buffer))),
+					false => Ok(Symbols::String(self.start_pos, self.index, Box::new(buffer)))
+				}
 			},
 			_ => {
 				Ok(Symbols::String(self.start_pos, self.index, Box::new(buffer)))
@@ -3164,13 +3170,13 @@ mod tests {
 	}
 
 	#[test]
-	fn character_double_quote() {
+	fn character_double_quote_illegal_it_is_string() {
 		let mut scan = Box::new(Scanner::new("\"_\""));
 		let symbol = scan.get_symbol();
 		match symbol {
 			Ok(x) => {
 				match x {
-					Symbols::Character(s, e, v) => {
+					Symbols::String(s, e, v) => {
 						assert_eq!(s, 0);
 						assert_eq!(e, 3);
 						assert_eq!(*v, std::string::String::from("\"_\""))

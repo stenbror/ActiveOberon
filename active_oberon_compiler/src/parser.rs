@@ -2182,7 +2182,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Operator( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'OPERATOR' in operator declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'OPERATOR' in operator declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -2207,7 +2207,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new( Node::String(s, self.lexer.get_start_position(), Box::new(symbol30)) )
 			},
-			_ => return Err(Box::new(format!("Expecting 'string' literal in operator declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'string' literal in operator declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let symbol3 = match self.symbol.clone()? {
@@ -2223,7 +2223,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::SemiColon( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting ';' in operator declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ';' in operator declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol4 = self.symbol.clone()?;
 		self.advance();
@@ -2245,7 +2245,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::End( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'END' in operator declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'END' in operator declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol5 = self.symbol.clone()?;
 		self.advance();
@@ -2256,7 +2256,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new( Node::String(s, self.lexer.get_start_position(), Box::new(symbol40)) )
 			},
-			_ => return Err(Box::new(format!("Expecting 'string' literal in operator declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'string' literal in operator declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new(Node::Operator(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, symbol2, first, symbol3, second, Box::new(symbol4), decl, body, Box::new(symbol5), third)) )
@@ -7092,6 +7092,64 @@ mod tests {
 							),
 							Box::new(Symbols::End(51, 54)),
 							Box::new(Node::Ident(55, 58, Box::new(Symbols::Ident(55, 58, Box::new(String::from("Run"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn simple_operator() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OPERATOR \"+\" (a, b: REAL64) : REAL64; END \"+\"")));
+		parser.advance();
+		let res = parser.parse_operator_declaration();
+
+		let pattern = Box::new(
+			Node::Operator(0, 45,
+						   Box::new(Symbols::Operator(0, 8)),
+						   None,
+						   None,
+						   Box::new(Node::String(9, 13, Box::new(Symbols::String(9, 12, Box::new(String::from("\"+\"")))))),
+						   None,
+						   Box::new(
+								Node::FormalParameters(13, 36,
+													   Box::new(Symbols::LeftParen(13, 14)),
+													   Box::new([
+														   Box::new(Node::ParameterDeclaration(14, 26,
+															   None,
+															   Box::new([
+																   Box::new(
+																	   Node::Parameter(14, 15, Box::new(Node::Ident(14, 15, Box::new(Symbols::Ident(14, 15, Box::new(String::from("a")))))), None, None)
+																   ),
+																   Box::new(
+																		Node::Parameter(17, 18, Box::new(Node::Ident(17, 18, Box::new(Symbols::Ident(17, 18, Box::new(String::from("b")))))), None, None)
+																   ),
+															   ].to_vec()),
+															   Box::new([
+																   Box::new(Symbols::Comma(15, 16))
+															   ].to_vec()),
+															   Box::new(Symbols::Colon(18, 19)),
+															   Box::new(Node::Ident(20, 26, Box::new(Symbols::Ident(20, 26, Box::new(String::from("REAL64"))))))
+														   ))
+													   ].to_vec()),
+													   Box::new([].to_vec()),
+													   Box::new(Symbols::RightParen(26, 27)),
+													   Some(
+														   (
+															   Box::new(Symbols::Colon(28, 29)),
+															   None,
+															   Box::new(Node::Ident(30, 36, Box::new(Symbols::Ident(30, 36, Box::new(String::from("REAL64"))))))
+														   )
+													   ))),
+						   Box::new(Symbols::SemiColon(36, 37)),
+						   None,
+						   None,
+						   Box::new(Symbols::End(38, 41)),
+						   Box::new(Node::String(42, 45, Box::new(Symbols::String(42, 45, Box::new(String::from("\"+\""))))))
 			)
 		);
 
