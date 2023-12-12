@@ -7637,5 +7637,25 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn body_with_code() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CODE")));
+		parser.advance();
+		let res = parser.parse_body();
+
+		let pattern = Box::new(
+			Node::BodyCode(0, 4,
+					   Box::new(Symbols::Code(0, 4)),
+					   Box::new(Node::Empty)
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
