@@ -7597,5 +7597,45 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn body_with_finally_and_flag() {
+		let mut parser = Parser::new(Box::new(Scanner::new("BEGIN {} test := 1 FINALLY test := 100")));
+		parser.advance();
+		let res = parser.parse_body();
+
+		let pattern = Box::new(
+			Node::Body(0, 38,
+					   Box::new(Symbols::Begin(0, 5)),
+					   Some( Box::new( Node::Flags(6, 9, Box::new(Symbols::LeftBrace(6, 7)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(7, 8))) ) ),
+					   Box::new(Node::StatementSequence(9, 19,
+														Box::new([
+															Box::new(Node::BecomesStatement(9, 19,
+																							Box::new(Node::Ident(9, 14, Box::new(Symbols::Ident(9, 13, Box::new(String::from("test")))))),
+																							Box::new(Symbols::Becomes(14, 16)),
+																							Box::new(Node::Integer(17, 19, Box::new(Symbols::Integer(17, 18, Box::new(String::from("1"))))))))
+														].to_vec()),
+														Box::new([].to_vec())
+					   )),
+					   Some( ( Box::new(Symbols::Finally(19, 26)), Box::new(
+						   Node::StatementSequence(27, 38,
+												   Box::new([
+													   Box::new(Node::BecomesStatement(27, 38,
+																					   Box::new(Node::Ident(27, 32, Box::new(Symbols::Ident(27, 31, Box::new(String::from("test")))))),
+																					   Box::new(Symbols::Becomes(32, 34)),
+																					   Box::new(Node::Integer(35, 38, Box::new(Symbols::Integer(35, 38, Box::new(String::from("100"))))))))
+												   ].to_vec()),
+												   Box::new([].to_vec())
+						   ))
+					   ))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
