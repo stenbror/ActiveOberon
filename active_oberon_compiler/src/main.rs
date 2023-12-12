@@ -8,6 +8,7 @@ mod scanner;
 mod parser;
 mod symbol_table;
 mod compiler;
+mod traverse_abstract_syntax_tree;
 
 use console::style;
 use build_time::{build_time_local};
