@@ -2480,11 +2480,12 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Of( _ , _ ) => (),
-			Symbols::Times( _ , _ ) |
-			Symbols::QuestionMark( _ , _ ) => {
+			Symbols::Times( s , _ ) |
+			Symbols::QuestionMark( s , _ ) => {
 				is_math = true;
-				nodes.push( Box::new(Node::MathArraySize(start_pos, self.lexer.get_start_position(), None, Some(Box::new(self.symbol.clone()?)))) );
-				self.advance()
+				let symbol100 = self.symbol.clone()?;
+				self.advance();
+				nodes.push( Box::new(Node::MathArraySize(s, self.lexer.get_start_position(), None, Some(Box::new(symbol100)))) );
 			}
 			_ => {
 				nodes.push( self.parse_expression()? );
@@ -7762,5 +7763,62 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_math_array_times() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ARRAY * OF INT64")));
+		parser.advance();
+		let res = parser.parse_array_type();
+
+		let pattern = Box::new(
+			Node::MathArrayType(0, 16,
+							Box::new(Symbols::Array(0, 5)),
+							Some(
+								(
+									Box::new([
+										Box::new(Node::MathArraySize(6, 8, None, Some(Box::new(Symbols::Times(6, 7)))))
+									].to_vec()),
+									Box::new([].to_vec())
+								)
+							),
+							Box::new(Symbols::Of(8, 10)),
+							Box::new(Node::Ident(11, 16, Box::new(Symbols::Ident(11, 16, Box::new(String::from("INT64"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_math_array_question_mark() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ARRAY ? OF INT64")));
+		parser.advance();
+		let res = parser.parse_array_type();
+
+		let pattern = Box::new(
+			Node::MathArrayType(0, 16,
+								Box::new(Symbols::Array(0, 5)),
+								Some(
+									(
+										Box::new([
+											Box::new(Node::MathArraySize(6, 8, None, Some(Box::new(Symbols::QuestionMark(6, 7)))))
+										].to_vec()),
+										Box::new([].to_vec())
+									)
+								),
+								Box::new(Symbols::Of(8, 10)),
+								Box::new(Node::Ident(11, 16, Box::new(Symbols::Ident(11, 16, Box::new(String::from("INT64"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
 
 }
