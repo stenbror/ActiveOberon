@@ -7821,4 +7821,44 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_record_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("RECORD END")));
+		parser.advance();
+		let res = parser.parse_record_type();
+
+		let pattern = Box::new(
+			Node::RecordType(0, 10, Box::new(Symbols::Record(0, 6)), None, None, None, Box::new(Symbols::End(7, 10)))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_record_inherit() {
+		let mut parser = Parser::new(Box::new(Scanner::new("RECORD (a) END")));
+		parser.advance();
+		let res = parser.parse_record_type();
+
+		let pattern = Box::new(
+			Node::RecordType(0, 14, Box::new(Symbols::Record(0, 6)), Some(
+				(
+					Box::new(Symbols::LeftParen(7, 8)),
+					Box::new(Node::Ident(8, 9, Box::new(Symbols::Ident(8, 9, Box::new(String::from("a")))))),
+					Box::new(Symbols::RightParen(9, 10))
+				)
+			), None, None, Box::new(Symbols::End(11, 14)))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
