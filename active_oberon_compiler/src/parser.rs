@@ -2051,7 +2051,7 @@ impl BlockRules for Parser {
 
 						match self.symbol.clone()? {
 							Symbols::RightParen( _ , _ ) => (),
-							_ => return Err(Box::new(format!("Expecting ')' in flag declaration at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting ')' in flag declaration at position: '{}'", self.lexer.get_start_position())))
 						};
 						let symbol22 = self.symbol.clone()?;
 						self.advance();
@@ -2069,7 +2069,7 @@ impl BlockRules for Parser {
 					}
 				}
 			},
-			_ => Err(Box::new(format!("Expecting 'ident' in flag declaration at position: '{}'", start_pos)))
+			_ => Err(Box::new(format!("Expecting 'ident' in flag declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 	}
 
@@ -2078,7 +2078,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Procedure( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'PROCEDURE' in procedure declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'PROCEDURE' in procedure declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -2115,7 +2115,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::RightParen( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ')' in procedure declaration at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ')' in procedure declaration at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol52 = self.symbol.clone()?;
 				self.advance();
@@ -2127,7 +2127,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Ident( _ , _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting name of procedure in declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting name of procedure in declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 		let third = self.parse_identifier_definition()?;
 
@@ -2138,7 +2138,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::SemiColon( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting ';' in procedure declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ';' in procedure declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2 = self.symbol.clone()?;
 		self.advance();
@@ -2160,7 +2160,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::End( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'END' in procedure declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'END' in procedure declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol3 = self.symbol.clone()?;
 		self.advance();
@@ -2171,7 +2171,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol40)) )
 			},
-			_ => return Err(Box::new(format!("Expecting 'name' literal in procedure declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'name' literal in procedure declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new(Node::Procedure(start_pos, self.lexer.get_start_position(), Box::new(symbol1), first, second, third, forth, Box::new(symbol2), decl, body, Box::new(symbol3), fifth)) )
@@ -2269,7 +2269,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::LeftParen( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting '(' in formal parameters declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting '(' in formal parameters declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -2293,7 +2293,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::RightParen( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting ')' in formal parameters declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ')' in formal parameters declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2 = self.symbol.clone()?;
 		self.advance();
@@ -2355,7 +2355,7 @@ impl BlockRules for Parser {
 					};
 					nodes.push( Box::new(Node::Parameter(s, self.lexer.get_start_position(), node, flags, right )) )
 				},
-				_ => return Err(Box::new(format!("Expecting 'indent' literal in parameter declaration at position: '{}'", start_pos)))
+				_ => return Err(Box::new(format!("Expecting 'indent' literal in parameter declaration at position: '{}'", self.lexer.get_start_position())))
 			}
 
 			match self.symbol.clone()? {
@@ -2376,7 +2376,7 @@ impl BlockRules for Parser {
 
 				(Box::new(symbol3), right)
 			},
-			_ => return Err(Box::new(format!("Expecting ':' in type declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ':' in type declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new(Node::ParameterDeclaration(start_pos, self.lexer.get_start_position(), symbol1, nodes, separators, element, node)) )
@@ -2419,7 +2419,7 @@ impl BlockRules for Parser {
 
 				Ok( Box::new( Node::Body(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, right, fin) ) )
 			},
-			_ => Err(Box::new(format!("Expecting ';' in type declaration at position: '{}'", start_pos)))
+			_ => Err(Box::new(format!("Expecting ';' in type declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 	}
 
@@ -2430,7 +2430,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Equal( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting '=' in type declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting '=' in type declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -2439,7 +2439,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::SemiColon( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting ';' in type declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ';' in type declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2 = self.symbol.clone()?;
 		self.advance();
@@ -2469,7 +2469,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Array( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'ARRAY' in array type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'ARRAY' in array type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -2524,7 +2524,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Of( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'OF' in array type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'OF' in array type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2= self.symbol.clone()?;
 		self.advance();
@@ -2547,7 +2547,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Record( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'RECORD' in record type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'RECORD' in record type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1= self.symbol.clone()?;
 		self.advance();
@@ -2561,7 +2561,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::RightParen( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ')' in record type at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ')' in record type at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol11= self.symbol.clone()?;
 				self.advance();
@@ -2632,7 +2632,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::End( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'END' in record type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'END' in record type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2= self.symbol.clone()?;
 		self.advance();
@@ -2645,7 +2645,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Pointer( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'POINTER' in pointer type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'POINTER' in pointer type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1= self.symbol.clone()?;
 		self.advance();
@@ -2657,7 +2657,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::To( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'TO' in pointer type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'TO' in pointer type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2= self.symbol.clone()?;
 		self.advance();
@@ -2672,7 +2672,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Procedure( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'PROCEDURE' in procedure type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'PROCEDURE' in procedure type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1= self.symbol.clone()?;
 		self.advance();
@@ -2695,7 +2695,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Object( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'OBJECT' in object type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'OBJECT' in object type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1= self.symbol.clone()?;
 		self.advance();
@@ -2726,7 +2726,7 @@ impl BlockRules for Parser {
 
 						match self.symbol.clone()? {
 							Symbols::RightParen( _ , _ ) => (),
-							_ => return Err(Box::new(format!("Expecting ')' in object type at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting ')' in object type at position: '{}'", self.lexer.get_start_position())))
 						}
 						let symbol12= self.symbol.clone()?;
 						self.advance();
@@ -2755,7 +2755,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in object type at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in object type at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2= self.symbol.clone()?;
 				self.advance();
@@ -2781,7 +2781,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Enum( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'ENUM' in enum type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'ENUM' in enum type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1= self.symbol.clone()?;
 		self.advance();
@@ -2795,7 +2795,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::RightParen( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ')' in enum type at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ')' in enum type at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol12= self.symbol.clone()?;
 				self.advance();
@@ -2859,7 +2859,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::End( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'END' in enum type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'END' in enum type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol2= self.symbol.clone()?;
 		self.advance();
@@ -2881,7 +2881,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(res1)
 			},
-			_ => return Err(Box::new(format!("Expecting 'CELL' or 'CELLNET' in cell or cellnet type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'CELL' or 'CELLNET' in cell or cellnet type at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let flags = match self.symbol.clone()? {
@@ -2898,7 +2898,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::RightParen( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ')' in cell / cellnet type at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ')' in cell / cellnet type at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol12= self.symbol.clone()?;
 				self.advance();
@@ -2941,7 +2941,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::End( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'END' in cell / cellnet type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'END' in cell / cellnet type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol3= self.symbol.clone()?;
 		self.advance();
@@ -3011,7 +3011,7 @@ impl BlockRules for Parser {
 					self.advance();
 					Box::new( Node::Ident(start_pos, self.lexer.get_start_position(), Box::new(id)) )
 				},
-				_ => return Err(Box::new(format!("Expecting 'Ident' literal in port declaration at position: '{}'", start_pos)))
+				_ => return Err(Box::new(format!("Expecting 'Ident' literal in port declaration at position: '{}'", self.lexer.get_start_position())))
 			};
 
 			let flags = match self.symbol.clone()? {
@@ -3024,7 +3024,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Colon( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting ':' in port declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ':' in port declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -3039,7 +3039,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Port( _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'PORT' in port type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'PORT' in port type at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol1 = self.symbol.clone()?;
 		self.advance();
@@ -3051,7 +3051,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(dir)
 			},
-			_ => return Err(Box::new(format!("Expecting 'IN' or 'OUT' in port type at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'IN' or 'OUT' in port type at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let first = match self.symbol.clone()? {
@@ -3063,7 +3063,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::RightParen( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ')' in port type at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ')' in port type at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol12= self.symbol.clone()?;
 				self.advance();
@@ -3081,7 +3081,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Ident( _ , _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting identifier at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting identifier at position: '{}'", self.lexer.get_start_position())))
 		}
 		let symbol = self.symbol.clone()?;
 		self.advance();
@@ -3096,7 +3096,7 @@ impl BlockRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Ident( _ , _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting identifier after '.' at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting identifier after '.' at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -3135,7 +3135,7 @@ impl BlockRules for Parser {
 					}
 				}
 			},
-			_ => Err(Box::new(format!("Expecting identifier at position: '{}'", start_pos)))
+			_ => Err(Box::new(format!("Expecting identifier at position: '{}'", self.lexer.get_start_position())))
 		}
 	}
 }
