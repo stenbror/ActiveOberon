@@ -32,15 +32,15 @@ struct Cli {
     release: Option<bool>,
 
     /// Generate code for ARM v8 CPU
-    #[arg(short, long)]
+    #[arg(long)]
     arm_v8: Option<bool>,
 
     /// Generate code for X86-64 CPU
-    #[arg(short, long)]
+    #[arg(long)]
     x86_64: Option<bool>,
 
     /// Generate code for Risc V 64 bits
-    #[arg(short, long)]
+    #[arg(long)]
     risc_v: Option<bool>,
 
     #[arg(short, long)]
