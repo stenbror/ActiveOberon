@@ -8396,4 +8396,25 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_procedure_with_flags() {
+		let mut parser = Parser::new(Box::new(Scanner::new("PROCEDURE {} ()")));
+		parser.advance();
+		let res = parser.parse_procedure_type();
+
+		let pattern = Box::new(
+			Node::ProcedureType(0, 15, Box::new(Symbols::Procedure(0, 9)), Some(
+				Box::new(Node::Flags(10, 13, Box::new(Symbols::LeftBrace(10, 11)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(11, 12))))
+			), Some(
+				Box::new(Node::FormalParameters(13, 15, Box::new(Symbols::LeftParen(13, 14)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightParen(14, 15)), None))
+			))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
