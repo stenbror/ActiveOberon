@@ -8742,4 +8742,24 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn const_declaration() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test = 1")));
+		parser.advance();
+		let res = parser.parse_constant_declaration();
+
+		let pattern = Box::new(
+			Node::Const(0, 8,
+						Box::new(Node::Ident(0, 5, Box::new(Symbols::Ident(0, 4, Box::new(String::from("test")))))),
+						Box::new(Symbols::Equal(5, 6)),
+						Box::new(Node::Integer(7, 8, Box::new(Symbols::Integer(7, 8, Box::new(String::from("1")))))))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
