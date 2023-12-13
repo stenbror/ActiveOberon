@@ -1782,15 +1782,7 @@ impl BlockRules for Parser {
 					self.advance();
 					let mut const_declaration_local = Box::new(Vec::<Box<Node>>::new());
 					match self.symbol.clone()? {
-						Symbols::Begin( _ , _ ) |
-						Symbols::End( _ , _ ) |
-						Symbols::Const( _ , _ ) |
-						Symbols::Var( _ , _ ) |
-						Symbols::Type( _ , _ ) |
-						Symbols::Procedure( _ , _ ) |
-						Symbols::Operator( _ , _ ) |
-						Symbols::SemiColon( _ , _ ) => (),
-						_ => {
+						Symbols::Ident( _ , _ , _ ) => {
 							const_declaration_local.push( self.parse_constant_declaration()? );
 							loop {
 								match self.symbol.clone()? {
@@ -1802,7 +1794,8 @@ impl BlockRules for Parser {
 									_ => break
 								}
 							}
-						}
+						},
+						_ => ()
 					}
 					const_declarations.push( Box::new(Node::ConstDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), const_declaration_local) ) )
 				},
@@ -1811,15 +1804,7 @@ impl BlockRules for Parser {
 					self.advance();
 					let mut type_declaration_local = Box::new(Vec::<Box<Node>>::new());
 					match self.symbol.clone()? {
-						Symbols::Begin( _ , _ ) |
-						Symbols::End( _ , _ ) |
-						Symbols::Const( _ , _ ) |
-						Symbols::Var( _ , _ ) |
-						Symbols::Type( _ , _ ) |
-						Symbols::Procedure( _ , _ ) |
-						Symbols::Operator( _ , _ ) |
-						Symbols::SemiColon( _ , _ ) => (),
-						_ => {
+						Symbols::Ident( _ , _ , _ ) => {
 							type_declaration_local.push( self.parse_type_declaration()? );
 							loop {
 								match self.symbol.clone()? {
@@ -1831,7 +1816,8 @@ impl BlockRules for Parser {
 									_ => break
 								}
 							}
-						}
+						},
+						_ => ()
 					}
 					type_declarations.push( Box::new(Node::TypeDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), type_declaration_local) ) )
 				},
@@ -1840,15 +1826,7 @@ impl BlockRules for Parser {
 					self.advance();
 					let mut var_declaration_local = Box::new(Vec::<Box<Node>>::new());
 					match self.symbol.clone()? {
-						Symbols::Begin( _ , _ ) |
-						Symbols::End( _ , _ ) |
-						Symbols::Const( _ , _ ) |
-						Symbols::Var( _ , _ ) |
-						Symbols::Type( _ , _ ) |
-						Symbols::Procedure( _ , _ ) |
-						Symbols::Operator( _ , _ ) |
-						Symbols::SemiColon( _ , _ ) => (),
-						_ => {
+						Symbols::Ident( _ , _ , _ ) => {
 							var_declaration_local.push( self.parse_variable_declaration()? );
 							loop {
 								match self.symbol.clone()? {
@@ -1860,7 +1838,8 @@ impl BlockRules for Parser {
 									_ => break
 								}
 							}
-						}
+						},
+						_ => ()
 					}
 					var_declarations.push( Box::new(Node::VarDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), var_declaration_local) ) )
 				},
@@ -8863,6 +8842,52 @@ mod tests {
 				  	Box::new([
 						Box::new(Symbols::SemiColon(11, 12))
 					].to_vec())
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn declaration_sequence_const_twice() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CONST a = 1; b = 2 CONST")));
+		parser.advance();
+		let res = parser.parse_declaration_sequence();
+
+		let pattern = Box::new(
+			Node::DeclarationSequence(0, 24,
+									  Box::new([
+										  Box::new(Node::ConstDeclaration(0, 19,
+																		  Box::new(Symbols::Const(0, 5)),
+																		  Box::new([
+																			  Box::new(Node::Const(6, 11,
+																								   Box::new(Node::Ident(6, 8, Box::new(Symbols::Ident(6, 7, Box::new(String::from("a")))))),
+																								   Box::new(Symbols::Equal(8, 9)),
+																								   Box::new(Node::Integer(10, 11, Box::new(Symbols::Integer(10, 11, Box::new(String::from("1"))))))
+																			  )),
+																			  Box::new(Node::Const(13, 19,
+																								   Box::new(Node::Ident(13, 15, Box::new(Symbols::Ident(13, 14, Box::new(String::from("b")))))),
+																								   Box::new(Symbols::Equal(15, 16)),
+																								   Box::new(Node::Integer(17, 19, Box::new(Symbols::Integer(17, 18, Box::new(String::from("2"))))))
+																			  ))
+																		  ].to_vec())
+										  )),
+										  Box::new(Node::ConstDeclaration(0, 24,
+																		  Box::new(Symbols::Const(19, 24)),
+																		  Box::new([].to_vec())
+										  ))
+									  ].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([
+										  Box::new(Symbols::SemiColon(11, 12))
+									  ].to_vec())
 			)
 		);
 
