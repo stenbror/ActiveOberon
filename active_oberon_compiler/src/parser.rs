@@ -8511,4 +8511,37 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_object_with_flags_inherits() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OBJECT {} ( a ) END")));
+		parser.advance();
+		let res = parser.parse_object_type();
+
+		let pattern = Box::new(
+			Node::ObjectType(0, 19,
+							 Box::new(Symbols::Object(0, 6)),
+							 Some(
+								 Box::new(Node::Flags(7, 10, Box::new(Symbols::LeftBrace(7, 8)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(8, 9))))
+							 ),
+							 Some(
+								 (
+									Box::new(Symbols::LeftParen(10, 11)),
+									Box::new(Node::Ident(12, 14, Box::new(Symbols::Ident(12, 13, Box::new(String::from("a")))))),
+								 	Box::new(Symbols::RightParen(14, 15))
+								 )
+							 ),
+							 None,
+							 None,
+							 Box::new(Symbols::End(16, 19)),
+							 None
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
