@@ -8831,4 +8831,46 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn declaration_sequence_const() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CONST a = 1; b = 2")));
+		parser.advance();
+		let res = parser.parse_declaration_sequence();
+
+		let pattern = Box::new(
+			Node::DeclarationSequence(0, 18,
+					Box::new([
+						Box::new(Node::ConstDeclaration(0, 18,
+							Box::new(Symbols::Const(0, 5)),
+							Box::new([
+								Box::new(Node::Const(6, 11,
+									Box::new(Node::Ident(6, 8, Box::new(Symbols::Ident(6, 7, Box::new(String::from("a")))))),
+									Box::new(Symbols::Equal(8, 9)),
+									Box::new(Node::Integer(10, 11, Box::new(Symbols::Integer(10, 11, Box::new(String::from("1"))))))
+								)),
+								Box::new(Node::Const(13, 18,
+													 Box::new(Node::Ident(13, 15, Box::new(Symbols::Ident(13, 14, Box::new(String::from("b")))))),
+													 Box::new(Symbols::Equal(15, 16)),
+													 Box::new(Node::Integer(17, 18, Box::new(Symbols::Integer(17, 18, Box::new(String::from("2"))))))
+								))
+							].to_vec())
+						))
+					].to_vec()),
+				  	Box::new([].to_vec()),
+				  	Box::new([].to_vec()),
+				  	Box::new([].to_vec()),
+				  	Box::new([].to_vec()),
+				  	Box::new([
+						Box::new(Symbols::SemiColon(11, 12))
+					].to_vec())
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
