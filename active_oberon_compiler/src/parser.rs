@@ -7861,4 +7861,49 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_record_inherit_with_variable_single() {
+		let mut parser = Parser::new(Box::new(Scanner::new("RECORD (a) a, b, c: INT64 END")));
+		parser.advance();
+		let res = parser.parse_record_type();
+
+		let pattern = Box::new(
+			Node::RecordType(0, 29, Box::new(Symbols::Record(0, 6)), Some(
+				(
+					Box::new(Symbols::LeftParen(7, 8)),
+					Box::new(Node::Ident(8, 9, Box::new(Symbols::Ident(8, 9, Box::new(String::from("a")))))),
+					Box::new(Symbols::RightParen(9, 10))
+				)
+			), Some(
+				(
+					Box::new([
+						Box::new(
+							Node::Var(11, 26,
+							Box::new( Node::VarList(11, 18,
+								Box::new([
+									Box::new( Node::VarName(11, 12, Box::new(Node::Ident(11, 12, Box::new(Symbols::Ident(11, 12, Box::new(String::from("a")))))), None, None) ),
+									Box::new( Node::VarName(14, 15, Box::new(Node::Ident(14, 15, Box::new(Symbols::Ident(14, 15, Box::new(String::from("b")))))), None, None) ),
+									Box::new( Node::VarName(17, 18, Box::new(Node::Ident(17, 18, Box::new(Symbols::Ident(17, 18, Box::new(String::from("c")))))), None, None) )
+								].to_vec()),
+								Box::new([
+									Box::new(Symbols::Comma(12, 13)),
+									Box::new(Symbols::Comma(15, 16))
+								].to_vec())
+							)),
+							Box::new(Symbols::Colon(18, 19)),
+							Box::new(Node::Ident(20, 26, Box::new(Symbols::Ident(20, 25, Box::new(String::from("INT64")))))))
+						)
+					].to_vec()),
+					Box::new([].to_vec())
+				)
+			), None, Box::new(Symbols::End(26, 29)))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
