@@ -7657,5 +7657,27 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_declaration() {
+		let mut parser = Parser::new(Box::new(Scanner::new("test = INT64;")));
+		parser.advance();
+		let res = parser.parse_type_declaration();
+
+		let pattern = Box::new(
+			Node::TypeDeclarationElement(0, 13,
+				Box::new(Node::Ident(0, 5, Box::new(Symbols::Ident(0, 4, Box::new(String::from("test")))))),
+				Box::new(Symbols::Equal(5, 6)),
+				Box::new(Node::Ident(7, 12, Box::new(Symbols::Ident(7, 12, Box::new(String::from("INT64")))))),
+				Box::new(Symbols::SemiColon(12, 13))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
