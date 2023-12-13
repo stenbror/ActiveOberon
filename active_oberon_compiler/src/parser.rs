@@ -8588,4 +8588,35 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_enum_normal_empty() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ENUM ( a ) empty END")));
+		parser.advance();
+		let res = parser.parse_enumeration_type();
+
+		let pattern = Box::new(
+			Node::EnumerationType(0, 20,
+								  Box::new(Symbols::Enum(0, 4)),
+								  Some(
+									  (
+										  Box::new(Symbols::LeftParen(5, 6)),
+										  Box::new(Node::Ident(7, 9, Box::new(Symbols::Ident(7, 8, Box::new(String::from("a")))))),
+										  Box::new(Symbols::RightParen(9, 10))
+									  )
+								  ),
+								  Box::new([
+									  Box::new(Node::EnumElement(11, 17, Box::new(Node::Ident(11, 17, Box::new(Symbols::Ident(11, 16, Box::new(String::from("empty")))))), None))
+								  ].to_vec()),
+								  Box::new([].to_vec()),
+								  Box::new(Symbols::End(17, 20))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
