@@ -7679,5 +7679,88 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_array_empty() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ARRAY OF INT64")));
+		parser.advance();
+		let res = parser.parse_array_type();
+
+		let pattern = Box::new(
+			Node::ArrayType(0, 14,
+				Box::new(Symbols::Array(0, 5)),
+				None,
+				Box::new(Symbols::Of(6, 8)),
+				Box::new(Node::Ident(9, 14, Box::new(Symbols::Ident(9, 14, Box::new(String::from("INT64"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_array_single_dim() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ARRAY 10 OF INT64")));
+		parser.advance();
+		let res = parser.parse_array_type();
+
+		let pattern = Box::new(
+			Node::ArrayType(0, 17,
+							Box::new(Symbols::Array(0, 5)),
+							Some(
+								(
+									Box::new([
+										Box::new(Node::Integer(6, 9, Box::new(Symbols::Integer(6, 8, Box::new(String::from("10"))))))
+									].to_vec()),
+									Box::new([].to_vec())
+								)
+							),
+							Box::new(Symbols::Of(9, 11)),
+							Box::new(Node::Ident(12, 17, Box::new(Symbols::Ident(12, 17, Box::new(String::from("INT64"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_array_multi_dim() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ARRAY 10, 10 OF INT64")));
+		parser.advance();
+		let res = parser.parse_array_type();
+
+		let pattern = Box::new(
+			Node::ArrayType(0, 21,
+							Box::new(Symbols::Array(0, 5)),
+							Some(
+								(
+									Box::new([
+										Box::new(Node::Integer(6, 8, Box::new(Symbols::Integer(6, 8, Box::new(String::from("10")))))),
+										Box::new(Node::Integer(10, 13, Box::new(Symbols::Integer(10, 12, Box::new(String::from("10"))))))
+									].to_vec()),
+									Box::new([
+										Box::new(Symbols::Comma(8, 9))
+									].to_vec())
+								)
+							),
+							Box::new(Symbols::Of(13, 15)),
+							Box::new(Node::Ident(16, 21, Box::new(Symbols::Ident(16, 21, Box::new(String::from("INT64"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 
 }
