@@ -8324,4 +8324,40 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_pointer_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("POINTER TO FLOAT64")));
+		parser.advance();
+		let res = parser.parse_pointer_type();
+
+		let pattern = Box::new(
+			Node::PointerType(0, 18, Box::new(Symbols::Pointer(0, 7)), None, Box::new(Symbols::To(8, 10)), Box::new(Node::Ident(11, 18, Box::new(Symbols::Ident(11, 18, Box::new(String::from("FLOAT64")))))))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_pointer_simple_with_flags() {
+		let mut parser = Parser::new(Box::new(Scanner::new("POINTER {} TO FLOAT64")));
+		parser.advance();
+		let res = parser.parse_pointer_type();
+
+		let pattern = Box::new(
+			Node::PointerType(0, 21, Box::new(Symbols::Pointer(0, 7)), Some(
+				Box::new(Node::Flags(8, 11, Box::new(Symbols::LeftBrace(8, 9)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(9, 10))))
+			), Box::new(Symbols::To(11, 13)), Box::new(Node::Ident(14, 21, Box::new(Symbols::Ident(14, 21, Box::new(String::from("FLOAT64")))))))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
