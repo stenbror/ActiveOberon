@@ -2807,22 +2807,41 @@ impl BlockRules for Parser {
 
 		let mut nodes = Box::new(Vec::<Box<Node>>::new());
 		let mut separators = Box::new(Vec::<Box<Symbols>>::new());
-		let mut is_first = true;
+
+		match self.symbol.clone()? {
+			Symbols::Ident( _ , _ , _ ) => {
+				let start_pos3 = self.lexer.get_start_position();
+				let left = self.parse_identifier_definition()?;
+
+				let right = match self.symbol.clone()? {
+					Symbols::Equal( _ , _ ) => {
+						let symbol10 = self.symbol.clone()?;
+						self.advance();
+						let right_2 = self.parse_expression()?;
+						Some( (Box::new(symbol10), right_2) )
+					},
+					_ => None
+				};
+
+				nodes.push( Box::new(Node::EnumElement(start_pos3, self.lexer.get_start_position(), left, right)) )
+			},
+			_ => return Err(Box::new(format!("Expecting at least one Ident in enum type at position: '{}'", self.lexer.get_start_position())))
+		}
 
 		loop {
-			let start_pos2 = self.lexer.get_start_position();
-
-			if !is_first {
-				match self.symbol.clone()? {
-					Symbols::Comma( _ , _ ) => {
-						separators.push( Box::new(self.symbol.clone()?) );
-						self.advance()
-					},
-					_ => break
-				}
-				is_first = false
+			match self.symbol.clone()? {
+				Symbols::Comma( _ , _ ) => {
+					separators.push( Box::new(self.symbol.clone()?) );
+					self.advance()
+				},
+				_ => break
 			}
 
+			let start_pos2 = self.lexer.get_start_position();
+			match self.symbol.clone()? {
+				Symbols::Ident( _ , _ , _ ) => (),
+				_ => return Err(Box::new(format!("Expecting Ident in enum type after ',' at position: '{}'", self.lexer.get_start_position())))
+			}
 			let left = self.parse_identifier_definition()?;
 
 			let right = match self.symbol.clone()? {
@@ -8534,6 +8553,31 @@ mod tests {
 							 None,
 							 Box::new(Symbols::End(16, 19)),
 							 None
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_enum_simple_empty() {
+		let mut parser = Parser::new(Box::new(Scanner::new("ENUM empty END")));
+		parser.advance();
+		let res = parser.parse_enumeration_type();
+
+		let pattern = Box::new(
+			Node::EnumerationType(0, 14,
+				Box::new(Symbols::Enum(0, 4)),
+				None,
+				Box::new([
+					Box::new(Node::EnumElement(5, 11, Box::new(Node::Ident(5, 11, Box::new(Symbols::Ident(5, 10, Box::new(String::from("empty")))))), None))
+				].to_vec()),
+				Box::new([].to_vec()),
+				Box::new(Symbols::End(11, 14))
 			)
 		);
 
