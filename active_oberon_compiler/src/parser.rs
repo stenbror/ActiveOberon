@@ -8484,4 +8484,31 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_object_with_flags() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OBJECT {} END")));
+		parser.advance();
+		let res = parser.parse_object_type();
+
+		let pattern = Box::new(
+			Node::ObjectType(0, 13,
+							 Box::new(Symbols::Object(0, 6)),
+							 Some(
+								 Box::new(Node::Flags(7, 10, Box::new(Symbols::LeftBrace(7, 8)), Box::new([].to_vec()), Box::new([].to_vec()), Box::new(Symbols::RightBrace(8, 9))))
+							 ),
+							 None,
+							 None,
+							 None,
+							 Box::new(Symbols::End(10, 13)),
+							 None
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
