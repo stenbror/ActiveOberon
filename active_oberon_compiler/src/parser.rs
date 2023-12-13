@@ -8417,4 +8417,71 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_object_simple_empty() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OBJECT")));
+		parser.advance();
+		let res = parser.parse_object_type();
+
+		let pattern = Box::new(
+			Node::ObjectTypeEmpty(0, 6, Box::new(Symbols::Object(0, 6)))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_object_simple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OBJECT END")));
+		parser.advance();
+		let res = parser.parse_object_type();
+
+		let pattern = Box::new(
+			Node::ObjectType(0, 10,
+							 Box::new(Symbols::Object(0, 6)),
+							 None,
+							 None,
+							 None,
+							 None,
+							 Box::new(Symbols::End(7, 10)),
+							 None
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn type_object_simple_with_name() {
+		let mut parser = Parser::new(Box::new(Scanner::new("OBJECT END name")));
+		parser.advance();
+		let res = parser.parse_object_type();
+
+		let pattern = Box::new(
+			Node::ObjectType(0, 15,
+							 Box::new(Symbols::Object(0, 6)),
+							 None,
+							 None,
+							 None,
+							 None,
+							 Box::new(Symbols::End(7, 10)),
+							 Some(Box::new(Node::Ident(11, 15, Box::new(Symbols::Ident(11, 15, Box::new(String::from("name")))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
