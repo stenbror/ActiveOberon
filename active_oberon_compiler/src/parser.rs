@@ -8762,4 +8762,73 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn var_declaration_extern() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IO EXTERN 'InOut' : INT32")));
+		parser.advance();
+		let res = parser.parse_variable_declaration();
+
+		let pattern = Box::new(
+			Node::Var(0, 25,
+						Box::new(Node::VarList(0, 18,
+							Box::new([
+								Box::new( Node::VarName(0, 18,
+														Box::new(Node::Ident(0, 3, Box::new(Symbols::Ident(0, 2, Box::new(String::from("IO")))))),
+														None,
+														Some(
+															(
+																Box::new(Symbols::Extern(3, 9)),
+																Box::new(Node::String(10, 18, Box::new(Symbols::String(10, 17, Box::new(String::from("'InOut'"))))))
+															)
+														)) )
+							].to_vec()),
+							Box::new([].to_vec())
+						)),
+						Box::new(Symbols::Colon(18, 19)),
+						Box::new(Node::Ident(20, 25, Box::new(Symbols::Ident(20, 25, Box::new(String::from("INT32"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+	#[test]
+	fn var_declaration_assignment() {
+		let mut parser = Parser::new(Box::new(Scanner::new("IO := InOut : INT32")));
+		parser.advance();
+		let res = parser.parse_variable_declaration();
+
+		let pattern = Box::new(
+			Node::Var(0, 19,
+				Box::new(Node::VarList(0, 12,
+					Box::new([
+						Box::new(Node::VarName(0, 12,
+							Box::new(Node::Ident(0, 3, Box::new(Symbols::Ident(0, 2, Box::new(String::from("IO")))))),
+							None,
+							Some(
+								(
+									Box::new(Symbols::Becomes(3, 5)),
+									Box::new(Node::Ident(6, 12, Box::new(Symbols::Ident(6, 11, Box::new(String::from("InOut"))))))
+								)
+							)
+						))
+					].to_vec()),
+					Box::new([].to_vec())
+				)),
+				Box::new(Symbols::Colon(12, 13)),
+				Box::new(Node::Ident(14, 19, Box::new(Symbols::Ident(14, 19, Box::new(String::from("INT32"))))))
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
