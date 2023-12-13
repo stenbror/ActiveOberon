@@ -7906,4 +7906,67 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn type_record_inherit_with_variable_multiple() {
+		let mut parser = Parser::new(Box::new(Scanner::new("RECORD (a) a, b, c: INT64; d, e, f: REAL64 END")));
+		parser.advance();
+		let res = parser.parse_record_type();
+
+		let pattern = Box::new(
+			Node::RecordType(0, 46, Box::new(Symbols::Record(0, 6)), Some(
+				(
+					Box::new(Symbols::LeftParen(7, 8)),
+					Box::new(Node::Ident(8, 9, Box::new(Symbols::Ident(8, 9, Box::new(String::from("a")))))),
+					Box::new(Symbols::RightParen(9, 10))
+				)
+			), Some(
+				(
+					Box::new([
+						Box::new(
+							Node::Var(11, 25,
+									  Box::new( Node::VarList(11, 18,
+															  Box::new([
+																  Box::new( Node::VarName(11, 12, Box::new(Node::Ident(11, 12, Box::new(Symbols::Ident(11, 12, Box::new(String::from("a")))))), None, None) ),
+																  Box::new( Node::VarName(14, 15, Box::new(Node::Ident(14, 15, Box::new(Symbols::Ident(14, 15, Box::new(String::from("b")))))), None, None) ),
+																  Box::new( Node::VarName(17, 18, Box::new(Node::Ident(17, 18, Box::new(Symbols::Ident(17, 18, Box::new(String::from("c")))))), None, None) )
+															  ].to_vec()),
+															  Box::new([
+																  Box::new(Symbols::Comma(12, 13)),
+																  Box::new(Symbols::Comma(15, 16))
+															  ].to_vec())
+									  )),
+									  Box::new(Symbols::Colon(18, 19)),
+									  Box::new(Node::Ident(20, 25, Box::new(Symbols::Ident(20, 25, Box::new(String::from("INT64")))))))
+						),
+						 Box::new(
+							 Node::Var(27, 43,
+									   Box::new( Node::VarList(27, 34,
+															   Box::new([
+																   Box::new( Node::VarName(27, 28, Box::new(Node::Ident(27, 28, Box::new(Symbols::Ident(27, 28, Box::new(String::from("d")))))), None, None) ),
+																   Box::new( Node::VarName(30, 31, Box::new(Node::Ident(30, 31, Box::new(Symbols::Ident(30, 31, Box::new(String::from("e")))))), None, None) ),
+																   Box::new( Node::VarName(33, 34, Box::new(Node::Ident(33, 34, Box::new(Symbols::Ident(33, 34, Box::new(String::from("f")))))), None, None) )
+															   ].to_vec()),
+															   Box::new([
+																   Box::new(Symbols::Comma(28, 29)),
+																   Box::new(Symbols::Comma(31, 32))
+															   ].to_vec())
+									   )),
+									   Box::new(Symbols::Colon(34, 35)),
+									   Box::new(Node::Ident(36, 43, Box::new(Symbols::Ident(36, 42, Box::new(String::from("REAL64")))))))
+						 )
+					].to_vec()),
+					Box::new([
+						Box::new(Symbols::SemiColon(25, 26))
+					].to_vec())
+				)
+			), None, Box::new(Symbols::End(43, 46)))
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
