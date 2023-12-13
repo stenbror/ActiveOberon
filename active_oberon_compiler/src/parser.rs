@@ -405,7 +405,7 @@ impl ExpressionRules for Parser {
 
 						Ok( Box::new( Node::Range(start_pos, self.lexer.get_start_position(), left, upto, right, by, next ) ) )
 					},
-					_ => left.ok_or( Box::new(format!("Missing expression at position: '{}'", start_pos)) )
+					_ => left.ok_or( Box::new(format!("Missing expression at position: '{}'", self.lexer.get_start_position())) )
 				}
 			}
 		}
@@ -654,7 +654,7 @@ impl ExpressionRules for Parser {
 							Symbols::Of( _ , _ ) => {
 								self.advance()
 							},
-							_ => return Err(Box::new(format!("Expecting 'of' in 'alias' expression at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting 'of' in 'alias' expression at position: '{}'", self.lexer.get_start_position())))
 						}
 
 						let right = self.parse_factor()?;
@@ -669,7 +669,7 @@ impl ExpressionRules for Parser {
 							Symbols::LeftParen( _ , _ ) => {
 								self.advance()
 							},
-							_ => return Err(Box::new(format!("Expecting '(' in 'new' expression at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting '(' in 'new' expression at position: '{}'", self.lexer.get_start_position())))
 						}
 
 						let right = self.parse_expression_list()?;
@@ -679,7 +679,7 @@ impl ExpressionRules for Parser {
 							Symbols::RightParen( _ , _ ) => {
 								self.advance()
 							},
-							_ => return Err(Box::new(format!("Expecting ')' in 'new' expression at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting ')' in 'new' expression at position: '{}'", self.lexer.get_start_position())))
 						}
 
 						Ok( Box::new(Node::New(start_pos, self.lexer.get_start_position(), Box::new(x), left, Box::new(symbol2), right, Box::new(symbol3))))
@@ -694,7 +694,7 @@ impl ExpressionRules for Parser {
 							Symbols::RightParen( _ , _ ) => {
 								self.advance()
 							},
-							_ => return Err(Box::new(format!("Expecting ')' in parenthesized expression at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting ')' in parenthesized expression at position: '{}'", self.lexer.get_start_position())))
 						}
 
 						Ok( Box::new(Node::ParenthesisExpression(start_pos, self.lexer.get_start_position(), Box::new(x), right, Box::new(symbol2))))
@@ -705,7 +705,7 @@ impl ExpressionRules for Parser {
 					Symbols::LeftBrace( _ , _ ) => {
 						self.parse_set()
 					}
-					_ => Err(Box::new(format!("Unexpected or missing literal at position: '{}'", start_pos)))
+					_ => Err(Box::new(format!("Unexpected or missing literal at position: '{}'", self.lexer.get_start_position())))
 				}
 			},
 			Err(e) => {
@@ -738,7 +738,7 @@ impl ExpressionRules for Parser {
 
 							elements.push( Box::new( Node::Call(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right, Box::new(symbol2)) ) )
 						},
-						_ => return Err(Box::new(format!("Missing ')' in call at position: '{}'", start_pos)))
+						_ => return Err(Box::new(format!("Missing ')' in call at position: '{}'", self.lexer.get_start_position())))
 					}
 				},
 				Symbols::Period( _ , _ ) => {
@@ -751,7 +751,7 @@ impl ExpressionRules for Parser {
 							self.advance();
 							elements.push( Box::new( Node::DotName(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)))) ) )
 						},
-						_ => return Err(Box::new(format!("Expecting name literal after '.' at position: '{}'", start_pos)))
+						_ => return Err(Box::new(format!("Expecting name literal after '.' at position: '{}'", self.lexer.get_start_position())))
 					}
 				},
 				Symbols::LeftBracket( _ , _ ) => {
@@ -770,7 +770,7 @@ impl ExpressionRules for Parser {
 
 							elements.push( Box::new( Node::Index(start_pos, self.lexer.get_start_position(), Box::new(symbol1), right, Box::new(symbol2)) ) )
 						},
-						_ => return Err(Box::new(format!("Missing ']' in index at position: '{}'", start_pos)))
+						_ => return Err(Box::new(format!("Missing ']' in index at position: '{}'", self.lexer.get_start_position())))
 					}
 				},
 				Symbols::Arrow( _ , _ ) => {
@@ -863,7 +863,7 @@ impl ExpressionRules for Parser {
 									_ => ()
 								}
 							},
-							_ => return Err(Box::new(format!("Expecting '?' in index expression at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting '?' in index expression at position: '{}'", self.lexer.get_start_position())))
 						}
 					},
 					_ => ()
@@ -883,7 +883,7 @@ impl ExpressionRules for Parser {
 				self.advance();
 				_symb1
 			},
-			_ => return Err(Box::new(format!("Expecting '[' in array expression at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting '[' in array expression at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let mut elements : Vec<Box<Node>> = Vec::new();
@@ -908,7 +908,7 @@ impl ExpressionRules for Parser {
 				self.advance();
 				_symb2
 			},
-			_ => return Err(Box::new(format!("Expecting ']' in array expression at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ']' in array expression at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new( Node::Array(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(elements), Box::new(separators), Box::new(symbol2)) ) )
@@ -923,7 +923,7 @@ impl ExpressionRules for Parser {
 				self.advance();
 				_symb1
 			},
-			_ => return Err(Box::new(format!("Expecting start of set expression at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting start of set expression at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let mut elements : Vec<Box<Node>> = Vec::new();
@@ -948,7 +948,7 @@ impl ExpressionRules for Parser {
 				self.advance();
 				_symb2
 			},
-			_ => return Err(Box::new(format!("Expecting end of set expression at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting end of set expression at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new( Node::Set(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(elements), Box::new(separators), Box::new(symbol2)) ) )
@@ -969,7 +969,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Then( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'THEN' in if statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'THEN' in if statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -988,7 +988,7 @@ impl StatementRules for Parser {
 
 							match self.symbol.clone()? {
 								Symbols::Then( _ , _ ) => (),
-								_ => return Err(Box::new(format!("Expecting 'THEN' in elsif statement at position: '{}'", start_pos)))
+								_ => return Err(Box::new(format!("Expecting 'THEN' in elsif statement at position: '{}'", self.lexer.get_start_position())))
 							}
 							let symbol5 = self.symbol.clone()?;
 							self.advance();
@@ -1016,7 +1016,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in if statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in if statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol3 = self.symbol.clone()?;
 				self.advance();
@@ -1039,12 +1039,12 @@ impl StatementRules for Parser {
 						self.advance();
 						Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)))
 					},
-					_ => return Err(Box::new(format!("Expecting Identifier in for statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting Identifier in for statement at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				match self.symbol.clone()? {
 					Symbols::Colon( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ':' in with statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ':' in with statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -1059,7 +1059,7 @@ impl StatementRules for Parser {
 						true => {
 							is_first = false;
 							match self.symbol.clone()? {
-								Symbols::Bar( _ , _ ) => return Err(Box::new(format!("No '|' at first element in with statement at position: '{}'", start_pos))),
+								Symbols::Bar( _ , _ ) => return Err(Box::new(format!("No '|' at first element in with statement at position: '{}'", self.lexer.get_start_position()))),
 								_ => ()
 							}
 						},
@@ -1077,7 +1077,7 @@ impl StatementRules for Parser {
 
 					match self.symbol.clone()? {
 						Symbols::Do( _ , _ ) => (),
-						_ => return Err(Box::new(format!("Expecting 'DO' in with statement at position: '{}'", start_pos)))
+						_ => return Err(Box::new(format!("Expecting 'DO' in with statement at position: '{}'", self.lexer.get_start_position())))
 					}
 					let symbol_local2 = self.symbol.clone()?;
 					self.advance();
@@ -1102,7 +1102,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in with statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in with statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol3 = self.symbol.clone()?;
 				self.advance();
@@ -1117,7 +1117,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Of( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'OF' in case statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'OF' in case statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -1149,7 +1149,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in case statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in case statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol3 = self.symbol.clone()?;
 				self.advance();
@@ -1164,7 +1164,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Do( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'DO' in while statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'DO' in while statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -1173,7 +1173,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in while statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in while statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol3 = self.symbol.clone()?;
 				self.advance();
@@ -1188,7 +1188,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Until( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'UNTIL' in repeat statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'UNTIL' in repeat statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -1208,12 +1208,12 @@ impl StatementRules for Parser {
 						self.advance();
 						Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol2)))
 					},
-					_ => return Err(Box::new(format!("Expecting Identifier in for statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting Identifier in for statement at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				match self.symbol.clone()? {
 					Symbols::Becomes( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting ':=' in for statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ':=' in for statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol3 = self.symbol.clone()?;
 				self.advance();
@@ -1222,7 +1222,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::To( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'TO' in for statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'TO' in for statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol4 = self.symbol.clone()?;
 				self.advance();
@@ -1243,7 +1243,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::Do( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'DO' in for statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'DO' in for statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol6 = self.symbol.clone()?;
 				self.advance();
@@ -1252,7 +1252,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in for statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in for statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol7 = self.symbol.clone()?;
 				self.advance();
@@ -1267,7 +1267,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in loop statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in loop statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -1309,7 +1309,7 @@ impl StatementRules for Parser {
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
-					_ => return Err(Box::new(format!("Expecting 'END' in code statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in code statement at position: '{}'", self.lexer.get_start_position())))
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
@@ -1376,7 +1376,7 @@ impl StatementRules for Parser {
 			_ => {
 				match bar_optional {
 					true => (),
-					_ => return Err(Box::new(format!("Expecting '|' in case statement at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting '|' in case statement at position: '{}'", self.lexer.get_start_position())))
 				}
 			}
 		}
@@ -1404,7 +1404,7 @@ impl StatementRules for Parser {
 				symbols2 = self.symbol.clone()?;
 				self.advance()
 			},
-			_ => return Err(Box::new(format!("Expecting ':' in case statement at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ':' in case statement at position: '{}'", self.lexer.get_start_position())))
 		}
 
 		let right = self.parse_statement_sequence()?;
@@ -1434,11 +1434,11 @@ impl StatementRules for Parser {
 
 						Ok( Box::new( Node::StatementBlock(start_pos, self.lexer.get_start_position(), Box::new(symbol1), flags, right, Box::new(symbol2)) ) )
 					},
-					_ => Err(Box::new(format!("Expecting 'END' in statement block at position: '{}'", start_pos)))
+					_ => Err(Box::new(format!("Expecting 'END' in statement block at position: '{}'", self.lexer.get_start_position())))
 				}
 			},
 			_ => {
-				Err(Box::new(format!("Expecting 'BEGIN' in statement block at position: '{}'", start_pos)))
+				Err(Box::new(format!("Expecting 'BEGIN' in statement block at position: '{}'", self.lexer.get_start_position())))
 			}
 		}
 	}
@@ -1493,7 +1493,7 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol18)) )
 					},
-					_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'MODULE' at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'MODULE' at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				let in_part = match self.symbol.clone()? {
@@ -1509,7 +1509,7 @@ impl BlockRules for Parser {
 
 								Some( (Box::new(symbol16), Box::new(Node::Ident(start_pos2, self.lexer.get_start_position(), Box::new(symbol15)))) )
 							},
-							_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'IN' at position: '{}'", start_pos)))
+							_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'IN' at position: '{}'", self.lexer.get_start_position())))
 						}
 					},
 					_ => None
@@ -1521,7 +1521,7 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new( symbol17 )
 					},
-					_ => return Err(Box::new(format!("Expecting ';' of module after 'MODULE' ident at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ';' of module after 'MODULE' ident at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				let imp = match self.symbol.clone()? {
@@ -1561,7 +1561,7 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new( symbol19 )
 					},
-					_ => return Err(Box::new(format!("Expecting 'END' in module at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'END' in module at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				let symbol12 = match self.symbol.clone()? {
@@ -1571,7 +1571,7 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new( symbol21 )) )
  					},
-					_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'END' at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'Ident' of module after 'END' at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				let period = match self.symbol.clone()? {
@@ -1580,16 +1580,16 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new( symbol20 )
 					},
-					_ => return Err(Box::new(format!("Expecting '.' at end of module at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting '.' at end of module at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				if module_name_start != module_name_end {
-					return Err(Box::new(format!("Expecting 'MODULE' name '{}' to be equal to 'END' name '{}' in module declaration at position: '{}'", module_name_start, module_name_end, start_pos)))
+					return Err(Box::new(format!("Expecting 'MODULE' name '{}' to be equal to 'END' name '{}' in module declaration at position: '{}'", module_name_start, module_name_end, self.lexer.get_start_position())))
 				}
 
 				Ok( Box::new( Node::Module(start_pos, self.lexer.get_start_position(), Box::new(symbol1), template, symbol2, in_part, symbol3, imp, decl, body, symbol11, symbol12, period) ) )
 			},
-			_ => Err(Box::new(format!("Expecting 'MODULE' in module declaration at position: '{}'", start_pos)))
+			_ => Err(Box::new(format!("Expecting 'MODULE' in module declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 	}
 
@@ -1604,7 +1604,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol11)
 			},
-			_ => return Err(Box::new(format!("Expecting '(' in template list declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting '(' in template list declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		nodes.push( self.parse_template_parameter()? );
@@ -1626,7 +1626,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol12)
 			},
-			_ => return Err(Box::new(format!("Expecting ')' in template list declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ')' in template list declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new(Node::TemplateParameters(start_pos, self.lexer.get_start_position(), symbol1, nodes, separators, symbol2)) )
@@ -1641,7 +1641,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol11)
 			},
-			_ => return Err(Box::new(format!("Expecting 'CONST' or 'TYPE' in template declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'CONST' or 'TYPE' in template declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let idx = match self.symbol.clone()? {
@@ -1650,7 +1650,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol12)) )
 			},
-			_ => return Err(Box::new(format!("Expecting 'ident' literal in template declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'ident' literal in template declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new(Node::TemplateParameter(start_pos, self.lexer.get_start_position(), symbol1, idx)) )
@@ -1665,7 +1665,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol11)
 			},
-			_ => return Err(Box::new(format!("Expecting 'IMPORT' in import declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'IMPORT' in import declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let mut nodes = Box::new(Vec::<Box<Node>>::new());
@@ -1690,7 +1690,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol12)
 			},
-			_ => return Err(Box::new(format!("Expecting ';' in import declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ';' in import declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		Ok( Box::new(Node::ImportList(start_pos, self.lexer.get_start_position(), symbol1, nodes, separators, symbol2)) )
@@ -1705,7 +1705,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol11)) )
 			},
-			_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let left = match self.symbol.clone()? {
@@ -1720,7 +1720,7 @@ impl BlockRules for Parser {
 						let node = Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol22)) );
 						Some( (Box::new(symbol21), node) )
 					},
-					_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration after ':=' at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration after ':=' at position: '{}'", self.lexer.get_start_position())))
 				}
 			},
 			_ => None
@@ -1738,7 +1738,7 @@ impl BlockRules for Parser {
 						self.advance();
 						Some( ( Box::new(symbol31), right2, Box::new(symbol32) ) )
 					},
-					_ => return Err(Box::new(format!("Expecting ')' literal in import declaration at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting ')' literal in import declaration at position: '{}'", self.lexer.get_start_position())))
 				}
 			},
 			_ => None
@@ -1756,7 +1756,7 @@ impl BlockRules for Parser {
 						let node = Box::new( Node::Ident(s, self.lexer.get_start_position(), Box::new(symbol42)) );
 						Some( (Box::new(symbol41), node) )
 					},
-					_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration after 'IN' at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'ident' literal in import declaration after 'IN' at position: '{}'", self.lexer.get_start_position())))
 				}
 			},
 			_ => None
@@ -1886,7 +1886,7 @@ impl BlockRules for Parser {
 
 		let first = match self.symbol.clone()? {
 			Symbols::Ident( _ , _ , _ ) => self.parse_identifier_definition()?,
-			_ => return Err(Box::new(format!("Expecting 'indent' literal in const declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'ident' literal in const declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let symbol = match self.symbol.clone()? {
@@ -1895,7 +1895,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol11)
 			},
-			_ => return Err(Box::new(format!("Expecting '=' literal in const declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting '=' literal in const declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let second = self.parse_expression()?;
@@ -1908,7 +1908,7 @@ impl BlockRules for Parser {
 
 		let first = match self.symbol.clone()? {
 			Symbols::Ident( _ , _ , _ ) => self.parse_variable_name_list()?,
-			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let symbol = match self.symbol.clone()? {
@@ -1917,7 +1917,7 @@ impl BlockRules for Parser {
 				self.advance();
 				Box::new(symbol11)
 			},
-			_ => return Err(Box::new(format!("Expecting ':' literal in var declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting ':' literal in var declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let second = self.parse_type()?;
@@ -1932,7 +1932,7 @@ impl BlockRules for Parser {
 
 		match self.symbol.clone()? {
 			Symbols::Ident( _ , _ , _ ) => (),
-			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration list at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration list at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		nodes.push( self.parse_variable_name()? );
@@ -1956,7 +1956,7 @@ impl BlockRules for Parser {
 
 		let first = match self.symbol.clone()? {
 			Symbols::Ident( _ , _ , _ ) => self.parse_identifier_definition()?,
-			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration at position: '{}'", start_pos)))
+			_ => return Err(Box::new(format!("Expecting 'indent' literal in var declaration at position: '{}'", self.lexer.get_start_position())))
 		};
 
 		let flags = match self.symbol.clone()? {
@@ -1980,7 +1980,7 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new(Node::String(s, self.lexer.get_start_position(), Box::new(symbol2)))
 					},
-					_ => return Err(Box::new(format!("Expecting 'string' literal in var declaration at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting 'string' literal in var declaration at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				Ok( Box::new(Node::VarName(start_pos, self.lexer.get_start_position(), first, flags, Some( (Box::new(symbol1), txt) ))) )
@@ -2024,12 +2024,12 @@ impl BlockRules for Parser {
 						self.advance();
 						Box::new(symbol51)
 					},
-					_ => return Err(Box::new(format!("Expecting end of flag list declaration at position: '{}'", start_pos)))
+					_ => return Err(Box::new(format!("Expecting end of flag list declaration at position: '{}'", self.lexer.get_start_position())))
 				};
 
 				Ok( Box::new(Node::Flags(start_pos, self.lexer.get_start_position(), Box::new(symbol1), nodes, separators, symbol2)) )
 			},
-			_ => Err(Box::new(format!("Expecting start of flag list declaration at position: '{}'", start_pos)))
+			_ => Err(Box::new(format!("Expecting start of flag list declaration at position: '{}'", self.lexer.get_start_position())))
 		}
 	}
 
