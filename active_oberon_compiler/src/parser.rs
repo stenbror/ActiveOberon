@@ -1778,6 +1778,7 @@ impl BlockRules for Parser {
 		loop {
 			match self.symbol.clone()? {
 				Symbols::Const(_, _) => {
+					let start_pos2 = self.lexer.get_start_position();
 					let symbol = self.symbol.clone()?;
 					self.advance();
 					let mut const_declaration_local = Box::new(Vec::<Box<Node>>::new());
@@ -1797,9 +1798,10 @@ impl BlockRules for Parser {
 						},
 						_ => ()
 					}
-					const_declarations.push( Box::new(Node::ConstDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), const_declaration_local) ) )
+					const_declarations.push( Box::new(Node::ConstDeclaration(start_pos2, self.lexer.get_start_position(), Box::new(symbol), const_declaration_local) ) )
 				},
 				Symbols::Type(_, _) => {
+					let start_pos2 = self.lexer.get_start_position();
 					let symbol = self.symbol.clone()?;
 					self.advance();
 					let mut type_declaration_local = Box::new(Vec::<Box<Node>>::new());
@@ -1819,9 +1821,10 @@ impl BlockRules for Parser {
 						},
 						_ => ()
 					}
-					type_declarations.push( Box::new(Node::TypeDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), type_declaration_local) ) )
+					type_declarations.push( Box::new(Node::TypeDeclaration(start_pos2, self.lexer.get_start_position(), Box::new(symbol), type_declaration_local) ) )
 				},
 				Symbols::Var(_, _) => {
+					let start_pos2 = self.lexer.get_start_position();
 					let symbol = self.symbol.clone()?;
 					self.advance();
 					let mut var_declaration_local = Box::new(Vec::<Box<Node>>::new());
@@ -1841,7 +1844,7 @@ impl BlockRules for Parser {
 						},
 						_ => ()
 					}
-					var_declarations.push( Box::new(Node::VarDeclaration(start_pos, self.lexer.get_start_position(), Box::new(symbol), var_declaration_local) ) )
+					var_declarations.push( Box::new(Node::VarDeclaration(start_pos2, self.lexer.get_start_position(), Box::new(symbol), var_declaration_local) ) )
 				},
 				Symbols::Procedure(_, _) => {
 					procedure_declarations.push( self.parse_procedure_declaration()? )
@@ -8877,7 +8880,7 @@ mod tests {
 																			  ))
 																		  ].to_vec())
 										  )),
-										  Box::new(Node::ConstDeclaration(0, 24,
+										  Box::new(Node::ConstDeclaration(19, 24,
 																		  Box::new(Symbols::Const(19, 24)),
 																		  Box::new([].to_vec())
 										  ))
@@ -8926,7 +8929,7 @@ mod tests {
 									  ].to_vec()),
 									  Box::new([].to_vec()),
 									  Box::new([
-										  Box::new( Node::VarDeclaration(0, 40,
+										  Box::new( Node::VarDeclaration(19, 40,
 																		 Box::new(Symbols::Var(19, 22)),
 																		 Box::new([
 																			 Box::new(Node::Var(23, 40,
@@ -8987,7 +8990,7 @@ mod tests {
 									  ].to_vec()),
 									  Box::new([].to_vec()),
 									  Box::new([
-										  Box::new( Node::VarDeclaration(0, 41,
+										  Box::new( Node::VarDeclaration(19, 41,
 																		 Box::new(Symbols::Var(19, 22)),
 																		 Box::new([
 																			 Box::new(Node::Var(23, 41,
@@ -9005,7 +9008,7 @@ mod tests {
 																								Box::new(Node::Ident(33, 41, Box::new(Symbols::Ident(33, 40, Box::new(String::from("FLOAT64"))))))
 																			 ))
 																		 ].to_vec())) ),
-										  Box::new( Node::VarDeclaration(0, 44,
+										  Box::new( Node::VarDeclaration(41, 44,
 																		 Box::new(Symbols::Var(41, 44)),
 																		 Box::new([].to_vec())) )
 									  ].to_vec()),
@@ -9050,10 +9053,10 @@ mod tests {
 										  ))
 									  ].to_vec()),
 									  Box::new([
-										  Box::new(Node::TypeDeclaration(0, 49, Box::new(Symbols::Type(45, 49)), Box::new([].to_vec())))
+										  Box::new(Node::TypeDeclaration(45, 49, Box::new(Symbols::Type(45, 49)), Box::new([].to_vec())))
 									  ].to_vec()),
 									  Box::new([
-										  Box::new( Node::VarDeclaration(0, 41,
+										  Box::new( Node::VarDeclaration(19, 41,
 																		 Box::new(Symbols::Var(19, 22)),
 																		 Box::new([
 																			 Box::new(Node::Var(23, 41,
@@ -9071,7 +9074,7 @@ mod tests {
 																								Box::new(Node::Ident(33, 41, Box::new(Symbols::Ident(33, 40, Box::new(String::from("FLOAT64"))))))
 																			 ))
 																		 ].to_vec())) ),
-										  Box::new( Node::VarDeclaration(0, 45,
+										  Box::new( Node::VarDeclaration(41, 45,
 																		 Box::new(Symbols::Var(41, 44)),
 																		 Box::new([].to_vec())) )
 									  ].to_vec()),
