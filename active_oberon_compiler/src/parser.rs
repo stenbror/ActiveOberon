@@ -8960,4 +8960,68 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn declaration_sequence_const_var_var() {
+		let mut parser = Parser::new(Box::new(Scanner::new("CONST a = 1; b = 2 VAR a, b, c : FLOAT64 VAR")));
+		parser.advance();
+		let res = parser.parse_declaration_sequence();
+
+		let pattern = Box::new(
+			Node::DeclarationSequence(0, 44,
+									  Box::new([
+										  Box::new(Node::ConstDeclaration(0, 19,
+																		  Box::new(Symbols::Const(0, 5)),
+																		  Box::new([
+																			  Box::new(Node::Const(6, 11,
+																								   Box::new(Node::Ident(6, 8, Box::new(Symbols::Ident(6, 7, Box::new(String::from("a")))))),
+																								   Box::new(Symbols::Equal(8, 9)),
+																								   Box::new(Node::Integer(10, 11, Box::new(Symbols::Integer(10, 11, Box::new(String::from("1"))))))
+																			  )),
+																			  Box::new(Node::Const(13, 19,
+																								   Box::new(Node::Ident(13, 15, Box::new(Symbols::Ident(13, 14, Box::new(String::from("b")))))),
+																								   Box::new(Symbols::Equal(15, 16)),
+																								   Box::new(Node::Integer(17, 19, Box::new(Symbols::Integer(17, 18, Box::new(String::from("2"))))))
+																			  ))
+																		  ].to_vec())
+										  ))
+									  ].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([
+										  Box::new( Node::VarDeclaration(0, 41,
+																		 Box::new(Symbols::Var(19, 22)),
+																		 Box::new([
+																			 Box::new(Node::Var(23, 41,
+																								Box::new(Node::VarList(23, 31,
+																													   Box::new([
+																														   Box::new(Node::VarName(23, 24, Box::new(Node::Ident(23, 24, Box::new(Symbols::Ident(23, 24, Box::new(String::from("a")))))), None, None)),
+																														   Box::new(Node::VarName(26, 27, Box::new(Node::Ident(26, 27, Box::new(Symbols::Ident(26, 27, Box::new(String::from("b")))))), None, None)),
+																														   Box::new(Node::VarName(29, 31, Box::new(Node::Ident(29, 31, Box::new(Symbols::Ident(29, 30, Box::new(String::from("c")))))), None, None))
+																													   ].to_vec()),
+																													   Box::new([
+																														   Box::new(Symbols::Comma(24, 25)),
+																														   Box::new(Symbols::Comma(27, 28))
+																													   ].to_vec()))),
+																								Box::new(Symbols::Colon(31, 32)),
+																								Box::new(Node::Ident(33, 41, Box::new(Symbols::Ident(33, 40, Box::new(String::from("FLOAT64"))))))
+																			 ))
+																		 ].to_vec())) ),
+										  Box::new( Node::VarDeclaration(0, 44,
+																		 Box::new(Symbols::Var(41, 44)),
+																		 Box::new([].to_vec())) )
+									  ].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([
+										  Box::new(Symbols::SemiColon(11, 12))
+									  ].to_vec())
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
 }
