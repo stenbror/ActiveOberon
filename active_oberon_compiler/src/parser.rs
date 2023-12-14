@@ -9452,4 +9452,31 @@ mod tests {
 		}
 	}
 
+	#[test]
+	fn declaration_sequence_semicolon() {
+		let mut parser = Parser::new(Box::new(Scanner::new(";")));
+		parser.advance();
+		let res = parser.parse_declaration_sequence();
+
+		let pattern = Box::new(
+			Node::DeclarationSequence(0, 1,
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([].to_vec()),
+									  Box::new([
+										  Box::new(Symbols::SemiColon(0, 1))
+									  ].to_vec())
+			)
+		);
+
+		match res {
+			Ok(x) => {
+				assert_eq!(pattern, x)
+			}, _ => assert!(false)
+		}
+	}
+
+
 }
