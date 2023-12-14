@@ -4,4 +4,4 @@ ActiveOberon
 build/
 .idea
 aoc
-
+*.mod

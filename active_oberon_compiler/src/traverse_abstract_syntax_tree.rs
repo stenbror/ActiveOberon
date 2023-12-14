@@ -86,8 +86,23 @@ impl TraverseASTMethods for TraverseAST {
             Node::Index(_, _, _, _, _) => {}
             Node::Arrow(_, _, _) => {}
             Node::Transpose(_, _, _) => {}
-            Node::StatementSequence(_, _, _, _) => {}
-            Node::StatementBlock(_, _, _, _, _, _) => {}
+
+            Node::StatementSequence( _ , _, nodes , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::StatementBlock( _ , _ , _ , flags , node , _ ) => {
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node)
+                    },
+                    None => ()
+                }
+                self.traverse(node)
+            },
+
             Node::If(_, _, _, _, _, _, _, _, _) => {}
             Node::Elsif(_, _, _, _, _, _) => {}
             Node::Else(_, _, _, _) => {}
@@ -109,7 +124,42 @@ impl TraverseASTMethods for TraverseAST {
             Node::QuestionmarkStatement(_, _, _, _, _) => {}
             Node::LessLessStatement(_, _, _, _, _) => {}
             Node::GreaterGreaterStatement(_, _, _, _, _) => {}
-            Node::Module(_, _, _, _, _, _, _, _, _, _, _, _, _) => {}
+
+            Node::Module( _ , _ , _ , template_parameters ,  module_name , in_module , _ , import_list , decl_seq , body , _ , module_ident_end , _ ) => {
+                match template_parameters {
+                    Some (template) => self.traverse(template),
+                    _ => ()
+                }
+
+                self.traverse(module_name);
+
+                match in_module {
+                    Some( ( _ , in_mod ) ) => self.traverse(in_mod),
+                    _ => ()
+                }
+
+                match import_list {
+                    Some(import_list_nodes) => {
+                        for el in import_list_nodes.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+
+                match decl_seq {
+                    Some( decl_seq_node ) => self.traverse(decl_seq_node),
+                    _ => ()
+                }
+
+                match body {
+                    Some( body_node ) => self.traverse(body_node),
+                    _ => ()
+                }
+
+                self.traverse(module_ident_end)
+            },
+
             Node::TemplateParameters(_, _, _, _, _, _) => {}
             Node::TemplateParameter(_, _, _, _) => {}
             Node::ImportList(_, _, _, _, _, _) => {}
