@@ -9,6 +9,7 @@ use std::io::Read;
 use console::style;
 use crate::parser::{Parser as ActiveOberonParser, ParserMethods, BlockRules, Node};
 use crate::scanner::{Scanner as ActiveOberonScanner, ScannerMethods };
+use crate::traverse_abstract_syntax_tree::{TraverseAST, TraverseASTMethods};
 
 
 pub trait CompilerMethods {
@@ -34,8 +35,13 @@ impl CompilerMethods for Compiler {
         let res = self.parse_from_file(String::from(file_name));
 
         match res {
-            Ok( _ ) => {
+            Ok( root ) => {
                 println!("Success parsing statement!/r/n");
+
+                let mut tree_walker = TraverseAST::new();
+
+                tree_walker.traverse(root);
+
                 true
             },
             Err( s ) => {
