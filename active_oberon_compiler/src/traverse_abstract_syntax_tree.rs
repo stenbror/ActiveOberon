@@ -176,10 +176,35 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(stmt);
             },
 
-            Node::While(_, _, _, _, _, _, _) => {}
-            Node::Repeat(_, _, _, _, _, _) => {}
-            Node::For(_, _, _, _, _, _, _, _, _, _, _, _) => {}
-            Node::Loop(_, _, _, _, _) => {}
+            Node::While( _ , _ , _ , expr , _ , stmt , _ ) => {
+                self.traverse(expr);
+                self.traverse(stmt);
+            },
+
+            Node::Repeat( _ , _ , _ , stmt , _ , expr ) => {
+                self.traverse(stmt);
+                self.traverse(expr);
+            },
+
+            Node::For( _ , _ , _ , id , _ , from , _ , to , by , _ , stmt , _ ) => {
+                self.traverse(id);
+                self.traverse(from);
+                self.traverse(to);
+
+                match by {
+                    Some( ( _ , by_node ) ) => {
+                        self.traverse(by_node)
+                    },
+                    _ => ()
+                }
+
+                self.traverse(stmt);
+            },
+
+            Node::Loop( _ , _ , _ , stmt , _ ) => {
+                self.traverse(stmt);
+            },
+
             Node::Exit(_, _, _) => {}
             Node::Return(_, _, _, _) => {}
             Node::Await(_, _, _, _) => {}
