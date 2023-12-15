@@ -205,17 +205,57 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(stmt);
             },
 
-            Node::Exit(_, _, _) => {}
-            Node::Return(_, _, _, _) => {}
-            Node::Await(_, _, _, _) => {}
-            Node::Code(_, _, _, _, _) => {}
-            Node::Ignore(_, _, _, _) => {}
-            Node::BecomesStatement(_, _, _, _, _) => {}
-            Node::ExclaimMarkStatement(_, _, _, _, _) => {}
-            Node::QuestionmarkStatement(_, _, _, _, _) => {}
-            Node::LessLessStatement(_, _, _, _, _) => {}
-            Node::GreaterGreaterStatement(_, _, _, _, _) => {}
+            Node::Exit( _ , _ , _ ) => {
+                /* No need for elements in */
+            },
 
+            Node::Return( _ , _ , _ , expr ) => {
+                match expr {
+                    Some(expr_node) => {
+                        self.traverse(expr_node)
+                    },
+                    _ => ()
+
+                }
+            },
+
+            Node::Await( _ , _ , _ , expr ) => {
+                self.traverse(expr);
+            },
+
+            Node::Code( _ , _ , _ , code , _ ) => {
+                /* Need to handle code later! */
+            },
+
+            Node::Ignore( _ , _ , _ , expr ) => {
+                self.traverse(expr);
+            },
+
+            Node::BecomesStatement( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::ExclaimMarkStatement( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::QuestionmarkStatement( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::LessLessStatement( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::GreaterGreaterStatement( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+            
             Node::Module( _ , _ , _ , template_parameters ,  module_name , in_module , _ , import_list , decl_seq , body , _ , module_ident_end , _ ) => {
                 match template_parameters {
                     Some (template) => self.traverse(template),
