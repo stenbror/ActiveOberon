@@ -153,8 +153,29 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(stmt);
             },
 
-            Node::Case(_, _, _, _, _, _, _, _) => {}
-            Node::CaseElement(_, _, _, _, _, _, _) => {}
+            Node::Case( _ , _ , _ , expr , _ , nodes , node , _ ) => {
+                self.traverse(expr);
+
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+
+                match node {
+                    Some( else_node ) => {
+                        self.traverse(else_node)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::CaseElement( _ , _ , _ , nodes , _ , _ , stmt ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+
+                self.traverse(stmt);
+            },
+
             Node::While(_, _, _, _, _, _, _) => {}
             Node::Repeat(_, _, _, _, _, _) => {}
             Node::For(_, _, _, _, _, _, _, _, _, _, _, _) => {}
