@@ -36,7 +36,7 @@ impl CompilerMethods for Compiler {
 
         match res {
             Ok( root ) => {
-                println!("Success parsing statement!/r/n");
+                println!("\r\nSuccess parsing statement!\r\n");
 
                 let mut tree_walker = TraverseAST::new();
 
