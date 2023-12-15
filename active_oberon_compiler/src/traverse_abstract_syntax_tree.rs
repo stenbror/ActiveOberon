@@ -133,8 +133,26 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(stmt);
             },
 
-            Node::With(_, _, _, _, _, _, _, _) => {}
-            Node::WithElement(_, _, _, _, _, _) => {}
+            Node::With( _ , _ , _ , id , _ , nodes , node , _ ) => {
+                self.traverse(id);
+
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+
+                match node {
+                    Some( else_node ) => {
+                        self.traverse(else_node)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::WithElement( _ , _ , _ , element , _ , stmt ) => {
+                self.traverse(element);
+                self.traverse(stmt);
+            },
+
             Node::Case(_, _, _, _, _, _, _, _) => {}
             Node::CaseElement(_, _, _, _, _, _, _) => {}
             Node::While(_, _, _, _, _, _, _) => {}
