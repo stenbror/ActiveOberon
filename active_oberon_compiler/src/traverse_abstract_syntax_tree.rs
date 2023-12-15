@@ -255,7 +255,7 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(left);
                 self.traverse(right);
             },
-            
+
             Node::Module( _ , _ , _ , template_parameters ,  module_name , in_module , _ , import_list , decl_seq , body , _ , module_ident_end , _ ) => {
                 match template_parameters {
                     Some (template) => self.traverse(template),
@@ -295,7 +295,29 @@ impl TraverseASTMethods for TraverseAST {
             Node::TemplateParameter(_, _, _, _) => {}
             Node::ImportList(_, _, _, _, _, _) => {}
             Node::Import(_, _, _, _, _, _) => {}
-            Node::DeclarationSequence(_, _, _, _, _, _, _, _) => {}
+
+            Node::DeclarationSequence( _ , _ , const_decl , type_decl , var_decl , proc_decl , oper_decl , _ ) => {
+                for el in const_decl.iter() {
+                    self.traverse(el.clone())
+                }
+
+                for el in type_decl.iter() {
+                    self.traverse(el.clone())
+                }
+
+                for el in var_decl.iter() {
+                    self.traverse(el.clone())
+                }
+
+                for el in proc_decl.iter() {
+                    self.traverse(el.clone())
+                }
+
+                for el in oper_decl.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
             Node::ConstDeclaration(_, _, _, _) => {}
             Node::TypeDeclaration(_, _, _, _) => {}
             Node::VarDeclaration(_, _, _, _) => {}
@@ -310,9 +332,34 @@ impl TraverseASTMethods for TraverseAST {
             Node::FormalParameters(_, _, _, _, _, _, _) => {}
             Node::ParameterDeclaration(_, _, _, _, _, _, _) => {}
             Node::Parameter(_, _, _, _, _) => {}
-            Node::Body(_, _, _, _, _, _) => {}
-            Node::BodyCode(_, _, _, _) => {}
-            Node::TypeDeclarationElement(_, _, _, _, _, _) => {}
+
+            Node::Body( _ , _ , _ , flags , stmt , fin ) => {
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node);
+                    },
+                    _ => ()
+                }
+
+                self.traverse(stmt);
+
+                match fin {
+                    Some( ( _ , fin_node ) ) => {
+                        self.traverse( fin_node )
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::BodyCode( _ , _ , _ , _ ) => {
+                /* Handle later! */
+            },
+
+            Node::TypeDeclarationElement( _ , _ , left , _ , right , _ ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
             Node::ArrayType(_, _, _, _, _, _) => {}
             Node::MathArrayType(_, _, _, _, _, _) => {}
             Node::MathArraySize(_, _, _, _) => {}
