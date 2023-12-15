@@ -103,9 +103,36 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(node)
             },
 
-            Node::If(_, _, _, _, _, _, _, _, _) => {}
-            Node::Elsif(_, _, _, _, _, _) => {}
-            Node::Else(_, _, _, _) => {}
+            Node::If( _ , _ , _ , expr , _ , stmt , nodes , node , _ ) => {
+                self.traverse(expr);
+                self.traverse(stmt);
+
+                match nodes {
+                    Some( elsif_nodes) => {
+                        for el in elsif_nodes.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+
+                match node {
+                    Some( else_node ) => {
+                        self.traverse(else_node)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::Elsif( _ , _ , _ , expr , _ , stmt ) => {
+                self.traverse(expr);
+                self.traverse(stmt);
+            },
+
+            Node::Else( _ , _ , _ , stmt ) => {
+                self.traverse(stmt);
+            },
+
             Node::With(_, _, _, _, _, _, _, _) => {}
             Node::WithElement(_, _, _, _, _, _) => {}
             Node::Case(_, _, _, _, _, _, _, _) => {}
