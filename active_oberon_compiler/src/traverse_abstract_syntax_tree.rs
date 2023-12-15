@@ -291,10 +291,54 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(module_ident_end)
             },
 
-            Node::TemplateParameters(_, _, _, _, _, _) => {}
-            Node::TemplateParameter(_, _, _, _) => {}
-            Node::ImportList(_, _, _, _, _, _) => {}
-            Node::Import(_, _, _, _, _, _) => {}
+            Node::TemplateParameters( _ , _ , _ , nodes , _ , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::TemplateParameter( _ , _ , symbol , node ) => {
+                match *symbol {
+                    Symbols::Const( _ , _  ) => {
+
+                    },
+                    Symbols::Type( _ , _ ) => {
+
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::ImportList( _ , _ , _ , nodes , _ , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::Import( _ , _ , id_from , id_to , expr_list , el_ion ) => {
+                self.traverse(id_from);
+
+                match id_to {
+                    Some ( ( _ , id_to_node ) ) => {
+                        self.traverse(id_to_node)
+                    },
+                    _ => ()
+                }
+
+                match expr_list {
+                    Some( ( _ , expr_list_node , _ ) ) => {
+                        self.traverse(expr_list_node)
+                    },
+                    _ => ()
+                }
+
+                match el_ion {
+                    Some( ( _ , el_ion_node) ) => {
+                        self.traverse(el_ion_node)
+                    },
+                    _ => ()
+                }
+            },
 
             Node::DeclarationSequence( _ , _ , const_decl , type_decl , var_decl , proc_decl , oper_decl , _ ) => {
                 for el in const_decl.iter() {
