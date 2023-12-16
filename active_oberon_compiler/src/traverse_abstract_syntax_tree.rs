@@ -404,7 +404,19 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(right);
             },
 
-            Node::ArrayType(_, _, _, _, _, _) => {}
+            Node::ArrayType( _ , _ , _ , nodes, _ , type_node ) => {
+                match nodes {
+                    Some( ( nodes_element, _ ) ) => {
+                        for el in nodes_element.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+
+                self.traverse(type_node);
+            },
+
             Node::MathArrayType(_, _, _, _, _, _) => {}
             Node::MathArraySize(_, _, _, _) => {}
             Node::RecordType(_, _, _, _, _, _, _) => {}
