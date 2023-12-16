@@ -481,8 +481,33 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::PointerType(_, _, _, _, _, _) => {}
-            Node::ProcedureType(_, _, _, _, _) => {}
+            Node::PointerType( _ , _ , _ , flags , _ , type_node ) => {
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node)
+                    },
+                    _ => ()
+                }
+
+                self.traverse(type_node);
+            },
+
+            Node::ProcedureType( _ , _ , _ , flags , type_node ) => {
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node)
+                    },
+                    _ => ()
+                }
+
+                match type_node {
+                    Some( type_node_el ) => {
+                        self.traverse(type_node_el)
+                    },
+                    _ => ()
+                }
+            },
+
             Node::ObjectTypeEmpty(_, _, _) => {}
             Node::ObjectType(_, _, _, _, _, _, _, _, _) => {}
             Node::EnumerationType(_, _, _, _, _, _, _) => {}
