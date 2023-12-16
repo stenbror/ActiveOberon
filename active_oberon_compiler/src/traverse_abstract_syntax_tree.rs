@@ -620,12 +620,59 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::PortList(_, _, _, _) => {}
-            Node::PortDeclaration(_, _, _, _, _, _) => {}
-            Node::PortType(_, _, _, _, _) => {}
-            Node::QualifiedIdentifier(_, _, _, _, _) => {}
-            Node::IdentifierReadWrite(_, _, _, _) => {}
-            Node::IdentifierRead(_, _, _, _) => {}
+            Node::PortList( _ , _ , nodes , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::PortDeclaration( _ , _ , nodes , _ , _ , type_node ) => {
+                for el in nodes.iter() {
+                    match *el.clone() {
+                        ( id, Some (flag_node ) ) => {
+                            self.traverse(id);
+                            self.traverse(flag_node);
+                        },
+                        ( id , _  ) => {
+                            self.traverse(id);
+                        }
+                        _ => ()
+                    }
+
+                }
+            },
+
+            Node::PortType( _ , _ , _ , symbol , expr ) => {
+                match *symbol {
+                    Symbols::In( _ , _ ) => {
+
+                    },
+                    Symbols::Out( _ , _ ) => {
+
+                    },
+                    _ => ()
+                }
+
+                match expr {
+                    Some( ( _ , expr_node , _  )) => {
+                        self.traverse(expr_node);
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::QualifiedIdentifier( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::IdentifierReadWrite( _ , _ , id , _ ) => {
+                self.traverse(id);
+            },
+
+            Node::IdentifierRead( _ , _ , id , _ ) => {
+                self.traverse(id);
+            }
         }
     }
 }
