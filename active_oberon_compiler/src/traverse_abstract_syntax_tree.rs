@@ -454,7 +454,33 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::RecordType(_, _, _, _, _, _, _) => {}
+            Node::RecordType( _ , _ , _ , qualident , var_const_decl , proc_oper_decl , _ ) => {
+                match qualident {
+                    Some( ( _ , qual , _ ) ) => {
+                        self.traverse(qual)
+                    },
+                    _ => ()
+                }
+
+                match var_const_decl {
+                    Some( ( decl, _ ) ) => {
+                        for el in decl.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+
+                match proc_oper_decl {
+                    Some( ( proc, _ ) ) => {
+                        for el in proc.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+            },
+
             Node::PointerType(_, _, _, _, _, _) => {}
             Node::ProcedureType(_, _, _, _, _) => {}
             Node::ObjectTypeEmpty(_, _, _) => {}
