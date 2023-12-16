@@ -417,8 +417,43 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(type_node);
             },
 
-            Node::MathArrayType(_, _, _, _, _, _) => {}
-            Node::MathArraySize(_, _, _, _) => {}
+            Node::MathArrayType( _ , _ , _ , nodes , _ , type_node ) => {
+                match nodes {
+                    Some( ( nodes_element, _ ) ) => {
+                        for el in nodes_element.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+
+                self.traverse(type_node);
+            },
+
+            Node::MathArraySize( _ , _ , node , symbol ) => {
+                match symbol {
+                    Some ( x) => {
+                        match *x {
+                            Symbols::Times( _ , _ ) => {
+
+                            },
+                            Symbols::QuestionMark( _ , _ ) => {
+
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+
+                match node {
+                    Some( node_element) => {
+                        self.traverse(node_element)
+                    },
+                    _ => ()
+                }
+            },
+
             Node::RecordType(_, _, _, _, _, _, _) => {}
             Node::PointerType(_, _, _, _, _, _) => {}
             Node::ProcedureType(_, _, _, _, _) => {}
