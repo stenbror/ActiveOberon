@@ -508,10 +508,71 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::ObjectTypeEmpty(_, _, _) => {}
-            Node::ObjectType(_, _, _, _, _, _, _, _, _) => {}
-            Node::EnumerationType(_, _, _, _, _, _, _) => {}
-            Node::EnumElement(_, _, _, _) => {}
+            Node::ObjectTypeEmpty( _ , _ , _ ) => {
+                /* Empty Object */
+            },
+
+            Node::ObjectType( _ , _ , _ , flags , formal , decl , body , _ , ident ) => {
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node)
+                    },
+                    _ => ()
+                }
+
+                match formal {
+                    Some( ( _ , formal_el , _ ) ) => {
+                        self.traverse(formal_el)
+                    },
+                    _ => ()
+                }
+
+                match decl {
+                    Some( decl_node ) => {
+                        self.traverse(decl_node)
+                    },
+                    _ => ()
+                }
+
+                match body {
+                    Some( body_node ) => {
+                        self.traverse(body_node)
+                    },
+                    _ => ()
+                }
+
+                match ident {
+                    Some( ident_node ) => {
+                        self.traverse(ident_node)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::EnumerationType( _ , _ , _ , qualified , nodes , _ , _ ) => {
+                match qualified {
+                    Some( ( _ , qualident_node, _ ) ) => {
+                        self.traverse(qualident_node)
+                    },
+                    _ => ()
+                }
+
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::EnumElement( _ , _ , left , right ) => {
+                self.traverse(left);
+
+                match right {
+                    Some( ( _ , right_node ) ) => {
+                        self.traverse(right_node)
+                    },
+                    _ => ()
+                }
+            },
+
             Node::CellType(_, _, _, _, _, _, _, _, _, _, _) => {}
             Node::PortList(_, _, _, _) => {}
             Node::PortDeclaration(_, _, _, _, _, _) => {}
