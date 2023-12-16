@@ -573,7 +573,53 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::CellType(_, _, _, _, _, _, _, _, _, _, _) => {}
+            Node::CellType( _ , _ , symbol , flags , port_list , _ , import_list , decl , body , _ , id ) => {
+                match *symbol {
+                    Symbols::Cell( _ , _ ) => {
+
+                    },
+                    Symbols::Cellnet( _ , _ ) => {
+
+                    },
+                    _ => ()
+                }
+
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node)
+                    },
+                    _ => ()
+                }
+
+                match port_list {
+                    Some( ( _ , port_node, _ ) ) => {
+                        self.traverse(port_node)
+                    },
+                    _ => ()
+                }
+
+                match decl {
+                    Some( decl_node ) => {
+                        self.traverse(decl_node)
+                    },
+                    _ => ()
+                }
+
+                match body {
+                    Some( body_node ) => {
+                        self.traverse(body_node)
+                    },
+                    _ => ()
+                }
+
+                match id {
+                    Some( id_node ) => {
+                        self.traverse(id_node)
+                    },
+                    _ => ()
+                }
+            },
+
             Node::PortList(_, _, _, _) => {}
             Node::PortDeclaration(_, _, _, _, _, _) => {}
             Node::PortType(_, _, _, _, _) => {}
