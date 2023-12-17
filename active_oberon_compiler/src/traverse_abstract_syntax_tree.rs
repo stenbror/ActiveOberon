@@ -362,10 +362,28 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::ConstDeclaration(_, _, _, _) => {}
-            Node::TypeDeclaration(_, _, _, _) => {}
-            Node::VarDeclaration(_, _, _, _) => {}
-            Node::Const(_, _, _, _, _) => {},
+            Node::ConstDeclaration( _ , _ , _ , nodes ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::TypeDeclaration( _ , _ , _ , nodes ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::VarDeclaration( _ , _ , _ , nodes ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::Const( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
 
             Node::Var( _ , _ , left , _ , right ) => {
                 self.traverse(left);
