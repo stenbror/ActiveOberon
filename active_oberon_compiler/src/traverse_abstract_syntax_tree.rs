@@ -368,9 +368,31 @@ impl TraverseASTMethods for TraverseAST {
             Node::Const(_, _, _, _, _) => {}
             Node::Var(_, _, _, _, _) => {}
             Node::VarList(_, _, _, _) => {}
-            Node::VarName(_, _, _, _, _) => {}
-            Node::Flags(_, _, _, _, _, _) => {}
-            Node::Flag(_, _, _, _, _) => {},
+            Node::VarName(_, _, _, _, _) => {},
+
+            Node::Flags( _ , _ , _ , nodes , _ , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+            },
+
+            Node::Flag( _ , _ , id , expr , equals ) => {
+                self.traverse(id);
+
+                match expr {
+                    Some( ( _ , expr_node , _ ) ) => {
+                        self.traverse(expr_node)
+                    },
+                    _ => ()
+                }
+
+                match equals {
+                    Some( ( _ , node ) ) => {
+                        self.traverse(node)
+                    },
+                    _ => ()
+                }
+            },
 
             Node::Procedure( _ , _ , _ , flags , para_decl , id_def , para , _ , decl , body , _ , id_back ) => {
                 match flags {
