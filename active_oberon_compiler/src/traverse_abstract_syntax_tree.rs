@@ -24,19 +24,67 @@ impl TraverseASTMethods for TraverseAST {
 
     fn traverse(&mut self, tree: Box<Node>) -> () {
         match *tree {
-            Node::Empty => {}
-            Node::Ident(_, _, _) => {}
-            Node::Integer(_, _, _) => {}
-            Node::Real(_, _, _) => {}
-            Node::Character(_, _, _) => {}
-            Node::String(_, _, _) => {}
-            Node::Nil(_, _, _) => {}
-            Node::Imag(_, _, _) => {}
-            Node::True(_, _, _) => {}
-            Node::False(_, _, _) => {}
-            Node::Self_(_, _, _) => {}
-            Node::Result(_, _, _) => {}
-            Node::Address(_, _, _, _) => {}
+            Node::Empty => {},
+
+            Node::Ident( _ , _ , id ) => {
+                /* Handle ident */
+            },
+
+            Node::Integer( _ , _ , data ) => {
+                /* Handle integer */
+            },
+
+            Node::Real( _ , _ , data ) => {
+                /* Handle real */
+            },
+
+            Node::Character( _ , _ , data ) => {
+                /* Handle character */
+            },
+
+            Node::String( _ , _ , data ) => {
+                /*  Handle string */
+            },
+
+            Node::Nil( _ , _ , _ ) => {
+
+            },
+
+            Node::Imag( _ , _ , _ ) => {
+
+            },
+
+            Node::True( _ , _ , _ ) => {
+
+            },
+
+            Node::False( _ , _ , _ ) => {
+
+            },
+
+            Node::Self_( _ , _ , _ ) => {
+
+            },
+
+            Node::Result( _ , _ , _ ) => {
+
+            },
+
+            Node::Address( _ , _ , _ , expr ) => {
+                match expr {
+                    Some( x ) => {
+                        let data = *x;
+                        match data {
+                            ( _ , node ) => {
+                                self.traverse(node)
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+            },
+
             Node::Size(_, _, _, _) => {}
             Node::Alias(_, _, _, _, _) => {}
             Node::New(_, _, _, _, _, _, _) => {}
