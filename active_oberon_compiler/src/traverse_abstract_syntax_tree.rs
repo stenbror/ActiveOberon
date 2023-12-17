@@ -210,25 +210,119 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(right);
             },
 
-            Node::Range(_, _, _, _, _, _, _) => {}
-            Node::Equal(_, _, _, _, _) => {}
-            Node::NotEqual(_, _, _, _, _) => {}
-            Node::Less(_, _, _, _, _) => {}
-            Node::LessEqual(_, _, _, _, _) => {}
-            Node::GreaterEqual(_, _, _, _, _) => {}
-            Node::Greater(_, _, _, _, _) => {}
-            Node::In(_, _, _, _, _) => {}
-            Node::Is(_, _, _, _, _) => {}
-            Node::DotEqual(_, _, _, _, _) => {}
-            Node::DotUnequal(_, _, _, _, _) => {}
-            Node::DotLess(_, _, _, _, _) => {}
-            Node::DotLessEqual(_, _, _, _, _) => {}
-            Node::DotGreater(_, _, _, _, _) => {}
-            Node::DotGreaterEqual(_, _, _, _, _) => {}
-            Node::QuestionMarks(_, _, _, _, _) => {}
-            Node::ExplainMarks(_, _, _, _, _) => {}
-            Node::LessLessQ(_, _, _, _, _) => {}
-            Node::GreaterGreaterQ(_, _, _, _, _) => {}
+            Node::Range( _ , _ , first , _ , second , _ , third ) => {
+                match first {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+
+                match second {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+
+                match third {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::Equal( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::NotEqual( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Less( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::LessEqual( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::GreaterEqual( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Greater( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::In( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Is( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotEqual( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotUnequal( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotLess( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotLessEqual( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotGreater( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotGreaterEqual( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::QuestionMarks( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::ExplainMarks( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::LessLessQ( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::GreaterGreaterQ( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
             Node::Array(_, _, _, _, _, _) => {}
             Node::Set(_, _, _, _, _, _) => {}
             Node::ExpressionList(_, _, _, _) => {}
