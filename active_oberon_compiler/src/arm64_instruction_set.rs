@@ -4,9 +4,41 @@
 // Arm64 Assembler instruction-set module for compiling and linking of projects written in ActiveOberon language
 
 
+/// Conditional part of an opcode.
+pub enum Conditional {
+    ConditionEQ = 0,
+    ConditionNE = 1,
+    ConditionCS = 2,
+    ConditionCC = 3,
+    ConditionMI = 4,
+    ConditionPL = 5,
+    ConditionVS = 6,
+    ConditionVC = 7,
+    ConditionHI = 8,
+    ConditionLS = 9,
+    ConditionGE = 10,
+    ConditionLT = 11,
+    ConditionGT = 12,
+    ConditionLE = 13,
+    ConditionAL = 14,
+    ConditionNV = 15,
+}
+
+impl Conditional {
+    pub const ConditionHS: Conditional = Conditional::ConditionCS;
+    pub const ConditionLO: Conditional = Conditional::ConditionCC;
+    pub const Unconditional: Conditional = Conditional::ConditionAL;
+}
+
+pub enum IndexFlags {
+    Increment = 0,
+    Decrement = 1,
+    PostIndexed = 2,
+    PreIndexed = 3
+}
 
 /// ARM64 Opcodes supported by inline assembler
-enum Opcodes {
+pub enum Opcodes {
     OpAdc = 0,
     OpAdd = 1,
     OpAnd = 2,
@@ -190,3 +222,109 @@ enum Opcodes {
     OpMovw = 180,
     OpUdf = 181,
 }
+
+pub enum Flags {
+    FlagB = 0,
+    FlagBT = 1,
+    FlagD = 2,
+    FlagDA = 3,
+    FlagDB = 4,
+    FlagH = 5,
+    FlagIA = 6,
+    FlagIB = 7,
+    FlagL = 8,
+    FlagS = 9,
+    FlagSB = 10,
+    FlagSH = 11,
+    FlagT = 12,
+    FlagNEON8bits = 13,
+    FlagNEON16bits = 14,
+    FlagNEON32bits = 15,
+    FlagNEON64bits = 16,
+    FlagNEONInt = 17,
+    FlagNEONSigned = 18,
+    FlagNEONUnsigned = 19,
+    FlagNEONFloat = 20,
+    FlagNEONPoly = 21,
+    FlagNEONUndef = 22,
+    FlagCondition = 23,
+    FlagUserMode = 24,
+    FlagBaseRegisterUpdate = 25
+}
+
+pub enum Encoding {
+    EncodingR16= 0,
+    EncodingR12= 1,
+    EncodingR8= 2,
+    EncodingR0= 3,
+    EncodingAddressingMode1= 4,
+    EncodingAddressingMode2= 5,
+    EncodingAddressingMode3= 6,
+    EncodingAddressingMode5= 7,
+    EncodingCoprocessor= 8,
+    EncodingCR0= 9,
+    EncodingCR12= 10,
+    EncodingCR16= 11,
+    EncodingOpcode20= 12,
+    EncodingOpcode21= 13,
+    EncodingOpcode5= 14,
+    EncodingOpcode4= 15,
+    EncodingSignedImm24= 16,
+    EncodingImm24= 17,
+    EncodingImm16= 18,
+    EncodingRotImm8= 19,
+    EncodingRegisterList= 20,
+    EncodingPSR= 21,
+    EncodingFields= 22,
+    EncodingDR0= 23,
+    EncodingDR12= 24,
+    EncodingDR16= 25,
+    EncodingFR0= 26,
+    EncodingFR12= 27,
+    EncodingFR16= 28,
+    EncodingDRegisterList= 29,
+    EncodingFRegisterList= 30,
+    EncodingAddressingMode5V= 31,
+    EncodingNEONQd = 32,
+    EncodingNEONQn = 33,
+    EncodingNEONQm = 34,
+    EncodingNEONDd = 35,
+    EncodingNEONDn = 36,
+    EncodingNEONDm = 37,
+    EncodingNEONSd = 38,
+    EncodingNEONSn = 39,
+    EncodingNEONSm = 40,
+    EncodingNEONImmAndSize = 41,
+    EncodingNEON8bitImm = 42,
+    EncodingNEON3bitImm = 43,
+    EncodingNEONQorDd = 44,
+    EncodingNEONQorDn = 45,
+    EncodingNEONQorDm = 46,
+    EncodingNEONDorSd = 47,
+    EncodingNEONDorSn = 48,
+    EncodingNEONDorSm = 49,
+    EncodingNEONDRegList = 50,
+    EncodingNEONSysReg = 51,
+    EncodingNEONSigned8bitImm = 52,
+    EncodingImm7to11 = 53,
+    EncodingImm12a0imm4a16 = 54
+}
+
+pub enum NeonEncoding {
+    EncodeNEON3RegSame = 0,
+    EncodeNEON3RegLong = 1,
+    EncodeNEON3RegNarrow = 2,
+    EncodeNEON3RegWide = 3,
+    EncodeNEON2RegScalar = 4,
+    EncodeNEON2RegScalarLong = 5,
+    EncodeNEON2RegShift = 6,
+    EncodeNEON2RegShiftNarrow = 7,
+    EncodeNEON2RegShiftLong = 8,
+    EncodeNEON2RegMisc = 9,
+    EncodeNEON2RegMiscNarrow = 10,
+    EncodeNEON2RegMiscLong = 11,
+    EncodeNEONVFP = 12,
+    EncodeNEONVFP2Reg = 13,
+    EncodeNEONVFP1Reg = 14
+}
+
