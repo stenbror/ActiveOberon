@@ -145,19 +145,71 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(right);
             },
 
-            Node::Times(_, _, _, _, _) => {}
-            Node::Slash(_, _, _, _, _) => {}
-            Node::Div(_, _, _, _, _) => {}
-            Node::Mod(_, _, _, _, _) => {}
-            Node::And(_, _, _, _, _) => {}
-            Node::DotTimes(_, _, _, _, _) => {}
-            Node::DotSlash(_, _, _, _, _) => {}
-            Node::Backslash(_, _, _, _, _) => {}
-            Node::TimesTimes(_, _, _, _, _) => {}
-            Node::PlusTimes(_, _, _, _, _) => {}
-            Node::Plus(_, _, _, _, _) => {}
-            Node::Minus(_, _, _, _, _) => {}
-            Node::Or(_, _, _, _, _) => {}
+            Node::Times( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Slash( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Div( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Mod( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::And( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotTimes( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::DotSlash( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Backslash( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::TimesTimes( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::PlusTimes( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Plus( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Minus( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::Or( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
             Node::Range(_, _, _, _, _, _, _) => {}
             Node::Equal(_, _, _, _, _) => {}
             Node::NotEqual(_, _, _, _, _) => {}
