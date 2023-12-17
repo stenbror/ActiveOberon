@@ -365,10 +365,46 @@ impl TraverseASTMethods for TraverseAST {
             Node::ConstDeclaration(_, _, _, _) => {}
             Node::TypeDeclaration(_, _, _, _) => {}
             Node::VarDeclaration(_, _, _, _) => {}
-            Node::Const(_, _, _, _, _) => {}
-            Node::Var(_, _, _, _, _) => {}
-            Node::VarList(_, _, _, _) => {}
-            Node::VarName(_, _, _, _, _) => {},
+            Node::Const(_, _, _, _, _) => {},
+
+            Node::Var( _ , _ , left , _ , right ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::VarList( _ , _ , nodes , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone());
+                }
+            },
+
+            Node::VarName( _ , _ , id , flags , equals ) => {
+                self.traverse(id);
+
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node);
+                    },
+                    _ => ()
+                }
+
+                match equals {
+                    Some( ( symbol , expr_node) ) => {
+                        match *symbol {
+                            Symbols::Equal( _ , _ ) => {
+
+                            },
+                            Symbols::Extern( _ , _ ) => {
+
+                            },
+                            _ => ()
+                        }
+
+                        self.traverse(expr_node);
+                    },
+                    _ => ()
+                }
+            },
 
             Node::Flags( _ , _ , _ , nodes , _ , _ ) => {
                 for el in nodes.iter() {
