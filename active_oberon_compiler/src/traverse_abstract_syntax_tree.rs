@@ -323,15 +323,81 @@ impl TraverseASTMethods for TraverseAST {
                 self.traverse(right);
             },
 
-            Node::Array(_, _, _, _, _, _) => {}
-            Node::Set(_, _, _, _, _, _) => {}
-            Node::ExpressionList(_, _, _, _) => {}
-            Node::IndexList(_, _, _, _, _, _, _) => {}
-            Node::Call(_, _, _, _, _) => {}
-            Node::DotName(_, _, _, _) => {}
-            Node::Index(_, _, _, _, _) => {}
-            Node::Arrow(_, _, _) => {}
-            Node::Transpose(_, _, _) => {}
+            Node::Array( _ , _ , _ , nodes , _ , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone());
+                }
+            },
+
+            Node::Set( _ , _ , _ , nodes , _ , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone());
+                }
+            },
+
+            Node::ExpressionList( _ , _ , nodes , _ ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone());
+                }
+            },
+
+            Node::IndexList( _ , _ , left , _ , question_mark , _ , right ) => {
+                match left {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+
+                match question_mark {
+                    Some( el ) => {
+                        match *el {
+                            Symbols::QuestionMark( _ , _ ) => {
+                                /* Handle */
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+
+                match right {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::Call( _ , _ , _ , right , _ ) => {
+                match right {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::DotName( _ , _ , _ , id ) => {
+                self.traverse(id);
+            },
+
+            Node::Index( _ , _ , _ , right , _ ) => {
+                match right {
+                    Some( x ) => {
+                        self.traverse(x)
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::Arrow( _ , _ , _ ) => {
+                /* Handle */
+            },
+
+            Node::Transpose( _ , _ , _ ) => {
+                /* Handle */
+            },
 
             Node::StatementSequence( _ , _, nodes , _ ) => {
                 for el in nodes.iter() {
