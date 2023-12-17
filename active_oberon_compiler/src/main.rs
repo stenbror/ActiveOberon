@@ -9,6 +9,9 @@ mod parser;
 mod symbol_table;
 mod compiler;
 mod traverse_abstract_syntax_tree;
+mod arm64_assembler;
+mod arm64_instruction_set;
+mod arm64_backend;
 
 use console::style;
 use build_time::{build_time_local};
