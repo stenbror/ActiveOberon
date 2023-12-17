@@ -370,8 +370,67 @@ impl TraverseASTMethods for TraverseAST {
             Node::VarList(_, _, _, _) => {}
             Node::VarName(_, _, _, _, _) => {}
             Node::Flags(_, _, _, _, _, _) => {}
-            Node::Flag(_, _, _, _, _) => {}
-            Node::Procedure(_, _, _, _, _, _, _, _, _, _, _, _) => {},
+            Node::Flag(_, _, _, _, _) => {},
+
+            Node::Procedure( _ , _ , _ , flags , para_decl , id_def , para , _ , decl , body , _ , id_back ) => {
+                match flags {
+                    Some ( (flag_node, mark) ) => {
+                        match flag_node {
+                            Some( flag_node_element) => {
+                                self.traverse(flag_node_element)
+                            },
+                            _ => ()
+                        }
+
+                        match mark {
+                            Some( mark_element ) => {
+                                match *mark_element {
+                                    Symbols::Arrow( _ , _ ) => {
+
+                                    },
+                                    Symbols::And( _ , _ ) => {
+
+                                    },
+                                    Symbols::Not( _ , _ ) => {
+
+                                    },
+                                    Symbols::Minus( _ , _ ) => {
+
+                                    },
+                                    _ => ()
+                                }
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+
+                self.traverse(id_def);
+
+                match para {
+                    Some( el ) => {
+                        self.traverse(el)
+                    },
+                    _ => ()
+                }
+
+                match decl {
+                    Some( el ) => {
+                        self.traverse(el)
+                    },
+                    _ => ()
+                }
+
+                match body {
+                    Some( el ) => {
+                        self.traverse(el)
+                    },
+                    _ => ()
+                }
+
+                self.traverse(id_back);
+            },
 
             Node::Operator( _ , _ , _ , flags , element1 , id_front , element2 , para , _ , decl , body , _ , id_back ) => {
                 match flags {
