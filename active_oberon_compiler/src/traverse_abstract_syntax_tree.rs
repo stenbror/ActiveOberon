@@ -100,13 +100,51 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::Alias(_, _, _, _, _) => {}
-            Node::New(_, _, _, _, _, _, _) => {}
-            Node::ParenthesisExpression(_, _, _, _, _) => {}
-            Node::UnaryExpression(_, _, _, _, _) => {}
-            Node::UnaryPlus(_, _, _, _) => {}
-            Node::UnaryMinus(_, _, _, _) => {}
-            Node::UnaryNot(_, _, _, _) => {}
+            Node::Alias( _ , _ , _ , _ , node ) => {
+                self.traverse(node);
+            },
+
+            Node::New( _ , _ , _ , left , _ , right , _ ) => {
+                self.traverse(left);
+                self.traverse(right);
+            },
+
+            Node::ParenthesisExpression( _ , _ , _ , node , _ ) => {
+                self.traverse(node);
+            },
+
+            Node::UnaryExpression( _ , _ , right , designator , flags ) => {
+                self.traverse(right);
+
+                match designator {
+                    Some( nodes ) => {
+                        for el in nodes.iter() {
+                            self.traverse(el.clone())
+                        }
+                    },
+                    _ => ()
+                }
+
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node);
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::UnaryPlus( _ , _ , _ , right ) => {
+                self.traverse(right);
+            },
+
+            Node::UnaryMinus( _ , _ , _ , right ) => {
+                self.traverse(right);
+            },
+
+            Node::UnaryNot( _ , _ , _ , right ) => {
+                self.traverse(right);
+            },
+
             Node::Times(_, _, _, _, _) => {}
             Node::Slash(_, _, _, _, _) => {}
             Node::Div(_, _, _, _, _) => {}
