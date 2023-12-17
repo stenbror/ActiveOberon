@@ -85,7 +85,21 @@ impl TraverseASTMethods for TraverseAST {
                 }
             },
 
-            Node::Size(_, _, _, _) => {}
+            Node::Size( _ , _ , _ , expr ) => {
+                match expr {
+                    Some( x ) => {
+                        let data = *x;
+                        match data {
+                            ( _ , node ) => {
+                                self.traverse(node)
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+            },
+
             Node::Alias(_, _, _, _, _) => {}
             Node::New(_, _, _, _, _, _, _) => {}
             Node::ParenthesisExpression(_, _, _, _, _) => {}
