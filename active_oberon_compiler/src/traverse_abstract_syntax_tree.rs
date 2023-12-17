@@ -371,11 +371,124 @@ impl TraverseASTMethods for TraverseAST {
             Node::VarName(_, _, _, _, _) => {}
             Node::Flags(_, _, _, _, _, _) => {}
             Node::Flag(_, _, _, _, _) => {}
-            Node::Procedure(_, _, _, _, _, _, _, _, _, _, _, _) => {}
-            Node::Operator(_, _, _, _, _, _, _, _, _, _, _, _, _) => {}
-            Node::FormalParameters(_, _, _, _, _, _, _) => {}
-            Node::ParameterDeclaration(_, _, _, _, _, _, _) => {}
-            Node::Parameter(_, _, _, _, _) => {}
+            Node::Procedure(_, _, _, _, _, _, _, _, _, _, _, _) => {},
+
+            Node::Operator( _ , _ , _ , flags , element1 , id_front , element2 , para , _ , decl , body , _ , id_back ) => {
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node);
+                    },
+                    _ => ()
+                }
+
+                match element1 {
+                    Some( el1 ) => {
+                        match *el1 {
+                            Symbols::Minus( _ , _ ) => {
+
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+
+                self.traverse(id_front);
+
+                match element2 {
+                    Some( el2 ) => {
+                        match *el2 {
+                            Symbols::Minus( _ , _ ) => {
+
+                            },
+                            Symbols::Times( _ , _ ) => {
+
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+
+                self.traverse(para);
+
+                match decl {
+                    Some( decl_node ) => {
+                        self.traverse(decl_node)
+                    },
+                    _ => ()
+                }
+
+                match body {
+                    Some( body_node ) => {
+                        self.traverse(body_node)
+                    },
+                    _ => ()
+                }
+
+                self.traverse(id_back);
+            },
+
+            Node::FormalParameters( _ , _ , _ , nodes , _ , _ , type_expr ) => {
+                for el in nodes.iter() {
+                    self.traverse(el.clone())
+                }
+
+                match type_expr {
+                    Some( ( _ , flags2, type_expr_node ) ) => {
+                        match flags2 {
+                            Some( flags_node2 ) => {
+                                self.traverse(flags_node2);
+                            },
+                            _ => ()
+                        }
+
+                        self.traverse(type_expr_node);
+                    },
+                    _ => ()
+                }
+            },
+
+            Node::ParameterDeclaration( _ , _ , symbols , nodes , _ , _ , type_expr ) => {
+                match symbols {
+                    Some( symbol_node ) => {
+                        match *symbol_node {
+                            Symbols::Var( _ , _ ) => {
+
+                            },
+                            Symbols::Const( _ , _ ) => {
+
+                            },
+                            _ => ()
+                        }
+                    },
+                    _ => ()
+                }
+
+                for el in nodes.iter()  {
+                    self.traverse(el.clone())
+                }
+
+                self.traverse(type_expr);
+            },
+
+            Node::Parameter( _ , _ , id , flags , expr ) => {
+                self.traverse(id);
+
+                match flags {
+                    Some( flags_node ) => {
+                        self.traverse(flags_node);
+                    },
+                    _ => ()
+                }
+
+                match expr {
+                    Some( ( _ , expr_node ) ) => {
+                        self.traverse(expr_node)
+                    },
+                    _ => ()
+                }
+            },
 
             Node::Body( _ , _ , _ , flags , stmt , fin ) => {
                 match flags {
