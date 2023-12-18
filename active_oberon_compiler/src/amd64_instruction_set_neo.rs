@@ -30,6 +30,16 @@ type CpuFlags = u32;
 /// Encode a single assembler instructions with operands
 fn encode_instruction_amd64(instruction: Box<String>, operands: Box<Vec<Box<String>>>, flags: CpuFlags) -> Result<Box<Vec<u8>>, Box<String>> {
 
+    match &*instruction.as_str() {
+        "AAA" => {},
+        "AAD" => {},
+        "AAM" => {},
+        "AAS" => {},
+        "ADC" => {},
+
+        _ => return Err(Box::new(String::from("Illegal instruction!")))
+    }
+
     Ok(Box::new(Vec::<u8>::new()))
 }
 
