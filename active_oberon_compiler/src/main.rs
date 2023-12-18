@@ -1,5 +1,5 @@
 
-// ActiveOberon Compiler, a native ARM v8 & X86-64 compiler / linker / builder utility.
+// ActiveOberon Compiler, a native ARM v8 & X86-64 compiler & Risc V / linker / builder utility.
 // Written by Richard Magnor Stenbro. Licensed under GPL v3
 // Main driver module for compiling and linking of projects written in ActiveOberon language
 
@@ -10,6 +10,8 @@ mod symbol_table;
 mod compiler;
 mod traverse_abstract_syntax_tree;
 mod amd64_instruction_set_neo;
+mod arm64_instruction_set_neo;
+mod riscv_instruction_set_neo;
 
 use console::style;
 use build_time::{build_time_local};
