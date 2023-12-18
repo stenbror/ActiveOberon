@@ -4,6 +4,8 @@
 // Arm64 Assembler instruction-set module for compiling and linking of projects written in ActiveOberon language
 
 
+use crate::arm64_instruction_set::NeonEncoding::EncodeNEONVFP2Reg;
+
 /// Conditional part of an opcode.
 pub enum Conditional {
     ConditionEQ = 0,
@@ -470,3 +472,206 @@ impl Register {
     pub const RESFS: Register = Register::SR0;
     pub const RESFD: Register = Register::DR0;
 }
+
+pub enum Shifts {
+    shiftLSL = 0,
+    shiftLSR = 1,
+    shiftASR = 2,
+    shiftROR = 3,
+    shiftRRX = 4,
+    NumberShifts = 5
+}
+
+pub enum CoProsessor {
+    CP0 = 0,
+    CP1 = 1,
+    CP2 = 2,
+    CP3 = 3,
+    CP4 = 4,
+    CP5 = 5,
+    CP6 = 6,
+    CP7 = 7,
+    CP8 = 8,
+    CP9 = 9,
+    CP10 = 10,
+    CP11 = 11,
+    CP12 = 12,
+    CP13 = 13,
+    CP14 = 14,
+    CP15 = 15
+}
+
+pub enum Field {
+    FieldC = 0,
+    FieldX = 1,
+    FieldS = 2,
+    FieldF = 3
+}
+
+
+const BITS_12: u32 = 4096;
+const BITS_10: u32 = 1024;
+const BITS_7: u32 = 128;
+const BITS_5: u32 = 32;
+
+// Mnemonics used in ARM64 assembler code
+
+#[derive()]
+pub struct Mnemonic {
+    name: &'static str,
+    number: Opcodes,
+    first_instruction_format: Encoding,
+    last_instruction_format: Encoding
+}
+
+const MNEMONIC_ARM64: [Mnemonic; 143] = [
+    Mnemonic { name: "ADC", number: Opcodes::OpAdc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "ADD", number: Opcodes::OpAdd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "B", number: Opcodes::OpB, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "BIC", number: Opcodes::OpBic, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "BKPT", number: Opcodes::OpBkpt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "BL", number: Opcodes::OpBl, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "BLX", number: Opcodes::OpBlx, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "BX", number: Opcodes::OpBx, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "CDP", number: Opcodes::OpCdp, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "CDP2", number: Opcodes::OpCdp, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "CLZ", number: Opcodes::OpClz, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "CMN", number: Opcodes::OpCmn, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "CMP", number: Opcodes::OpCmp, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "EOR", number: Opcodes::OpEor, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FABSD", number: Opcodes::OpFabsd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FABSS", number: Opcodes::OpFabss, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FADDD", number: Opcodes::OpFaddd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FADDS", number: Opcodes::OpFadds, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPD", number: Opcodes::OpFcmpd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPED", number: Opcodes::OpFcmped, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPES", number: Opcodes::OpFcmpes, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPEZD", number: Opcodes::OpFcmpezd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPEZS", number: Opcodes::OpFcmpezs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPS", number: Opcodes::OpFcmps, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPZD", number: Opcodes::OpFcmpzd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCMPZS", number: Opcodes::OpFcmpzs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCPYD", number: Opcodes::OpFcpyd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCPYS", number: Opcodes::OpFcpys, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCVTDS", number: Opcodes::OpFcvtds, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FCVTSD", number: Opcodes::OpFcvtsd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FDIVD", number: Opcodes::OpFdivd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FDIVS", number: Opcodes::OpFdivs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDD", number: Opcodes::OpFldd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDMIAD", number: Opcodes::OpFldmiad, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDMIAS", number: Opcodes::OpFldmias, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDMIAX", number: Opcodes::OpFldmiax, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDMDBD", number: Opcodes::OpFldmdbd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDMDBS", number: Opcodes::OpFldmdbs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDMDBX", number: Opcodes::OpFldmdbx, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FLDS", number: Opcodes::OpFlds, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMACD", number: Opcodes::OpFmacd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMACS", number: Opcodes::OpFmacs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMDHR", number: Opcodes::OpFmdhr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMDLR", number: Opcodes::OpFmdlr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMRDH", number: Opcodes::OpFmrdh, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMRDL", number: Opcodes::OpFmrdl, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMRS", number: Opcodes::OpFmrs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMRX", number: Opcodes::OpFmrx, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMSCD", number: Opcodes::OpFmscd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMSCS", number: Opcodes::OpFmscs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMSR", number: Opcodes::OpFmsr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMSTAT", number: Opcodes::OpFmstat, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMULD", number: Opcodes::OpFmuld, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMULS", number: Opcodes::OpFmuls, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FMXR", number: Opcodes::OpFmxr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNEGD", number: Opcodes::OpFnegd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNEGS", number: Opcodes::OpFnegs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNMACD", number: Opcodes::OpFnmacd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNMACS", number: Opcodes::OpFnmacs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNMSCD", number: Opcodes::OpFnmscd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNMSCS", number: Opcodes::OpFnmscs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNMULD", number: Opcodes::OpFnmuld, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FNMULS", number: Opcodes::OpFnmuls, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSITOD", number: Opcodes::OpFsitod, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSITOS", number: Opcodes::OpFsitos, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSQRTD", number: Opcodes::OpFsqrtd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSQRTS", number: Opcodes::OpFsqrts, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTD", number: Opcodes::OpFstd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTMIAD", number: Opcodes::OpFstmiad, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTMIAS", number: Opcodes::OpFstmias, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTMIAX", number: Opcodes::OpFstmiax, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTMDBD", number: Opcodes::OpFstmdbd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTMDBS", number: Opcodes::OpFstmdbs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTMDBX", number: Opcodes::OpFstmdbx, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSTS", number: Opcodes::OpFsts, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSUBD", number: Opcodes::OpFsubd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FSUBS", number: Opcodes::OpFsubs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOSID", number: Opcodes::OpFtosid, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOSIZD", number: Opcodes::OpFtosizd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOSIS", number: Opcodes::OpFtosis, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOSIZS", number: Opcodes::OpFtosizs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOUID", number: Opcodes::OpFtouid, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOUIZD", number: Opcodes::OpFtouizd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOUIS", number: Opcodes::OpFtouis, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FTOUIZS", number: Opcodes::OpFtouizs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FUITOD", number: Opcodes::OpFuitod, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "FUITOS", number: Opcodes::OpFuitos, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "LDC", number: Opcodes::OpLdc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "LDC2", number: Opcodes::OpLdc2, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "LDM", number: Opcodes::OpLdm, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "LDR", number: Opcodes::OpLdr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MCR", number: Opcodes::OpMcr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MCR2", number: Opcodes::OpMcr2, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MCRR", number: Opcodes::OpMcrr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MLA", number: Opcodes::OpMla, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MOV", number: Opcodes::OpMov, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MOVW", number: Opcodes::OpMovw, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MRC", number: Opcodes::OpMrc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MRC2", number: Opcodes::OpMrc2, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MRRC", number: Opcodes::OpMrrc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MRS", number: Opcodes::OpMrs, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MSR", number: Opcodes::OpMsr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MUL", number: Opcodes::OpMul, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "MVN", number: Opcodes::OpMvn, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "ORR", number: Opcodes::OpOrr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "PLD", number: Opcodes::OpPld, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "QADD", number: Opcodes::OpQadd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "QDADD", number: Opcodes::OpQdadd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "QDSUB", number: Opcodes::OpQdsub, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "QSUB", number: Opcodes::OpQsub, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "RSB", number: Opcodes::OpRsb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "RSC", number: Opcodes::OpRsc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SBC", number: Opcodes::OpSbc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLABB", number: Opcodes::OpSmlabb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLABT", number: Opcodes::OpSmlabt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLATB", number: Opcodes::OpSmlatb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLATT", number: Opcodes::OpSmlatt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLAL", number: Opcodes::OpSmlal, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLALBB", number: Opcodes::OpSmlalbb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLALBT", number: Opcodes::OpSmlalbt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLALTB", number: Opcodes::OpSmlaltb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLALTT", number: Opcodes::OpSmlaltt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLAWB", number: Opcodes::OpSmlawb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMLAWT", number: Opcodes::OpSmlawt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULBB", number: Opcodes::OpSmulbb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULBT", number: Opcodes::OpSmulbt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULTB", number: Opcodes::OpSmultb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULTT", number: Opcodes::OpSmultt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULWB", number: Opcodes::OpSmulwb, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULWT", number: Opcodes::OpSmulwt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SMULL", number: Opcodes::OpSmull, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "STC", number: Opcodes::OpStc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "STC2", number: Opcodes::OpStc2, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "STM", number: Opcodes::OpStm, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "STR", number: Opcodes::OpStr, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SUB", number: Opcodes::OpSub, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SWI", number: Opcodes::OpSwi, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "SWP", number: Opcodes::OpSwp, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "TEQ", number: Opcodes::OpTeq, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "TST", number: Opcodes::OpSmlalbt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "UMLAL", number: Opcodes::OpUmlal, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "UMULL", number: Opcodes::OpUmull, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "UDF", number: Opcodes::OpUdf, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+];
+
+/*
+
+
+
+*/
