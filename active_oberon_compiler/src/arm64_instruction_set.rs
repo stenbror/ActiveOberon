@@ -524,9 +524,10 @@ pub struct Mnemonic {
     last_instruction_format: Encoding
 }
 
-const MNEMONIC_ARM64: [Mnemonic; 181] = [
+const MNEMONIC_ARM64: [Mnemonic; 182] = [
     Mnemonic { name: "ADC", number: Opcodes::OpAdc, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
     Mnemonic { name: "ADD", number: Opcodes::OpAdd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
+    Mnemonic { name: "AND", number: Opcodes::OpAdd, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
     Mnemonic { name: "B", number: Opcodes::OpB, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
     Mnemonic { name: "BIC", number: Opcodes::OpBic, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
     Mnemonic { name: "BKPT", number: Opcodes::OpBkpt, first_instruction_format: Encoding::EncodingSignedImm24, last_instruction_format: Encoding::EncodingAddressingMode1 },
