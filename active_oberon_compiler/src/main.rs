@@ -12,6 +12,7 @@ mod traverse_abstract_syntax_tree;
 mod amd64_instruction_set_neo;
 mod arm64_instruction_set_neo;
 mod riscv_instruction_set_neo;
+mod amd_64_assembler;
 
 use console::style;
 use build_time::{build_time_local};
