@@ -5,13 +5,11 @@
 
 
 enum AMD64Symbols {
-    None,
     Ident(u32, u32, Box<String>),
     Label(u32, u32, Box<String>),
     Number(u32, u32, i64),
     String_(u32, u32, Box<String>),
     Period(u32, u32),
-    SemiColon(u32, u32),
     Colon(u32, u32),
     Comma(u32, u32),
     Plus(u32, u32),
@@ -293,10 +291,6 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
             '.' => {
                 self.next_char();
                 Ok(Box::new(AMD64Symbols::Period(start_pos, self.get_position())))
-            },
-            ';' => {
-                self.next_char();
-                Ok(Box::new(AMD64Symbols::SemiColon(start_pos, self.get_position())))
             },
             ':' => {
                 self.next_char();
@@ -730,6 +724,91 @@ mod tests {
             Ok( x ) => {
                 match *x {
                     AMD64Symbols::RightCurly( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_modulo() {
+        let source = "  %  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Modulo( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_negate() {
+        let source = "  ~  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Negate( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_at() {
+        let source = "  @  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::At( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_dollar() {
+        let source = "  $  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Dollar( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_comment() {
+        let source = "; This is a simple comment!".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::EndOfFile( 27 ) => assert!(true),
                     _ => { assert!(false) }
                 }
             },
