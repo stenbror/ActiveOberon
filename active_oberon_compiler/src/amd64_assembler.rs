@@ -4,6 +4,7 @@
 // Inline assembler for X86-64 module for compiling and linking of projects written in ActiveOberon language
 
 
+#[derive(Clone, PartialEq, Debug)]
 enum AMD64Symbols {
     Ident(u32, u32, Box<String>),
     Label(u32, u32, Box<String>),
@@ -26,11 +27,23 @@ enum AMD64Symbols {
     RightCurly(u32, u32),
     At(u32, u32),
     Dollar(u32, u32),
-    EndOfFile(u32)
+    EndOfFile(u32),
+    None
 }
 
+#[derive(Clone, PartialEq, Debug)]
 enum AMD64Node {
-    None
+    Number(u32, u32, i64),
+    String(u32, u32, Box<String>),
+    Ident(u32, u32, Box<String>),
+    Times(u32, u32, Box<AMD64Node>, Box<AMD64Symbols>, Box<AMD64Node>),
+    Div(u32, u32, Box<AMD64Node>, Box<AMD64Symbols>, Box<AMD64Node>),
+    Modulo(u32, u32, Box<AMD64Node>, Box<AMD64Symbols>, Box<AMD64Node>),
+    Minus(u32, u32, Box<AMD64Node>, Box<AMD64Symbols>, Box<AMD64Node>),
+    Plus(u32, u32, Box<AMD64Node>, Box<AMD64Symbols>, Box<AMD64Node>),
+    UnaryMinus(u32, u32, Box<AMD64Symbols>, Box<AMD64Node>),
+    UnaryPlus(u32, u32, Box<AMD64Symbols>, Box<AMD64Node>),
+    Negate(u32, u32, Box<AMD64Symbols>, Box<AMD64Node>),
 }
 
 
@@ -48,12 +61,17 @@ pub trait AssemblerAMD64Methods {
     fn factor(&mut self) -> Result<Box<AMD64Node>, Box<String>>;
     fn term(&mut self) -> Result<Box<AMD64Node>, Box<String>>;
     fn expression(&mut self) -> Result<Box<AMD64Node>, Box<String>>;
+
+
+    fn assemble(&mut self) -> Result<Box<Vec<u8>>, Box<String>>;
+    fn advance(&mut self) -> ();
 }
 
 pub struct AssemblerAMD64 {
     buffer: Vec<char>,	/* Sourcecode as a vector of chars */
     start_pos: u32,		/* Start of current analyzed symbol */
-    index: u32			/* Position into vector */
+    index: u32,			/* Position into vector */
+    symbol: Result<Box<AMD64Symbols>, Box<String>>
 }
 
 impl AssemblerAMD64Methods for AssemblerAMD64 {
@@ -61,7 +79,8 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
         AssemblerAMD64 {
             buffer: text,
             start_pos: offset_position,
-            index: 0
+            index: 0,
+            symbol: Ok(Box::new(AMD64Symbols::None))
         }
     }
 
@@ -387,6 +406,128 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
 
     fn expression(&mut self) -> Result<Box<AMD64Node>, Box<String>> {
         todo!()
+    }
+
+    /// Entry point for inline assemble of block of code in AMD64 instruction set
+    fn assemble(&mut self) -> Result<Box<Vec<u8>>, Box<String>> {
+
+        self.advance();
+
+        match *self.symbol.clone()? {
+            AMD64Symbols::LeftCurly( _ , _ ) => {
+                self.advance();
+
+                loop {
+                    match *self.symbol.clone()? {
+                        AMD64Symbols::Ident( _ , _ , t ) => {
+                            match &*t.as_str() {
+                                "SYSTEM" => {
+                                    self.advance();
+
+                                    match *self.symbol.clone()? {
+                                        AMD64Symbols::Period( _ , _ )  => self.advance(),
+                                        _ => return Err(Box::new(format!("Identifier missing in assembler code at position: '{}'", self.get_position())))
+                                    }
+
+                                    match *self.symbol.clone()? {
+                                        AMD64Symbols::Ident( _ , _ , t ) => {
+                                            // Check for valid cpu types.........
+                                        },
+                                        _ => ()
+                                    }
+
+                                    match *self.symbol.clone()? {
+                                        AMD64Symbols::RightCurly( _ , _ ) => break,
+                                        AMD64Symbols::Comma( _ , _ ) => self.advance(),
+                                        _ => return Err(Box::new(format!("Target identifier expected in assembler code at position: '{}'", self.get_position())))
+                                    }
+
+                                    self.advance()
+                                },
+                                _ => return Err(Box::new(format!("Unsupported target identifier in assembler code at position: '{}'", self.get_position())))
+                            }
+                        },
+                        _ => return Err(Box::new(format!("Missing target identifier in assembler code at position: '{}'", self.get_position())))
+                    }
+                }
+            },
+            _ => ()
+        }
+
+        loop {
+            match *self.symbol.clone()? {
+                AMD64Symbols::Ident(s, e, t) => {
+                    match &*t.as_str() {
+                        "BITS" => {
+
+                        },
+                        "ALIGN" => {
+
+                        },
+                        "CPU" => {
+
+                        },
+                        "ABSOLUTE" => {
+
+                        },
+                        "ORG" => {
+
+                        },
+                        "RESB" => {
+
+                        },
+                        "RESW" => {
+
+                        },
+                        "RESD" => {
+
+                        },
+                        "EQU" => {
+
+                        },
+                        "TIMES" => {
+
+                        },
+                        "DB" => {
+
+                        },
+                        "DD" => {
+
+                        },
+                        "DQ" => {
+
+                        },
+                        "REP" => {
+
+                        },
+                        "LOCK" => {
+
+                        },
+                        "REPE" => {
+
+                        },
+                        "REPZ" => {
+
+                        },
+                        "REPNE" => {
+
+                        },
+                        "REPNZ" => {
+
+                        },
+                        _ => return Err(Box::new(format!("Expected identifier in assembler code at position: '{}'", self.get_position())))
+                    }
+                },
+                AMD64Symbols::EndOfFile( _ ) => break,
+                _ => return Err(Box::new(format!("Invalid symbol in inline assembler at position: '{}'", self.get_position())))
+            }
+        }
+
+        Ok(Box::new(Vec::<u8>::new()))
+    }
+
+    fn advance(&mut self) -> () {
+        self.symbol = self.get_symbol();
     }
 }
 
