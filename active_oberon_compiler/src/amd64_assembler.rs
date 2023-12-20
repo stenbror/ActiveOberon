@@ -201,34 +201,34 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
                 for el in text.chars() {
                     match el {
                         '0' => {
-                            value = value * 0x10 + 0
+                            value = value * 10
                         },
                         '1' => {
-                            value = value * 0x10 + 1
+                            value = value * 10 + 1
                         },
                         '2' => {
-                            value = value * 0x10 + 2
+                            value = value * 10 + 2
                         },
                         '3' => {
-                            value = value * 0x10 + 3
+                            value = value * 10 + 3
                         },
                         '4' => {
-                            value = value * 0x10 + 4
+                            value = value * 10 + 4
                         },
                         '5' => {
-                            value = value * 0x10 + 5
+                            value = value * 10 + 5
                         },
                         '6' => {
-                            value = value * 0x10 + 6
+                            value = value * 10 + 6
                         },
                         '7' => {
-                            value = value * 0x10 + 7
+                            value = value * 10 + 7
                         },
                         '8' => {
-                            value = value * 0x10 + 8
+                            value = value * 10 + 8
                         },
                         '9' => {
-                            value = value * 0x10 + 9
+                            value = value * 10 + 9
                         },
                         _ => {
                             return Err(Box::new(format!("Found hex digit in non hex number at position: '{}'", self.get_position())))
@@ -253,7 +253,9 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
                     break
                 },
                 '\0' => break,
-                _ => ()
+                _ => {
+                    text.push(self.get_char())
+                }
             }
             self.next_char()
         }
@@ -430,6 +432,82 @@ mod tests {
                 match *x {
                     AMD64Symbols::Label( 0, 7, t ) => {
                         assert_eq!(*t, String::from("_test1"))
+                    },
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_string() {
+        let source = "'Hello, World!'".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::String_( 0, 14, t ) => {
+                        assert_eq!(*t, String::from("'Hello, World!'"))
+                    },
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_number_hex_7fh() {
+        let source = "7FH".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Number( 0, 3, t ) => {
+                        assert_eq!(t, 0x7f)
+                    },
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_number_hex_7fabx() {
+        let source = "7fabX".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Number( 0, 5, t ) => {
+                        assert_eq!(t, 0x7fab)
+                    },
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_number_1000() {
+        let source = "1000".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Number( 0, 4, t ) => {
+                        assert_eq!(t, 1000)
                     },
                     _ => { assert!(false) }
                 }
