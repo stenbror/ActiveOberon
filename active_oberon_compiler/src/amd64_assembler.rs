@@ -69,7 +69,27 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
     }
 
     fn skip_whitespace(&mut self) -> () {
-        todo!()
+        loop {
+            match self.get_char() {
+                ' ' | '\t' => {
+                    self.next_char();
+                    continue
+                }, /* Remove whitespace */
+                ';' => { /* Remove comments */
+                    loop {
+                        self.next_char();
+                        match self.get_char() {
+                            '\r' | '\n' | '\0' => break,
+                            _ => {
+                                self.next_char()
+                            }
+                        }
+                    }
+                    break
+                },
+                _ => break
+            }
+        }
     }
 
     fn get_ident(&mut self) -> Box<String> {
