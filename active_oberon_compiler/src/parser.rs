@@ -1305,6 +1305,7 @@ impl StatementRules for Parser {
 				let symbol1 = self.symbol.clone()?;
 				self.advance();
 
+				let code_bytes = self.lexer.slice_assembler_code();
 				// Insert inline assembler parser here ....
 
 				match self.symbol.clone()? {

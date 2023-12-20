@@ -138,6 +138,7 @@ pub trait ScannerMethods
 	fn peek_symbol(&mut self) -> Result<Symbols, Box<std::string::String>>;
 	fn is_reserved_keyword(&self, start : u32, end: u32, keyword: &str) -> Option<Symbols>;
 	fn is_string_or_character(&mut self) -> Result<Symbols, Box<std::string::String>>;
+	fn slice_assembler_code(&mut self) -> Box<Vec<char>>;
 }
 
 pub struct Scanner
@@ -859,6 +860,35 @@ impl ScannerMethods for Scanner
 				Ok(Symbols::String(self.start_pos, self.index, Box::new(buffer)))
 			}
 		}
+	}
+
+	fn slice_assembler_code(&mut self) -> Box<Vec<char>> {
+		let start: usize = self.index as usize;
+		let max = self.length() as usize;
+		let mut cur : usize = start;
+		let mut end = start;
+
+		loop {
+			if max - 3 > cur {
+				match ( self.buffer[cur as usize], self.buffer[(cur + 1) as usize], self.buffer[(cur + 2) as usize] ) {
+					( 'E' , 'N', 'D' ) => {
+						end = cur - 1;
+						break;
+					},
+					_ => {
+						cur += 1;
+					}
+				}
+			}
+			else {
+				end = self.length() as usize - 1;
+				break;
+			}
+		}
+
+		self.index = cur as u32;
+
+		Box::new(self.buffer[ start ..= end].to_vec())
 	}
 }
 
