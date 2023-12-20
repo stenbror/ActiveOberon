@@ -3,6 +3,7 @@
 // Written by Richard Magnor Stenbro. Licensed under GPL v3
 // Inline assembler for X86-64 module for compiling and linking of projects written in ActiveOberon language
 
+use crate::amd64_instruction_set_neo::{CpuFlags, CPU_8086, CPU_186, CPU_286, CPU_486, CPU_386, CPU_PENTIUM, CPU_KATMAI, CPU_WILLAMETTE, CPU_PRESCOTT, CPU_AMD64, CPU_PROTECTED, CPU_PRIVILEGED, CPU_SSE, CPU_SSE2, CPU_SSE3, CPU_3DNOW, CPU_MMX, CPU_FPU};
 
 #[derive(Clone, PartialEq, Debug)]
 enum AMD64Symbols {
@@ -27,12 +28,14 @@ enum AMD64Symbols {
     RightCurly(u32, u32),
     At(u32, u32),
     Dollar(u32, u32),
+    NewLine(u32, u32),
     EndOfFile(u32),
     None
 }
 
 #[derive(Clone, PartialEq, Debug)]
 enum AMD64Node {
+    None,
     Number(u32, u32, i64),
     String(u32, u32, Box<String>),
     Ident(u32, u32, Box<String>),
@@ -65,6 +68,7 @@ pub trait AssemblerAMD64Methods {
 
     fn assemble(&mut self) -> Result<Box<Vec<u8>>, Box<String>>;
     fn advance(&mut self) -> ();
+    fn skip_line(&mut self) -> Result<Box<AMD64Node>, Box<String>>;
 }
 
 pub struct AssemblerAMD64 {
@@ -386,11 +390,11 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
                     },
                     _ => ()
                 }
-                self.get_symbol()
+                Ok(Box::new(AMD64Symbols::NewLine(start_pos, self.get_position())))
             },
             '\n' => {
                 self.next_char();
-                self.get_symbol()
+                Ok(Box::new(AMD64Symbols::NewLine(start_pos, self.get_position())))
             },
             _ => Err(Box::new(format!("Invalid symbol in inline assembler at position: '{}'", self.get_position())))
         }
@@ -410,9 +414,11 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
 
     /// Entry point for inline assemble of block of code in AMD64 instruction set
     fn assemble(&mut self) -> Result<Box<Vec<u8>>, Box<String>> {
+        let mut flags : CpuFlags = 0;
 
         self.advance();
 
+        // Flags handling for setting CPU type and supported opcodes
         match *self.symbol.clone()? {
             AMD64Symbols::LeftCurly( _ , _ ) => {
                 self.advance();
@@ -431,22 +437,50 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
 
                                     match *self.symbol.clone()? {
                                         AMD64Symbols::Ident( _ , _ , t ) => {
-                                            // Check for valid cpu types.........
+                                            match &*t.as_str() {
+                                                "CPU_8086" => flags |= CPU_8086,
+                                                "CPU_186" => flags |= CPU_186,
+                                                "CPU_286" => flags |= CPU_286,
+                                                "CPU_386" => flags |= CPU_386,
+                                                "CPU_486" => flags |= CPU_486,
+                                                "CPU_PENTIUM" => flags |= CPU_PENTIUM,
+                                                "CPU_KATMAI" => flags |= CPU_KATMAI,
+                                                "CPU_WILLAMETTE" => flags |= CPU_WILLAMETTE,
+                                                "CPU_PRESCOTT" => flags |= CPU_PRESCOTT,
+                                                "CPU_AMD64" => flags |= CPU_AMD64,
+                                                "PROTECTED" => flags |= CPU_PROTECTED,
+                                                "PRIVILEGED" => flags |= CPU_PRIVILEGED,
+                                                "CPU_SSE" => flags |= CPU_SSE,
+                                                "CPU_SSE2" => flags |= CPU_SSE2,
+                                                "CPU_SSE3" => flags |= CPU_SSE3,
+                                                "CPU_3DNOW" => flags |= CPU_3DNOW,
+                                                "CPU_MMX" => flags |= CPU_MMX,
+                                                "CPU_FPU" => flags |= CPU_FPU,
+                                                _ => return Err(Box::new(format!("Unknown CPU type flag in assembler code at position: '{}'", self.get_position())))
+                                            }
+                                            self.advance();
                                         },
                                         _ => ()
                                     }
 
                                     match *self.symbol.clone()? {
-                                        AMD64Symbols::RightCurly( _ , _ ) => break,
-                                        AMD64Symbols::Comma( _ , _ ) => self.advance(),
+                                        AMD64Symbols::RightCurly( _ , _ ) => {
+                                            self.advance();
+                                            break;
+                                        },
+                                        AMD64Symbols::Comma( _ , _ ) => {
+                                            self.advance()
+                                        },
                                         _ => return Err(Box::new(format!("Target identifier expected in assembler code at position: '{}'", self.get_position())))
                                     }
-
-                                    self.advance()
                                 },
                                 _ => return Err(Box::new(format!("Unsupported target identifier in assembler code at position: '{}'", self.get_position())))
                             }
                         },
+                        AMD64Symbols::RightCurly( _ , _ ) => {
+                            self.advance();
+                            break
+                        }
                         _ => return Err(Box::new(format!("Missing target identifier in assembler code at position: '{}'", self.get_position())))
                     }
                 }
@@ -454,12 +488,23 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
             _ => ()
         }
 
+        // High level instructions in assembler language
         loop {
             match *self.symbol.clone()? {
+                AMD64Symbols::NewLine( _ , _ ) => {
+                  self.advance();
+                },
                 AMD64Symbols::Ident(s, e, t) => {
                     match &*t.as_str() {
                         "BITS" => {
-
+                            self.advance();
+                            match *self.symbol.clone()? {
+                                AMD64Symbols::Number( _ , _ , n ) => {
+                                    self.advance();
+                                    // Set BITS to n later!
+                                },
+                                _ => ()
+                            }
                         },
                         "ALIGN" => {
 
@@ -528,6 +573,20 @@ impl AssemblerAMD64Methods for AssemblerAMD64 {
 
     fn advance(&mut self) -> () {
         self.symbol = self.get_symbol();
+    }
+
+    fn skip_line(&mut self) -> Result<Box<AMD64Node>, Box<String>> {
+        loop {
+            match *self.symbol.clone()? {
+                AMD64Symbols::NewLine( _ , _ ) => {
+                    self.advance();
+                    break
+                },
+                AMD64Symbols::EndOfFile( _ ) => break,
+                _ => self.advance()
+            }
+        }
+        Ok(Box::new(AMD64Node::None))
     }
 }
 
@@ -954,6 +1013,48 @@ mod tests {
                 }
             },
             _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_parser_bits_with_flag() {
+        let source = "{} BITS".chars().collect();
+        let mut assembler = AssemblerAMD64::new(source, 0);
+        let res = assembler.assemble();
+
+        let pattern = Box::new(Vec::<u8>::new());
+
+        match res {
+            Ok( x ) => assert_eq!(x, pattern),
+            Err( e ) => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_parser_bits_with_flag_amd64() {
+        let source = "{ SYSTEM.CPU_AMD64 } BITS".chars().collect();
+        let mut assembler = AssemblerAMD64::new(source, 0);
+        let res = assembler.assemble();
+
+        let pattern = Box::new(Vec::<u8>::new());
+
+        match res {
+            Ok( x ) => assert_eq!(x, pattern),
+            Err( e ) => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_parser_bits_with_flag_amd64_and_number() {
+        let source = "{ SYSTEM.CPU_AMD64, SYSTEM.CPU_SSE3 } BITS 64".chars().collect();
+        let mut assembler = AssemblerAMD64::new(source, 0);
+        let res = assembler.assemble();
+
+        let pattern = Box::new(Vec::<u8>::new());
+
+        match res {
+            Ok( x ) => assert_eq!(x, pattern),
+            Err( e ) => assert!(false)
         }
     }
 }

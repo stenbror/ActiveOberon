@@ -4,27 +4,27 @@
 // Instruction set for X86-64 module for compiling and linking of projects written in ActiveOberon language
 
 
-const CPU_8086 : u32 = 0;
-const CPU_186 : u32 = 1;
-const CPU_286 : u32 = 2;
-const CPU_386 : u32 = 4;
-const CPU_486 : u32 = 8;
-const CPU_PENTIUM : u32 = 16;
-const CPU_P6 : u32 = 32;
-const CPU_KATMAI : u32 = 64;
-const CPU_WILLAMETTE : u32 = 128;
-const CPU_PRESCOTT : u32 = 256;
-const CPU_AMD64 : u32 = 512;
-const CPU_PROTECTED : u32 = 1024;
-const CPU_PRIVILEGED : u32 = 2048;
-const CPU_SSE : u32 = 4096;
-const CPU_SSE2 : u32 = 8192;
-const CPU_SSE3 : u32 = 16384;
-const CPU_3DNOW : u32 = 32768;
-const CPU_MMX : u32 = 65536;
-const CPU_FPU : u32 = 131072;
+pub const CPU_8086 : u32 = 0;
+pub const CPU_186 : u32 = 1;
+pub const CPU_286 : u32 = 2;
+pub const CPU_386 : u32 = 4;
+pub const CPU_486 : u32 = 8;
+pub const CPU_PENTIUM : u32 = 16;
+pub const CPU_P6 : u32 = 32;
+pub const CPU_KATMAI : u32 = 64;
+pub const CPU_WILLAMETTE : u32 = 128;
+pub const CPU_PRESCOTT : u32 = 256;
+pub const CPU_AMD64 : u32 = 512;
+pub const CPU_PROTECTED : u32 = 1024;
+pub const CPU_PRIVILEGED : u32 = 2048;
+pub const CPU_SSE : u32 = 4096;
+pub const CPU_SSE2 : u32 = 8192;
+pub const CPU_SSE3 : u32 = 16384;
+pub const CPU_3DNOW : u32 = 32768;
+pub const CPU_MMX : u32 = 65536;
+pub const CPU_FPU : u32 = 131072;
 
-type CpuFlags = u32;
+pub type CpuFlags = u32;
 
 
 /// Encode a single assembler instructions with operands
