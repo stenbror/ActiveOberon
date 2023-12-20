@@ -515,4 +515,225 @@ mod tests {
             _ => assert!(false)
         }
     }
+
+    #[test]
+    fn test_assembler_amd64_lexer_plus() {
+        let source = "  +  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Plus( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_minus() {
+        let source = "  -  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Minus( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_times() {
+        let source = "  *  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Times( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_div() {
+        let source = "  /  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Div( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_period() {
+        let source = "  .  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Period( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_comma() {
+        let source = "  ,  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Comma( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_colon() {
+        let source = "  :  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::Colon( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_left_paren() {
+        let source = "  (  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::LeftParen( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_left_bracket() {
+        let source = "  [  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::LeftBracket( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_left_curly() {
+        let source = "  {  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::LeftCurly( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_right_paren() {
+        let source = "  )  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::RightParen( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_right_bracket() {
+        let source = "  ]  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::RightBracket( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_assembler_amd64_lexer_right_curly() {
+        let source = "  }  ".chars().collect();
+        let mut lexer = AssemblerAMD64::new(source, 0);
+        let res = lexer.get_symbol();
+
+        match res {
+            Ok( x ) => {
+                match *x {
+                    AMD64Symbols::RightCurly( 2, 3 ) => assert!(true),
+                    _ => { assert!(false) }
+                }
+            },
+            _ => assert!(false)
+        }
+    }
 }
