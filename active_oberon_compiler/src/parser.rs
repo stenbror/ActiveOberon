@@ -5,6 +5,7 @@
 
 use console::style;
 use crate::scanner::{Scanner, ScannerMethods, Symbols};
+use crate::amd64_assembler::{ AssemblerAMD64, AssemblerAMD64Methods };
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Node {
@@ -90,7 +91,7 @@ pub enum Node {
 	Exit( u32, u32, Box<Symbols> ),
 	Return( u32, u32, Box<Symbols>, Option<Box<Node>> ),
 	Await( u32, u32, Box<Symbols>, Box<Node> ),
-	Code( u32, u32, Box<Symbols>, Box<Vec<Box<Node>>>, Box<Symbols> ),
+	Code( u32, u32, Box<Symbols>, Box<Vec<u8>>, Box<Symbols> ),
 	Ignore( u32, u32, Box<Symbols>, Box<Node> ),
 	BecomesStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
 	ExclaimMarkStatement( u32, u32, Box<Node>, Box<Symbols>, Box<Node> ),
@@ -1305,8 +1306,11 @@ impl StatementRules for Parser {
 				let symbol1 = self.symbol.clone()?;
 				self.advance();
 
-				let code_bytes = self.lexer.slice_assembler_code();
-				// Insert inline assembler parser here ....
+				let code_bytes = *self.lexer.slice_assembler_code();
+
+				// This need to be controlled by argument, which assembler to use, later!
+				let mut assembler = AssemblerAMD64::new(code_bytes, self.lexer.get_start_position());
+				let code = assembler.assemble()?;
 
 				match self.symbol.clone()? {
 					Symbols::End( _ , _ ) => (),
@@ -1314,7 +1318,7 @@ impl StatementRules for Parser {
 				}
 				let symbol2 = self.symbol.clone()?;
 				self.advance();
-				Ok( Box::new(Node::Code(start_pos, self.lexer.get_start_position(), Box::new(symbol1), Box::new(Vec::<Box<Node>>::new()), Box::new(symbol2))) )
+				Ok( Box::new(Node::Code(start_pos, self.lexer.get_start_position(), Box::new(symbol1), code, Box::new(symbol2))) )
 			},
 			Symbols::Ignore( _ , _ ) => {
 				let symbol1 = self.symbol.clone()?;
@@ -5066,7 +5070,7 @@ mod tests {
 
 		let pattern = Box::new( Node::Code(0, 8,
 													 Box::new( Symbols::Code(0,4) ),
-													 Box::new(Vec::<Box<Node>>::new()),
+													 Box::new(Vec::<u8>::new()),
 													 Box::new( Symbols::End(5, 8) )
 		) );
 
